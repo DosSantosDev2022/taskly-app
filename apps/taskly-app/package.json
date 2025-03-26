@@ -1,0 +1,21 @@
+{
+	"name": "taskly-app",
+	"version": "1.0.0",
+	"private": true,
+	"author": {
+		"name": "Juliano Santos",
+		"email": "dossantosdevoficial@gmail.com"
+	},
+	"description": "Collaborative project management system",
+
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start"
+	},
+	"dependencies": {
+		"@repo/typescript-config": "workspace:*",
+		"@repo/ui": "workspace:*",
+		"prisma": "^6.5.0"
+	}
+}
