@@ -1,0 +1,3 @@
+echo 'Check for linting errors and run format biome js before commiting...'
+pnpm lint-staged
+echo 'Done'
