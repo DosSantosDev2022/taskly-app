@@ -18,9 +18,9 @@ const TextArea = forwardRef<
 			{...props}
 			ref={ref}
 			className={twMerge(
-				'w-full rounded border border-border bg-transparent px-3 py-4 font-light text-muted-foreground',
-				'outline-none placeholder:text-muted-foreground',
-				'transition-all duration-300',
+				'w-full rounded border border-border px-3 py-4 font-light',
+				'bg-input text-muted-foreground placeholder:text-muted-foreground',
+				'transition-all duration-300 outline-none',
 				variantClasses[variants],
 				className,
 			)}

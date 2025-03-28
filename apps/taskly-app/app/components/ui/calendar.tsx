@@ -3,7 +3,7 @@ import { format, isSameDay } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from './button'
-import { type CalendarProps, useCalendar } from '../hooks/useCalendar'
+import { type CalendarProps, useCalendar } from '../../hooks/useCalendar'
 import { v4 as uuidv4 } from 'uuid'
 
 const Calendar = ({ value, onChange, range }: CalendarProps) => {

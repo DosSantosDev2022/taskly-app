@@ -31,7 +31,7 @@ const variantClasses = {
 	outline:
 		'text-accent bg-accent-foreground hover:bg-accent-hover hover:text-accent-foreground',
 	ghost:
-		'bg-background text-foreground hover:bg-muted-hover select-none outline-none focus:bg-muted-hover',
+		'bg-background text-muted-foreground hover:bg-muted-hover select-none outline-none focus:bg-muted-hover',
 	accent: 'text-accent-foreground hover:bg-accent-hover  bg-accent',
 	disabled: 'bg-opacity-70 bg-accent text-accent-foreground',
 	link: 'bg-transparent border-none underline-offset-4 hover:underline text-muted-foreground',
@@ -45,8 +45,8 @@ const variantClasses = {
 }
 const sizeClasses = {
 	xs: 'h-10 w-24 text-sm',
-	sm: 'h-10 w-28 text-sm',
-	lg: 'h-10 w-28 text-lg',
+	sm: 'h-12 w-28 text-sm',
+	lg: 'h-14 w-28 text-lg',
 	icon: 'h-8 w-8 p-1',
 	full: 'h-10 w-full text-lg',
 }
@@ -69,7 +69,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 				twMerge(
 					variantClasses[variants],
 					sizeClasses[sizes],
-					'appearance-none rounded-md px-2 py-1.5 flex gap-1 duration-300 transition-all',
+					'appearance-none rounded-md px-2 py-1.5 flex gap-1 duration-300 transition-all active:scale-95 cursor-pointer',
 					' items-center justify-center font-normal ring-offset-background disabled:pointer-events-none disabled:opacity-60',
 					'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 					className,
