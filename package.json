@@ -4,17 +4,15 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"format": "npx @biomejs/biome format --write apps/web/src apps/taskly-app/src packages/ui/src",
-		"lint": "npx @biomejs/biome lint apps/web/src apps/taskly-app/src packages/ui/src",
-		"lint-fix": "npx @biomejs/biome lint --fix apps/web/src apps/taskly-app/src packages/ui/src",
-		"check": "npx @biomejs/biome check --write apps/web/src apps/taskly-app/src packages/ui/src",
+		"format": "npx @biomejs/biome format --write apps/web/app apps/taskly-app/app",
+		"lint": "npx @biomejs/biome lint apps/web/app apps/taskly-app/app",
+		"lint-fix": "npx @biomejs/biome lint --fix apps/web/app apps/taskly-app/app",
+		"check": "npx @biomejs/biome check apps/web/app apps/taskly-app/app",
 		"prepare": "husky",
 		"test": "vitest"
 	},
 	"commitlint": {
-		"extends": [
-			"@commitlint/config-conventional"
-		]
+		"extends": ["@commitlint/config-conventional"]
 	},
 	"lint-staged": {
 		"**.{js|ts|cjs|mjs|d.cts|d.mts|jsx|tsx|json|jsonc}": [
@@ -46,7 +44,6 @@
 		"@tailwindcss/postcss": "^4.0.16",
 		"date-fns": "^4.1.0",
 		"lucide-react": "^0.484.0",
-		"next": "^15.2.1",
 		"postcss": "^8.5.3",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",

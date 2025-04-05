@@ -14,8 +14,8 @@
 		"start": "next start"
 	},
 	"dependencies": {
-		"@repo/ui": "workspace:*",
-		"@repo/typescript-config": "workspace:*"
+		"@repo/typescript-config": "workspace:*",
+		"next": "^15.2.1"
 	},
 	"devDependencies": {}
 }
