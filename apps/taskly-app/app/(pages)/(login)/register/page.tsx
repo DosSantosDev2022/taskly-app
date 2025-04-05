@@ -1,8 +1,6 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui'
-import Image from 'next/image'
-import logoGoogle from '@/assets/icons/google.png'
-import { FormField } from '@/components/global/formField'
+import { Button, Input } from '@/components/ui'
+import { LoginWithGoogle } from '@/components/global/LoginWithGoogle'
 
 export default function Login() {
 	return (
@@ -17,36 +15,30 @@ export default function Login() {
 
 				<form action=''>
 					<div className='space-y-2.5'>
-						<FormField
-							label='Nome'
-							type='text'
-							placeholder='Digite o seu nome'
-						/>
+						<div className='flex flex-col space-y-1'>
+							<label htmlFor={''} className='text-sm font-medium'>
+								Nome
+							</label>
+							<Input placeholder='Digite o seu nome' />
+						</div>
 
-						<FormField
-							label='Email'
-							type='email'
-							placeholder='Digite o seu e-mail'
-						/>
+						<div className='flex flex-col space-y-1'>
+							<label htmlFor={''} className='text-sm font-medium'>
+								Email
+							</label>
+							<Input placeholder='Digite o seu e-mail' />
+						</div>
 
-						<FormField
-							label='Senha'
-							type='password'
-							placeholder='Digite sua senha'
-						/>
+						<div className='flex flex-col space-y-1'>
+							<label htmlFor={''} className='text-sm font-medium'>
+								Senha
+							</label>
+							<Input placeholder='Digite sua senha' />
+						</div>
 
 						<div className='w-full flex flex-col space-y-3'>
 							<Button sizes='full'>Cadastrar</Button>
-							<Button className='space-x-2' variants='ghost' sizes='full'>
-								<Image
-									width={26}
-									height={26}
-									quality={100}
-									alt=''
-									src={logoGoogle}
-								/>
-								<span>Cadastrar com Google</span>
-							</Button>
+							<LoginWithGoogle label='Cadastrar com Google' />
 
 							<div className='flex flex-col items-center justify-center w-full p-1 space-y-1'>
 								<span className='text-muted-foreground'>

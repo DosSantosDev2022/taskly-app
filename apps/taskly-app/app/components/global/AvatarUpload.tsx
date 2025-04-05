@@ -1,9 +1,17 @@
 import { UploadCloud } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '../ui'
+import type { UseFormSetValue, UseFormWatch } from 'react-hook-form'
 
-const AvatarUpload = () => {
-	const [image, setImage] = useState<string | null>(null)
+interface AvatarUploadProps {
+	name: string
+	setValue: UseFormSetValue<any>
+	watch: UseFormWatch<any>
+}
+
+const AvatarUpload = ({ name, setValue, watch }: AvatarUploadProps) => {
+	const [preview, setPreview] = useState<string | null>(null)
+	const image = watch(name)
 
 	const handleImageChange = (
 		event: React.ChangeEvent<HTMLInputElement>,
@@ -13,7 +21,9 @@ const AvatarUpload = () => {
 		if (file) {
 			const reader = new FileReader()
 			reader.onloadend = () => {
-				setImage(reader.result as string)
+				const result = reader.result as string
+				setPreview(result)
+				setValue(name, result)
 			}
 			reader.readAsDataURL(file)
 		}
@@ -26,10 +36,10 @@ const AvatarUpload = () => {
 					Avatar
 				</h2>
 				<div className='border-2 border-dashed border-border rounded-full overflow-hidden flex justify-center items-center bg-input relative w-18 h-18 mx-auto'>
-					{image ? (
+					{preview || image ? (
 						<img
-							src={image}
-							alt='Uploaded'
+							src={preview || image}
+							alt='Avatar'
 							className='w-full h-full object-cover'
 						/>
 					) : (

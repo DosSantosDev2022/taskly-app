@@ -44,8 +44,8 @@ model User {
   description   String? // optional
   email         String    @unique
   emailVerified DateTime? @map("email_verified")
-  password      String
-  avatarImage   String? // optional
+  password      String? // optional
+  image         String? // optional
   coverImage    String? // optional
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -242,14 +242,15 @@ model Subscription {
 }
 
 model Team {
-  id          String       @id @default(uuid())
-  name        String
-  avatarImage String? // opitional
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  projects    Project[]
-  members     TeamMember[]
-  Task        Task[]
+  id              String       @id @default(uuid())
+  teamName        String?
+  teamDescription String?
+  teamAvatarImage String? // opitional
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  projects        Project[]
+  members         TeamMember[]
+  Task            Task[]
 }
 
 model TeamMember {

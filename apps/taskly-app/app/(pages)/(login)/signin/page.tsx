@@ -1,8 +1,6 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui'
-import Image from 'next/image'
-import logoGoogle from '@/assets/icons/google.png'
-import { FormField } from '@/components/global/formField'
+import { Button, Input } from '@/components/ui'
+import { LoginWithGoogle } from '@/components/global/LoginWithGoogle'
 
 export default function Login() {
 	return (
@@ -15,19 +13,21 @@ export default function Login() {
 					</span>
 				</div>
 
-				<form action=''>
+				<form>
 					<div className='space-y-2.5'>
-						<FormField
-							label='Email'
-							type='email'
-							placeholder='Digite o seu e-mail'
-						/>
+						<div className='flex flex-col space-y-1'>
+							<label htmlFor={''} className='text-sm font-medium'>
+								Email
+							</label>
+							<Input placeholder='Digite o seu e-mail' />
+						</div>
+						<div className='flex flex-col space-y-1'>
+							<label htmlFor={''} className='text-sm font-medium'>
+								Senha
+							</label>
+							<Input placeholder='Digite sua senha' />
+						</div>
 
-						<FormField
-							label='Senha'
-							type='password'
-							placeholder='Digite sua senha'
-						/>
 						<div className='p-1'>
 							<Link
 								className='text-muted-foreground text-sm hover:text-primary duration-300 transition-colors'
@@ -38,16 +38,7 @@ export default function Login() {
 						</div>
 						<div className='w-full flex flex-col space-y-2'>
 							<Button sizes='full'>Login</Button>
-							<Button className='space-x-2' variants='ghost' sizes='full'>
-								<Image
-									width={26}
-									height={26}
-									quality={100}
-									alt=''
-									src={logoGoogle}
-								/>
-								<span>Entrar com Google</span>
-							</Button>
+							<LoginWithGoogle label='Entrar com Google' />
 
 							<div className='flex flex-col items-center justify-center w-full p-1 space-y-1'>
 								<span className='text-muted-foreground'>
