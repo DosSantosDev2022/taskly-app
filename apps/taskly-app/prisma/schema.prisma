@@ -38,17 +38,18 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String
-  surname       String? // optional
-  description   String? // optional
-  email         String    @unique
-  emailVerified DateTime? @map("email_verified")
-  password      String? // optional
-  image         String? // optional
-  coverImage    String? // optional
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  name              String
+  surname           String? // optional
+  description       String? // optional
+  email             String    @unique
+  emailVerified     DateTime? @map("email_verified")
+  verificationToken String?   @unique
+  password          String? // optional
+  image             String? // optional
+  coverImage        String? // optional
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   projects       Project[]
   tasks          Task[]
