@@ -60,8 +60,9 @@ export default function Register() {
 				<form onSubmit={handleSubmit(OnSubmit)}>
 					<div className='space-y-2'>
 						<div className='flex flex-col space-y-1'>
-							<Label htmlFor={''}>Nome</Label>
+							<Label htmlFor={'name'}>Nome</Label>
 							<Input
+								id='name'
 								icon={<CircleUserRound size={22} />}
 								placeholder='Digite o seu nome'
 								{...register('name', { required: true })}
@@ -72,8 +73,9 @@ export default function Register() {
 						</div>
 
 						<div className='flex flex-col space-y-1'>
-							<Label htmlFor={''}>Email</Label>
+							<Label htmlFor={'email'}>Email</Label>
 							<Input
+								id='email'
 								icon={<Mail size={22} />}
 								placeholder='Digite um e-mail válido'
 								{...register('email', { required: true })}
@@ -84,8 +86,9 @@ export default function Register() {
 						</div>
 
 						<div className='flex flex-col space-y-1'>
-							<Label htmlFor={''}>Senha</Label>
+							<Label htmlFor={'password'}>Senha</Label>
 							<Input
+								id='password'
 								icon={<LockKeyhole size={22} />}
 								placeholder='Digite sua senha'
 								type='password'

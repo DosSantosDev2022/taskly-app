@@ -50,6 +50,8 @@ export default function Login() {
 						<div className='flex flex-col space-y-1'>
 							<Label htmlFor={'email'}>Email</Label>
 							<Input
+								id='email'
+								type='email'
 								icon={<Mail size={22} />}
 								placeholder='Digite o seu e-mail'
 								{...register('email', { required: true })}
@@ -59,10 +61,12 @@ export default function Login() {
 							)}
 						</div>
 						<div className='flex flex-col space-y-1'>
-							<Label htmlFor={''}>Senha</Label>
+							<Label htmlFor={'password'}>Senha</Label>
 							<Input
+								id='password'
 								icon={<LockKeyhole size={22} />}
 								placeholder='Digite sua senha'
+								type='password'
 								{...register('password', { required: true })}
 							/>
 							{errors.password && (
