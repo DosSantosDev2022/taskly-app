@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import './styles/globals.css'
+import { NotificationProvider } from './context/notificationContext'
 
 const poppins = Poppins({
 	subsets: ['latin'],
@@ -23,7 +24,7 @@ export default function RootLayout({
 			<body
 				className={`${poppins.className} bg-background text-foreground antialiased`}
 			>
-				{children}
+				<NotificationProvider>{children}</NotificationProvider>
 			</body>
 		</html>
 	)

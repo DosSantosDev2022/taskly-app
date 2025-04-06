@@ -1,10 +1,15 @@
 'use client'
 import Link from 'next/link'
-import { Button, Input } from '@/components/ui'
+import { Button, Input, Label } from '@/components/ui'
 import { LoginWithGoogle } from '@/components/global/LoginWithGoogle'
 import { useForm } from 'react-hook-form'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { MessageError } from '@/components/global/forms/FormMessages'
+import { useNotification } from '@/context/notificationContext'
+import { registerUserSchema } from '@/@types/zodSchemas'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Mail, LockKeyhole, CircleUserRound } from 'lucide-react'
 
 interface RegisterFormInputs {
 	name: string
@@ -17,7 +22,10 @@ export default function Register() {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<RegisterFormInputs>()
+	} = useForm<RegisterFormInputs>({
+		resolver: zodResolver(registerUserSchema),
+	})
+	const { showNotification } = useNotification()
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
 
@@ -32,10 +40,10 @@ export default function Register() {
 
 			if (!res.ok) {
 				const err = await res.json()
-				alert('Erro ao cadastrar usuário')
+				showNotification('Erro ao cadastrar usuário, verifique !', 'error')
 				return
 			}
-
+			showNotification('Usuário cadastrado com sucesso', 'success')
 			router.push('/signIn')
 		} catch (error) {
 			console.error(error)
@@ -45,68 +53,56 @@ export default function Register() {
 	}
 
 	return (
-		<div className='max-w-[768px] w-[628px]'>
+		<div className='max-w-3xl w-2xl'>
 			<div className='lg:p-12 p-6 flex flex-col space-y-4'>
-				<div className='space-y-1.5'>
-					<h3 className='font-bold text-3xl'>Crie sua conta</h3>
-					<span className='text-muted-foreground'>
-						Preencha seus dados
-					</span>
-				</div>
+				<h3 className='font-bold text-3xl'>Crie sua conta</h3>
 
 				<form onSubmit={handleSubmit(OnSubmit)}>
-					<div className='space-y-2.5'>
+					<div className='space-y-2'>
 						<div className='flex flex-col space-y-1'>
-							<label htmlFor={''} className='text-sm font-medium'>
-								Nome
-							</label>
+							<Label htmlFor={''}>Nome</Label>
 							<Input
+								icon={<CircleUserRound size={22} />}
 								placeholder='Digite o seu nome'
 								{...register('name', { required: true })}
 							/>
 							{errors.name && (
-								<span className='text-red-500 text-sm'>
-									Nome é obrigatório
-								</span>
+								<MessageError label={errors.name.message as string} />
 							)}
 						</div>
 
 						<div className='flex flex-col space-y-1'>
-							<label htmlFor={''} className='text-sm font-medium'>
-								Email
-							</label>
+							<Label htmlFor={''}>Email</Label>
 							<Input
-								placeholder='Digite o seu e-mail'
+								icon={<Mail size={22} />}
+								placeholder='Digite um e-mail válido'
 								{...register('email', { required: true })}
 							/>
 							{errors.email && (
-								<span className='text-red-500 text-sm'>
-									Email é obrigatório
-								</span>
+								<MessageError label={errors.email.message as string} />
 							)}
 						</div>
 
 						<div className='flex flex-col space-y-1'>
-							<label htmlFor={''} className='text-sm font-medium'>
-								Senha
-							</label>
+							<Label htmlFor={''}>Senha</Label>
 							<Input
+								icon={<LockKeyhole size={22} />}
 								placeholder='Digite sua senha'
 								type='password'
 								{...register('password', { required: true })}
 							/>
 							{errors.password && (
-								<span className='text-red-500 text-sm'>
-									Senha é obrigatória
-								</span>
+								<MessageError label={errors.password.message as string} />
 							)}
 						</div>
 
-						<div className='w-full flex flex-col space-y-3'>
-							<Button type='submit' sizes='full' disabled={loading}>
-								{loading ? 'Cadastrando...' : 'Cadastrar'}
-							</Button>
-							<LoginWithGoogle label='Cadastrar com Google' />
+						<div className='w-full flex flex-col space-y-2'>
+							<div className='flex w-full space-x-1.5'>
+								<Button type='submit' sizes='full' disabled={loading}>
+									{loading ? 'Cadastrando...' : 'Cadastrar'}
+								</Button>
+								<LoginWithGoogle label='Cadastrar com Google' />
+							</div>
 
 							<div className='flex flex-col items-center justify-center w-full p-1 space-y-1'>
 								<span className='text-muted-foreground'>

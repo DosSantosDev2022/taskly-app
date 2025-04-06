@@ -5,7 +5,7 @@ export default function LoginLayout({
 }: { children: ReactNode }) {
 	return (
 		<div className='h-screen flex'>
-			<div className='grid grid-cols-12 p-4 md:p-24 w-full'>
+			<div className='grid grid-cols-12 p-4  w-full'>
 				<div className='flex  flex-col items-center justify-center space-y-3.5 col-span-4 md:col-span-6 p-6 md:p-12 bg-linear-to-r from-primary-hover to-primary rounded-l-3xl'>
 					<div className='flex items-center w-full flex-col space-y-4'>
 						<h1 className='lg:text-9xl md:text-7xl text-6xl font-bold text-primary-foreground'>
