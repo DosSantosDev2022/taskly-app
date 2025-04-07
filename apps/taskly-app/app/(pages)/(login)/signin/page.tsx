@@ -37,7 +37,10 @@ export default function Login() {
 		if (res?.ok) {
 			router.push('/dashboard')
 		} else {
-			showNotification('E-mail e senha inválidos, verifique !', 'error')
+			const errorMessage =
+				res?.error || 'E-mail e senha inválidos, verifique !'
+			const type = errorMessage.includes('verificar') ? 'alert' : 'error'
+			showNotification(errorMessage, type)
 		}
 	}
 
@@ -77,7 +80,7 @@ export default function Login() {
 						<div className='p-1'>
 							<Link
 								className='text-muted-foreground text-sm hover:text-primary duration-300 transition-colors'
-								href={''}
+								href={'/forgot-password'}
 							>
 								Esqueceu sua senha ?
 							</Link>

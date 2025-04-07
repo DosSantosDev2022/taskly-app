@@ -31,6 +31,11 @@ export const authOptions: AuthOptions = {
 					throw new Error('Usuário não encontrado')
 				}
 
+				 // 🚫 Verifica se o e-mail foi verificado
+				 if (!user.emailVerified) {
+					throw new Error('Você precisa verificar seu e-mail antes de fazer login.')
+				}
+
 				const isPasswordValid = await compare(
 					credentials.password,
 					user.password,
@@ -59,7 +64,6 @@ export const authOptions: AuthOptions = {
 			if (token?.sub && session?.user) {
 				session.user.id = token.sub
 			}
-
 			return session
 		},
 	},

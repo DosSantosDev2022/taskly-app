@@ -44,7 +44,7 @@ export default function Register() {
 				return
 			}
 			showNotification('Usuário cadastrado com sucesso', 'success')
-			router.push('/signIn')
+			router.push('/verify-email')
 		} catch (error) {
 			console.error(error)
 		} finally {

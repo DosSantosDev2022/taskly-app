@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
-import './styles/globals.css'
-import { NotificationProvider } from './context/notificationContext'
+import '../styles/globals.css'
+import { NotificationProvider } from '@/context/notificationContext'
 
 const poppins = Poppins({
 	subsets: ['latin'],

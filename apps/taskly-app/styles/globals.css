@@ -57,8 +57,8 @@
 		--warning-foreground: hsl(0 0% 10%);
 		--warning-hover: hsl(47.9 95.8% 42%);
 		--success: hsl(142.1 76.2% 36.3%);
-		--sucess-foreground: hsl(0 0% 100%);
-		--sucess-hover: hsl(142.1 76.2% 30%);
+		--success-foreground: hsl(0 0% 100%);
+		--success-hover: hsl(142.1 76.2% 30%);
 		--border: hsl(220 13% 82%);
 		--input: hsl(220 13% 95%);
 		--ring: hsl(204 77% 47%);

@@ -3,7 +3,7 @@
 	"extends": "./base.json",
 	"compilerOptions": {
 		"paths": {
-			"@/*": ["../../apps/taskly-app/app/*"]
+			"@/*": ["../../apps/taskly-app/*"]
 		},
 		"plugins": [{ "name": "next" }],
 		"module": "ESNext",

@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { db } from '@/lib/prisma'
+import { Resend } from 'resend'
+import { randomBytes } from 'node:crypto'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: Request) {
 	try {
@@ -25,13 +29,33 @@ export async function POST(req: Request) {
 
 		const hashedPassword = await bcrypt.hash(password, 10)
 
+		// gera token de verificação seguro
+		const verificationToken = randomBytes(32).toString('hex')
+
 		// cria o usuário no banco
 		const user = await db.user.create({
 			data: {
 				name,
 				email,
 				password: hashedPassword,
+				verificationToken,
+				emailVerified: null,
 			},
+		})
+
+		// envia o e-mail de verificação
+		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+		const verifyUrl = `${baseUrl}/verify-email?token=${verificationToken}`
+    console.log('🔗 Link de verificação:', verifyUrl)
+		await resend.emails.send({
+			from: process.env.EMAIL_FROM as string,
+			to: email,
+			subject: 'Verifique o seu e-mail',
+			html: `
+				<h2>Bem-vindo, ${name}!</h2>
+				<p>Para ativar sua conta, clique no link abaixo:</p>
+				<a href="${verifyUrl}" target="_blank">Verificar meu e-mail</a>
+			`,
 		})
 
 		return NextResponse.json(user, { status: 201 })

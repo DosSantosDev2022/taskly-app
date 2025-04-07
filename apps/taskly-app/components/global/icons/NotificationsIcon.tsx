@@ -45,19 +45,9 @@ const AlertCircleIcon: React.FC<IconProps> = ({
 			overflow='visible'
 			{...props}
 		>
-			<circle
-				cx={16}
-				cy={16}
-				r={16}
-				fill={fillColor}
-				className='fill-d72828'
-			/>
+			<circle cx={16} cy={16} r={16} fill={fillColor} />
 			<title>{title}</title>
-			<path
-				d='M14.5 25h3v-3h-3v3zm0-19v13h3V6h-3z'
-				fill={pathColor}
-				className='fill-e6e6e6'
-			/>
+			<path d='M14.5 25h3v-3h-3v3zm0-19v13h3V6h-3z' fill={pathColor} />
 		</svg>
 	)
 }

@@ -6,7 +6,7 @@ import { Notification } from '@/components/global/Notification'
 interface NotificationContextType {
 	showNotification: (
 		message: string,
-		type: 'success' | 'error',
+		type: 'success' | 'error' | 'alert',
 		duration?: number,
 	) => void
 }
@@ -30,13 +30,13 @@ export const NotificationProvider = ({
 }: { children: ReactNode }) => {
 	const [notification, setNotification] = useState<{
 		message: string
-		type: 'success' | 'error'
+		type: 'success' | 'error' | 'alert'
 		duration: number
 	} | null>(null)
 
 	const showNotification = (
 		message: string,
-		type: 'success' | 'error',
+		type: 'success' | 'error' | 'alert',
 		duration = 5000,
 	) => {
 		setNotification({ message, type, duration })
