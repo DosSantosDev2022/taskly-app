@@ -1,16 +1,22 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import Register from '@/(pages)/(login)/register/page'
+import Register from '@/app/(pages)/(login)/register/page'
 import { describe, it, vi, beforeEach, expect } from 'vitest'
 import { NotificationProvider } from '@/context/notificationContext'
 import userEvent from '@testing-library/user-event'
-import { useRouter } from 'next/navigation'
+import VerifyEmail from '@/app/(pages)/(login)/verify-email/page'
 
 const push = vi.fn()
 
 vi.mock('next/navigation', () => ({
 	useRouter: () => ({
 		push,
+	}),
+	useSearchParams: () => ({
+		get: (key: string) => {
+			if (key === 'token') return 'fake-verification-token'
+			return null
+		},
 	}),
 }))
 
@@ -72,7 +78,88 @@ describe('Register Page', () => {
 				'/api/register',
 				expect.any(Object),
 			)
-			expect(push).toHaveBeenCalledWith('/signIn')
+			expect(push).toHaveBeenCalledWith('/verify-email')
+		})
+	})
+
+	it('should display verifying email message on /verify-email page', async () => {
+		render(
+			<NotificationProvider>
+				<VerifyEmail />
+			</NotificationProvider>,
+		)
+
+		await waitFor(() => {
+			expect(
+				screen.getByText(/verificando o seu e-mail.../i),
+			).toBeInTheDocument()
+		})
+	})
+
+	it('should show error if no token is provided in the URL', async () => {
+		vi.mock('next/navigation', async () => {
+			const actual =
+				await vi.importActual<typeof import('next/navigation')>(
+					'next/navigation',
+				)
+			return {
+				...actual,
+				useRouter: () => ({
+					push,
+				}),
+				useSearchParams: () => ({
+					get: () => null, // simula ausência de token
+				}),
+			}
+		})
+
+		render(
+			<NotificationProvider>
+				<VerifyEmail />
+			</NotificationProvider>,
+		)
+
+		await waitFor(() => {
+			expect(
+				screen.getByText(/Erro interno ao verificar e-mail/i),
+			).toBeInTheDocument()
+		})
+	})
+
+	it('should show error if token verification fails', async () => {
+		vi.mock('next/navigation', async () => {
+			const actual =
+				await vi.importActual<typeof import('next/navigation')>(
+					'next/navigation',
+				)
+			return {
+				...actual,
+				useRouter: () => ({
+					push,
+				}),
+				useSearchParams: () => ({
+					get: () => 'invalid-token',
+				}),
+			}
+		})
+
+		global.fetch = vi.fn().mockResolvedValueOnce({
+			ok: false,
+			json: vi.fn().mockResolvedValue({
+				error: 'Token inválido ou expirado',
+			}),
+		})
+
+		render(
+			<NotificationProvider>
+				<VerifyEmail />
+			</NotificationProvider>,
+		)
+
+		await waitFor(() => {
+			expect(
+				screen.getByText(/Erro interno ao verificar e-mail/i),
+			).toBeInTheDocument()
 		})
 	})
 

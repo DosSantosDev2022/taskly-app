@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { db } from '@/lib/prisma'
-import { Resend } from 'resend'
 import { randomBytes } from 'node:crypto'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+
 
 export async function POST(req: Request) {
 	try {
@@ -43,19 +42,19 @@ export async function POST(req: Request) {
 			},
 		})
 
-		// envia o e-mail de verificação
-		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+		// envia o e-mail de verificação com resend
+		const baseUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'
 		const verifyUrl = `${baseUrl}/verify-email?token=${verificationToken}`
     console.log('🔗 Link de verificação:', verifyUrl)
-		await resend.emails.send({
-			from: process.env.EMAIL_FROM as string,
-			to: email,
-			subject: 'Verifique o seu e-mail',
-			html: `
-				<h2>Bem-vindo, ${name}!</h2>
-				<p>Para ativar sua conta, clique no link abaixo:</p>
-				<a href="${verifyUrl}" target="_blank">Verificar meu e-mail</a>
-			`,
+		
+		await fetch(`${process.env.NEXT_PUBLIC_URL}/api/verification-email`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: user.name,
+				email: user.email,
+				token: user.verificationToken
+			}),
 		})
 
 		return NextResponse.json(user, { status: 201 })

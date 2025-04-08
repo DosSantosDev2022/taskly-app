@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import Login from '@/(pages)/(login)/signIn/page'
+import Login from '@/app/(pages)/(login)/signIn/page'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { signIn } from 'next-auth/react'
 import { NotificationProvider } from '@/context/notificationContext'
