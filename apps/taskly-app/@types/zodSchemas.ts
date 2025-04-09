@@ -31,8 +31,18 @@ export const codeSchema = z.object({
 
 export const newPasswordSchema = z
   .object({
-    password: z.string().min(8, 'Senha muito curta'),
-    confirmPassword: z.string(),
+    password:   z.string()
+    .min(8,'A senha deve ter no mínimo 8 caracteres')
+    .regex(/[A-Z]/, 'A senha deve conter pelo menos uma letra maiúscula')
+    .regex(/[0-9]/, 'A senha deve conter pelo menos um número')
+    .regex(/[^a-zA-Z0-9]/,
+        'A senha deve conter pelo menos um caractere especial',),
+    confirmPassword:   z.string()
+    .min(8,'A senha deve ter no mínimo 8 caracteres')
+    .regex(/[A-Z]/, 'A senha deve conter pelo menos uma letra maiúscula')
+    .regex(/[0-9]/, 'A senha deve conter pelo menos um número')
+    .regex(/[^a-zA-Z0-9]/,
+        'A senha deve conter pelo menos um caractere especial',)
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'As senhas não coincidem',

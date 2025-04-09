@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 		const verifyUrl = `${baseUrl}/verify-email?token=${verificationToken}`
     console.log('🔗 Link de verificação:', verifyUrl)
 		
-		await fetch(`${process.env.NEXT_PUBLIC_URL}/api/verification-email`, {
+		await fetch(`${process.env.NEXT_PUBLIC_URL}/api/register/verification-email`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({

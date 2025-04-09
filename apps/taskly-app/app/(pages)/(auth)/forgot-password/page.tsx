@@ -24,6 +24,7 @@ import { useNotification } from '@/context/notificationContext'
 export default function ForgotPassword() {
 	const [step, setStep] = useState<Step>('email')
 	const [userEmail, setUserEmail] = useState('')
+	const [resetToken, setResetToken] = useState('')
 	const router = useRouter()
 	const { showNotification } = useNotification()
 
@@ -38,29 +39,88 @@ export default function ForgotPassword() {
 
 	// 1. Enviar código para o e-mail
 	async function handleSendEmail(data: EmailData) {
-		// Simulação (substituir por chamada real ao backend)
-		await new Promise((resolve) => setTimeout(resolve, 1000))
+		try {
+			const response = await fetch('/api/forgot-password', {
+				method: 'POST',
+				headers: { 'Content-type': 'application/json' },
+				body: JSON.stringify({ email: data.email }),
+			})
 
-		setUserEmail(data.email)
-		setStep('code')
+			const result = await response.json()
+
+			if (!response.ok) {
+				emailForm.setError('email', {
+					message: result.error || 'Erro ao enviar e-mail.',
+				})
+				return
+			}
+			showNotification(
+				'Código de verificação enviado com sucesso!',
+				'success',
+			)
+			setUserEmail(data.email)
+			setStep('code')
+		} catch (error) {
+			emailForm.setError('email', {
+				message: 'Erro inesperado, verifique !',
+			})
+		}
 	}
 
 	// 2. Verificar código
 	async function handleVerifyCode(data: CodeData) {
-		// Simulação (verificação do código)
-		if (data.code === '123456') {
+		try {
+			const response = await fetch('/api/forgot-password/verify', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email: userEmail, code: data.code }),
+			})
+
+			const result = await response.json()
+
+			if (!response.ok) {
+				codeForm.setError('code', {
+					message: result.error || 'Código inválido !',
+				})
+				return
+			}
+			showNotification('Código de verificação correto!', 'success')
+			setResetToken(result.token)
 			setStep('new-password')
-		} else {
-			codeForm.setError('code', { message: 'Código inválido' })
+		} catch (error) {
+			codeForm.setError('code', {
+				message: 'Erro inesperado, verifique !',
+			})
 		}
 	}
 
 	// 3. Redefinir a senha
 	async function handleResetPassword(data: NewPasswordData) {
-		// Simular requisição
-		await new Promise((resolve) => setTimeout(resolve, 1000))
-		showNotification('Senha redefinida com sucesso!', 'success')
-		router.push('/signIn')
+		try {
+			const response = await fetch('/api/forgot-password/reset', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					token: resetToken,
+					password: data.password,
+				}),
+			})
+
+			const result = await response.json()
+
+			if (!response.ok) {
+				showNotification(
+					result.error || 'Erro ao redefinir a senha',
+					'error',
+				)
+				return
+			}
+
+			showNotification('Senha redefinida com sucesso!', 'success')
+			router.push('/signIn')
+		} catch (error) {
+			showNotification('Erro inesperado', 'error')
+		}
 	}
 
 	return (
