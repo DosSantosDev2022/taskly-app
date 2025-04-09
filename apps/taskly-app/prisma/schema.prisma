@@ -38,17 +38,18 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String
-  surname       String? // optional
-  description   String? // optional
-  email         String    @unique
-  emailVerified DateTime? @map("email_verified")
-  password      String
-  avatarImage   String? // optional
-  coverImage    String? // optional
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  name              String
+  surname           String? // optional
+  description       String? // optional
+  email             String    @unique
+  emailVerified     DateTime? @map("email_verified")
+  verificationToken String?   @unique
+  password          String? // optional
+  image             String? // optional
+  coverImage        String? // optional
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   projects       Project[]
   tasks          Task[]
@@ -59,8 +60,10 @@ model User {
   subscription   Subscription?
   TeamMember     TeamMember[]
 
-  accounts Account[]
-  sessions Session[]
+  accounts           Account[]
+  sessions           Session[]
+  PasswordResetCode  PasswordResetCode[]
+  PasswordResetToken PasswordResetToken[]
 
   @@index([email])
   @@map("users")
@@ -73,6 +76,25 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+model PasswordResetCode {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
 
 // Status do Projeto (Enum)
@@ -242,14 +264,15 @@ model Subscription {
 }
 
 model Team {
-  id          String       @id @default(uuid())
-  name        String
-  avatarImage String? // opitional
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  projects    Project[]
-  members     TeamMember[]
-  Task        Task[]
+  id              String       @id @default(uuid())
+  teamName        String?
+  teamDescription String?
+  teamAvatarImage String? // opitional
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  projects        Project[]
+  members         TeamMember[]
+  Task            Task[]
 }
 
 model TeamMember {
