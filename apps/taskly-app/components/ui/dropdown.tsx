@@ -62,10 +62,7 @@ const DropDownTrigger = React.forwardRef<
 			aria-expanded={isOpen}
 			{...props}
 			className={twMerge(
-				'flex h-10 w-full items-center justify-start gap-1 rounded border border-border px-2 py-1.5',
-				'transition-all duration-300',
-				'bg-background text-foreground hover:bg-muted-hover',
-				'select-none outline-none focus:bg-muted-hover',
+				'select-none outline-none  cursor-pointer',
 				className,
 			)}
 			ref={ref}
@@ -106,8 +103,8 @@ const DropDownContent = ({
 				data-state={isOpen ? 'open' : 'closed'}
 				{...props}
 				className={twMerge(
-					`${position} mt-0.5 w-full min-w-32 rounded-md border border-border bg-background`,
-					'overflow-hidden transition-all',
+					`${position} w-60 rounded-md border border-border bg-background`,
+					'overflow-hidden transition-all right-0 top-full z-50',
 					isOpen
 						? 'data-[state=open]:animate-dropdown-in'
 						: 'h-0 overflow-hidden data-[state=closed]:animate-dropdown-up',
@@ -129,7 +126,7 @@ const DropDownList = React.forwardRef<
 	<ul
 		{...props}
 		className={twMerge(
-			'custom-scrollbar flex flex-col gap-1 space-y-1 overflow-y-scroll px-2 py-1.5',
+			'flex flex-col gap-1 space-y-1 overflow-y-auto p-2.5',
 			className,
 		)}
 		ref={ref}
@@ -164,7 +161,7 @@ const DropDownLabel = React.forwardRef<
 			<span
 				aria-label='label content'
 				className={twMerge(
-					'ml-1.5 text-sm font-semibold text-muted-foreground',
+					'ml-1.5 text-sm font-semibold text-foreground',
 					className,
 				)}
 				ref={ref}
@@ -195,7 +192,7 @@ const DropDownIcon = React.forwardRef<
 >(({ className, ...props }, ref) => {
 	return (
 		<i
-			className={twMerge('text-foreground', className)}
+			className={twMerge('text-foreground/60', className)}
 			{...props}
 			ref={ref}
 		/>

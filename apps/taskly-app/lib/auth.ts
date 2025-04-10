@@ -49,6 +49,7 @@ export const authOptions: AuthOptions = {
 					id: user.id,
 					name: user.name,
 					email: user.email,
+					surname: user.surname as string
 				}
 			},
 		}),
@@ -61,14 +62,30 @@ export const authOptions: AuthOptions = {
 	],
 	callbacks: {
 		async jwt({ token, user }) {
+			// Se for o primeiro login, user estará presente
 			if (user) {
 				token.id = user.id
+				token.surname = user.surname ?? null
+			} else if (token?.email) {
+				// Se user não estiver presente (JWT sendo reutilizado), buscamos manualmente
+				const dbUser = await db.user.findUnique({
+					where: { email: token.email as string },
+					select: { id: true, surname: true }, // 👈 só os campos que precisamos
+				})
+	
+				if (dbUser) {
+					token.id = dbUser.id
+					token.surname = dbUser.surname
+				}
 			}
+	
 			return token
 		},
+	
 		async session({ session, token }) {
-			if (token?.sub && session?.user) {
-				session.user.id = token.sub
+			if (session.user && token) {
+				session.user.id = token.id as string
+				session.user.surname = token.surname as string
 			}
 			return session
 		},

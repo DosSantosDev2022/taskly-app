@@ -7,7 +7,10 @@ const AvatarContainer = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<div
 		ref={ref}
-		className={twMerge('flex w-full items-start space-x-2', className)}
+		className={twMerge(
+			'flex w-full items-center justify-center space-x-2',
+			className,
+		)}
 		{...props}
 	/>
 ))
@@ -20,7 +23,10 @@ const AvatarWrapper = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<div
 		ref={ref}
-		className={twMerge('grid flex-1 text-left leading-tight', className)}
+		className={twMerge(
+			'grid flex-1 items-start justify-center flex flex-col',
+			className,
+		)}
 		{...props}
 	/>
 ))

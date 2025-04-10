@@ -46,7 +46,7 @@
 		--secondary-hover: hsl(204 9% 85%);
 		--muted: hsl(204 29% 88%);
 		--muted-foreground: hsl(204 4% 33%);
-		--muted-hover: hsl(204 26% 80%);
+		--muted-hover: hsl(210, 8%, 90%);
 		--accent: hsl(204 15% 85%);
 		--accent-foreground: hsl(204 15% 25%);
 		--accent-hover: hsl(204 15% 75%);
@@ -104,11 +104,9 @@
 	}
 }
 
-@keyframes typing {
-	from {
-		width: 0;
-	}
-	to {
-		width: 100%;
-	}
+@utility text-limit {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
