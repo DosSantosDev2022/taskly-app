@@ -1,0 +1,7 @@
+export {AdditionalFeaturesSection} from './AdditionalFeaturesSection'
+export {FunctionalitiesSection} from './FunctionalitiesSection'
+export {PricingSection} from './PricingSection'
+export {StatsSection} from './StatsSection'
+export {Header} from './header'
+export {Footer} from './Footer'
+export {Banner} from './banner'

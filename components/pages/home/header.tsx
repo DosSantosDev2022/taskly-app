@@ -76,7 +76,7 @@ const Header = () => {
 					</ul>
 					<Button sizes='sm' asChild>
 						<Link href={'/signin'} className='whitespace-nowrap'>
-							Fazer Login
+							Iniciar seção
 						</Link>
 					</Button>
 				</nav>
