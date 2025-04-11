@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
 	--color-background: var(--background);
@@ -32,75 +33,94 @@
 	--color-chart-3: var(--chart-3);
 	--color-chart-4: var(--chart-4);
 	--color-chart-5: var(--chart-5);
+	
 }
 
 @layer base {
 	:root {
-		--background: hsl(204 70% 98%);
-		--foreground: hsl(204 50% 0%);
-		--primary: hsl(204 77% 47%);
+		--background: hsl(226.2 0% 95%);
+		--foreground: hsl(226.2 0% 10%);
+
+		--primary: hsl(226.2 57% 21%);
 		--primary-foreground: hsl(0 0% 100%);
-		--primary-hover: hsl(204 77% 37%);
-		--secondary: hsl(204 9% 91%);
-		--secondary-foreground: hsl(204 9% 31%);
-		--secondary-hover: hsl(204 9% 85%);
-		--muted: hsl(204 29% 88%);
-		--muted-foreground: hsl(204 4% 33%);
-		--muted-hover: hsl(210, 8%, 90%);
-		--accent: hsl(204 15% 85%);
-		--accent-foreground: hsl(204 15% 25%);
-		--accent-hover: hsl(204 15% 75%);
+		--primary-hover: hsl(226.2 57% 41%);
+
+		--secondary: hsl(226.2 10% 90%);
+		--secondary-foreground: hsl(0 0% 0%);
+		--secondary-hover: hsl(204 10% 75%);
+
+		--muted: hsl(0, 0%, 82%);
+		--muted-foreground: hsl(226.2 0% 40%);
+		--muted-hover: hsl(0, 0%, 90%);
+
+		--accent: hsl(188.2 10% 90%);
+		--accent-foreground: hsl(226.2 0% 15%);
+		--accent-hover: hsl(188.2 10% 80%);
+
 		--danger: hsl(15 94% 38%);
 		--danger-foreground: hsl(0 0% 100%);
 		--danger-hover: hsl(15 94% 45%);
+
 		--warning: hsl(47.9 95.8% 53.1%);
 		--warning-foreground: hsl(0 0% 10%);
 		--warning-hover: hsl(47.9 95.8% 42%);
+
 		--success: hsl(142.1 76.2% 36.3%);
 		--success-foreground: hsl(0 0% 100%);
 		--success-hover: hsl(142.1 76.2% 30%);
-		--border: hsl(220 13% 82%);
-		--input: hsl(220 13% 95%);
-		--ring: hsl(204 77% 47%);
-		--chart-1: hsl(204 77% 47%);
+
+		--border: hsl(226.2 20% 82%);
+		--input: hsl(188.2 10% 92%);
+		--ring: hsl(226.2 57% 21%);
+		
+		--chart-1: hsl(226.2 57% 21%);
 		--chart-2: hsl(204 9% 91%);
 		--chart-3: hsl(204 15% 85%);
 		--chart-4: hsl(204 9% 94%);
-		--chart-5: hsl(204 80% 47%);
+		--chart-5: hsl(226.2 57% 40%);
 	}
 
 	.dark {
-		--background: hsl(204 50% 0%);
-		--foreground: hsl(204 25% 97%);
-		--primary: hsl(204 77% 47%);
+		--background: hsl(226.2 10% 10%);
+		--foreground: hsl(226.2 0% 93%);
+
+		--primary: hsl(226.2 57% 21%);
 		--primary-foreground: hsl(0 0% 100%);
-		--primary-hover: hsl(204 77% 37%);
-		--secondary: hsl(204 18% 14%);
-		--secondary-foreground: hsl(204 18% 74%);
-		--secondary-hover: hsl(204 13% 20%);
-		--muted: hsl(204 29% 12%);
-		--muted-foreground: hsl(204 4% 67%);
-		--muted-hover: hsl(204 29% 20%);
-		--accent: hsl(204 25% 19%);
-		--accent-foreground: hsl(204 25% 79%);
-		--accent-hover: hsl(204 29% 28%);
+		--primary-hover: hsl(226.2 57% 41%);
+
+		--secondary: hsl(226.2 10% 20%);
+		--secondary-foreground: hsl(0 0% 100%);
+		--secondary-hover: hsl(226.2 10% 35%);
+
+		--muted: hsl(188.2 10% 25%);
+		--muted-foreground: hsl(226.2 0% 65%);
+		--muted-hover: hsl(188.2 10% 20%);
+
+		--accent: hsl(188.2 10% 25%);
+		--accent-foreground: hsl(226.2 0% 65%);
+		--accent-hover: hsl(188.2 10% 45%);
+
 		--danger: hsl(15 94% 38%);
 		--danger-foreground: hsl(0 0% 100%);
 		--danger-hover: hsl(15 94% 45%);
+		
 		--warning: hsl(47.9 95.8% 53.1%);
 		--warning-foreground: hsl(0 0% 10%);
 		--warning-hover: hsl(47.9 95.8% 42%);
+
 		--success: hsl(142.1 76.2% 36.3%);
 		--sucess-foreground: hsl(0 0% 100%);
 		--sucess-hover: hsl(142.1 76.2% 30%);
-		--border: hsl(215 27.9% 16.9%);
-		--input: hsl(215 27.9% 16.9%);
-		--ring: hsl(204 77% 47%);
-		--chart-1: hsl(204 77% 47%);
+
+		--border: hsl(226.2 10% 16%);
+		--input: hsl(188.2 10% 15%);
+		--ring: hsl(226.2 0% 65%);
+
+		--chart-1: hsl(226.2 57% 21%);
 		--chart-2: hsl(204 18% 14%);
 		--chart-3: hsl(204 25% 19%);
 		--chart-4: hsl(204 18% 17%);
-		--chart-5: hsl(204 80% 47%);
+		--chart-5: hsl(226.2 57% 41%);
 	}
 }
 

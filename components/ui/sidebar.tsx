@@ -145,7 +145,7 @@ const SideBarLogo = React.forwardRef<
 			{icon}
 			<span
 				className={twMerge(
-					'text-3xl font-extrabold text-accent-foreground',
+					'text-3xl font-extrabold text-primary dark:text-primary-foreground ',
 					`overflow-hidden transition-all duration-300 ${isOpenSideBar ? 'ml-1 w-full' : 'w-0'}`,
 				)}
 			>

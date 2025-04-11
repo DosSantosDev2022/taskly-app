@@ -75,7 +75,7 @@ const Header = () => {
 						))}
 					</ul>
 					<Button sizes='sm' asChild>
-						<Link href={'/signin'} className='whitespace-nowrap'>
+						<Link href={'/signIn'} className='whitespace-nowrap'>
 							Iniciar seção
 						</Link>
 					</Button>
@@ -97,7 +97,7 @@ const Header = () => {
 							))}
 						</nav>
 						<Button sizes='sm' asChild className='w-48'>
-							<Link href={'/signin'} onClick={toggleMenu}>
+							<Link href={'/signIn'} onClick={toggleMenu}>
 								Fazer Login
 							</Link>
 						</Button>

@@ -1,10 +1,10 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import Register from '@/app/(pages)/(login)/register/page'
+import Register from '@/app/(pages)/(auth)/register/page'
 import { describe, it, vi, beforeEach, expect } from 'vitest'
 import { NotificationProvider } from '@/context/notificationContext'
 import userEvent from '@testing-library/user-event'
-import VerifyEmail from '@/app/(pages)/(login)/verify-email/page'
+import VerifyEmail from '@/app/(pages)/(auth)/verify-email/page'
 
 const push = vi.fn()
 
