@@ -21,12 +21,12 @@ import {
 } from '@/components/ui/dropdown'
 import { IoLogOut } from 'react-icons/io5'
 import Link from 'next/link'
-import { ThemeToggle } from '../ThemeToggle'
+import { ThemeToggle } from '../themeToggle'
 import { FaUser } from 'react-icons/fa'
 import { FaFileCircleQuestion, FaGear } from 'react-icons/fa6'
 import { BsChatTextFill } from 'react-icons/bs'
 import { IoMdHelpCircle } from 'react-icons/io'
-import { UserProfileSkeleton } from '../skeletons/UserProfileSkeleton'
+import { UserProfileSkeleton } from '../skeletons/userProfileSkeleton'
 
 const UserProfile = () => {
 	const { data: session, status } = useSession()

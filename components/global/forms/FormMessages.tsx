@@ -2,7 +2,7 @@ import {
 	AlertCircleIcon,
 	ErrorCircleIcon,
 	SuccessCircleIcon,
-} from '../icons/NotificationsIcon'
+} from '../icons/notificationsIcon'
 
 interface MessageErrorProps {
 	label: string

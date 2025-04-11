@@ -3,13 +3,11 @@ import { v4 as uuidv4 } from 'uuid'
 import {
 	FaChartBar,
 	FaProjectDiagram,
-	FaBell,
 	FaPalette,
 	FaMobileAlt,
 	FaVideo,
 	FaMoneyBillWave,
-} from 'react-icons/fa' // Importe ícones relevantes
-import { Button } from '@/components/ui'
+} from 'react-icons/fa'
 
 const AdditionalFeaturesSection = () => {
 	const additionalFeatures = [

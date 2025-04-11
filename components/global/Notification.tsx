@@ -5,7 +5,7 @@ import {
 	AlertCircleIcon,
 	ErrorCircleIcon,
 	SuccessCircleIcon,
-} from './icons/NotificationsIcon'
+} from './icons/notificationsIcon'
 interface NotificationProps {
 	message: string
 	type: 'success' | 'error' | 'alert'

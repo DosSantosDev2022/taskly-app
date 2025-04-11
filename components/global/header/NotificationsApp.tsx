@@ -2,14 +2,14 @@
 import { useState } from 'react'
 import { FaBell } from 'react-icons/fa'
 import { BsChatTextFill } from 'react-icons/bs'
-import { PopoverContent, PopoverRoot, PopoverTrigger } from '../Popover'
-import { NotificationMessage } from '../notifications/NotificationMessages'
+import { PopoverContent, PopoverRoot, PopoverTrigger } from '../popover'
+import { NotificationMessage } from '../notifications/notificationMessages'
 import { useSession } from 'next-auth/react'
 import {
 	NotificationMessageSkeleton,
 	AlertNotificationSkeleton,
 } from '../skeletons'
-import { AlertNotification } from '../notifications/AlertNotifications'
+import { AlertNotification } from '../notifications/alertNotifications'
 
 const NotificationsApp = () => {
 	const { data: session, status } = useSession()

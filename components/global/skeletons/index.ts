@@ -1,3 +1,3 @@
-export {AlertNotificationSkeleton} from './AlertNotificationSkeleton'
-export {NotificationMessageSkeleton} from './NotificationMessageSkeleton'
-export {UserProfileSkeleton} from './UserProfileSkeleton'
+export {AlertNotificationSkeleton} from './alertNotificationSkeleton'
+export {NotificationMessageSkeleton} from './notificationMessageSkeleton'
+export {UserProfileSkeleton} from './userProfileSkeleton'
