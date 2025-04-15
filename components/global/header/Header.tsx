@@ -1,5 +1,5 @@
-import { NotificationsApp } from './notificationsApp'
-import { UserProfile } from './userProfile'
+import { NotificationsApp } from './NotificationsApp'
+import { UserProfile } from './UserProfile'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui'
 

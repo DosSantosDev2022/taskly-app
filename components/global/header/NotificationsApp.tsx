@@ -27,7 +27,7 @@ const NotificationsApp = () => {
 				isOpen={openPopover === 'messages'}
 				onToggle={() => handleToggle('messages')}
 			>
-				<PopoverTrigger>
+				<PopoverTrigger sizes='icon' variants='ghost'>
 					<BsChatTextFill size={20} />
 				</PopoverTrigger>
 				<PopoverContent className='' alignment='bottom'>
@@ -54,7 +54,7 @@ const NotificationsApp = () => {
 				isOpen={openPopover === 'notifications'}
 				onToggle={() => handleToggle('notifications')}
 			>
-				<PopoverTrigger>
+				<PopoverTrigger sizes='icon' variants='ghost'>
 					<FaBell size={20} />
 				</PopoverTrigger>
 				<PopoverContent alignment='bottom'>

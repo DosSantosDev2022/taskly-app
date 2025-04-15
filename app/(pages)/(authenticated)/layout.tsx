@@ -1,5 +1,5 @@
 import AuthProvider from '@/providers/auth'
-import { AppSidebar } from '@/components/global/SideBarApp'
+import { AppSidebar } from '@/components/global/sideBarApp'
 import { Header } from '@/components/global/header/Header'
 
 export default function PagesLayout({
@@ -9,11 +9,11 @@ export default function PagesLayout({
 }>) {
 	return (
 		<AuthProvider>
-			<div className='flex h-screen w-screen flex-row overflow-hidden'>
+			<div className='flex h-screen w-full flex-row overflow-hidden'>
 				<AppSidebar />
 				<div className='flex flex-1 flex-col'>
 					<Header />
-					<main className='custom-scrollbar min-h-0 flex-1 overflow-auto p-4'>
+					<main className='min-h-0 flex-grow overflow-auto p-4'>
 						{children}
 					</main>
 				</div>

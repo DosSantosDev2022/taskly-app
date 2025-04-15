@@ -1,11 +1,7 @@
 'use client'
-import React, {
-	createContext,
-	type ReactNode,
-	useContext,
-	useState,
-} from 'react'
+import React, { createContext, type ReactNode, useContext } from 'react'
 import { twMerge } from 'tailwind-merge'
+import { type ButtonProps, Button } from '@/components/ui/button'
 
 interface PopoverContextProps {
 	isOpen: boolean
@@ -56,25 +52,20 @@ const PopoverRoot = React.forwardRef<
 
 PopoverRoot.displayName = 'PopoverRoot'
 
-const PopoverTrigger = React.forwardRef<
-	HTMLButtonElement,
-	React.ComponentPropsWithRef<'button'>
->(({ className, ...props }, ref) => {
-	const { toggleOpen, isOpen } = usePopoverContext()
-	return (
-		<button
-			onClick={toggleOpen}
-			aria-expanded={isOpen}
-			{...props}
-			className={twMerge(
-				'duration-300 transition-all active:scale-75 cursor-pointer',
-				'hover:text-accent-hover',
-				className,
-			)}
-			ref={ref}
-		/>
-	)
-})
+const PopoverTrigger = React.forwardRef<HTMLButtonElement, ButtonProps>(
+	({ className, ...props }, ref) => {
+		const { toggleOpen, isOpen } = usePopoverContext()
+		return (
+			<Button
+				onClick={toggleOpen}
+				aria-expanded={isOpen}
+				{...props}
+				className={twMerge('', className)}
+				ref={ref}
+			/>
+		)
+	},
+)
 
 PopoverTrigger.displayName = 'PopoverTrigger'
 

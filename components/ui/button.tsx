@@ -44,7 +44,7 @@ const variantClasses = {
 		'hover:before:bg-accent-foreground hover:before:text-accent relative overflow-hidden bg-accent text-accent-foreground shadow-2xl transition-all before:absolute before:bottom-0 before:left-0 before:top-0 before:z-0 before:h-full before:w-0 before:bg-accent before:transition-all before:duration-500 hover:text-accent-foreground hover:shadow-primary hover:before:left-0 hover:before:w-full',
 }
 const sizeClasses = {
-	xs: 'h-10 w-24 text-sm',
+	xs: 'h-10 w-28 text-sm',
 	sm: 'h-12 w-28 text-sm',
 	lg: 'h-14 w-28 text-lg',
 	icon: 'h-8 w-8 p-0',
@@ -69,7 +69,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 				twMerge(
 					variantClasses[variants],
 					sizeClasses[sizes],
-					'appearance-none rounded-md px-2 py-1.5 flex gap-1 duration-300 transition-all active:scale-95 cursor-pointer',
+					'appearance-none rounded-md px-2 py-1.5 flex gap-1 duration-500 transition-all active:scale-105 cursor-pointer',
 					' items-center justify-center font-normal ring-offset-background disabled:pointer-events-none disabled:opacity-60',
 					'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 					className,
