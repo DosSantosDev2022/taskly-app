@@ -37,7 +37,7 @@
 	--color-chart-4: var(--chart-4);
 	--color-chart-5: var(--chart-5);
 	
-};
+}
 
 @layer base {
 	:root {
@@ -126,13 +126,15 @@
 		--chart-5: hsl(226.2 57% 41%);
 	}
 }
-;
-@utility text-limit {
-	display: -webkit-box;
-	-webkit-line-clamp: 3;
-	-webkit-box-orient: vertical;
-	overflow: hidden;
-};
+
+@layer utilities {
+	.text-limit {
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+}
 
 /* Estilos para a barra de rolagem no modo light */
 .scrollbar-custom::-webkit-scrollbar {

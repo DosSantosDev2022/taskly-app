@@ -1,11 +1,16 @@
 import { PaginationApp } from '@/components/global/pagination'
 import { AddClients } from '@/components/pages/clients/addClients'
-import { FilterDate, FilterSearch } from '@/components/global/filters'
-import { Table } from '@/components/ui'
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHeader,
+	TableRow,
+} from '@/components/ui'
 import { FaUser } from 'react-icons/fa'
-import { FilterAddress } from '@/components/global/filters/filteradress'
 import { ActionTable } from '@/components/global/actionsTable'
-import { FilterStatus } from '@/components/global/filters/filterStatus'
+import { v4 as uuidv4 } from 'uuid'
+import { FiltersClients } from '@/components/pages/clients/filterClients'
 
 export default function Clients() {
 	const headers = [
@@ -29,7 +34,6 @@ export default function Clients() {
 			City: 'São Paulo',
 			State: 'SP',
 			Status: 'Ativo',
-			Ação: <ActionTable id='1' path='clients' />,
 		},
 		{
 			Nome: 'Maria Paula Rodrigues',
@@ -40,7 +44,6 @@ export default function Clients() {
 			City: 'Rio de Janeiro',
 			state: 'RJ',
 			Status: 'Inativo',
-			Ação: <ActionTable id='2' path='clients' />,
 		},
 		{
 			Nome: 'Ana Maria Clara',
@@ -51,7 +54,6 @@ export default function Clients() {
 			City: 'Rio de Janeiro',
 			state: 'RJ',
 			Status: 'Inativo',
-			Ação: <ActionTable id='3' path='clients' />,
 		},
 		{
 			Nome: 'Carlos Alberto Coelho',
@@ -62,7 +64,6 @@ export default function Clients() {
 			City: 'Belo Horizonte',
 			State: 'MG',
 			Status: 'Ativo',
-			Ação: <ActionTable id='4' path='clients' />,
 		},
 		{
 			Nome: 'Carlos Alberto Coelho',
@@ -73,7 +74,6 @@ export default function Clients() {
 			City: 'Belo Horizonte',
 			State: 'MG',
 			Status: 'Ativo',
-			Ação: <ActionTable id='5' path='clients' />,
 		},
 		{
 			Nome: 'Carlos Alberto Coelho',
@@ -84,7 +84,6 @@ export default function Clients() {
 			City: 'Belo Horizonte',
 			State: 'MG',
 			Status: 'Ativo',
-			Ação: <ActionTable id='6' path='clients' />,
 		},
 		{
 			Nome: 'Carlos Alberto Coelho',
@@ -95,7 +94,6 @@ export default function Clients() {
 			City: 'Belo Horizonte',
 			State: 'MG',
 			Status: 'Ativo',
-			Ação: <ActionTable id='7' path='clients' />,
 		},
 		{
 			Nome: 'Carlos Alberto Coelho',
@@ -106,7 +104,6 @@ export default function Clients() {
 			City: 'Belo Horizonte',
 			State: 'MG',
 			Status: 'Ativo',
-			Ação: <ActionTable id='8' path='clients' />,
 		},
 		{
 			Nome: 'Carlos Alberto Coelho',
@@ -117,7 +114,6 @@ export default function Clients() {
 			City: 'Belo Horizonte',
 			State: 'MG',
 			Status: 'Ativo',
-			Ação: <ActionTable id='9' path='clients' />,
 		},
 		{
 			Nome: 'Carlos Alberto Coelho',
@@ -128,7 +124,6 @@ export default function Clients() {
 			City: 'Belo Horizonte',
 			State: 'MG',
 			Status: 'Ativo',
-			Ação: <ActionTable id='10' path='clients' />,
 		},
 		{
 			Nome: 'Carlos Alberto Coelho',
@@ -139,7 +134,6 @@ export default function Clients() {
 			City: 'Belo Horizonte',
 			State: 'MG',
 			Status: 'Ativo',
-			Ação: <ActionTable id='11' path='clients' />,
 		},
 		{
 			Nome: 'Carlos Alberto Coelho',
@@ -150,7 +144,6 @@ export default function Clients() {
 			City: 'Belo Horizonte',
 			State: 'MG',
 			Status: 'Ativo',
-			Ação: <ActionTable id='12' path='clients' />,
 		},
 	]
 
@@ -165,19 +158,35 @@ export default function Clients() {
 				</div>
 				<div className='flex items-center justify-between p-1.5 space-x-2'>
 					<AddClients />
-					<div className='flex items-center space-x-2'>
-						{/* Filters */}
-						<FilterSearch />
-						{/* <FilterDate /> */}
-						<FilterAddress />
-						{/* Filter Status */}
-						<FilterStatus />
-					</div>
+					<FiltersClients />
 				</div>
 			</div>
 
 			<div className='flex-grow'>
-				<Table headers={headers} data={data} />
+				<Table>
+					<TableHeader>
+						<tr>
+							{headers.map((header) => (
+								<TableCell key={header}>{header}</TableCell>
+							))}
+						</tr>
+					</TableHeader>
+					<TableBody>
+						{data.map((row) => (
+							<TableRow key={uuidv4()}>
+								{Object.values(row).map((cell, cellIndex) => (
+									<TableCell key={uuidv4()}>
+										{headers[cellIndex] === 'Ação' ? (
+											<ActionTable id={uuidv4()} path='clients' />
+										) : (
+											cell
+										)}
+									</TableCell>
+								))}
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
 				<div className='w-full p-2 mt-1 flex items-center justify-end'>
 					<PaginationApp />
 				</div>

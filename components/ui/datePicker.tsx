@@ -41,25 +41,21 @@ const DatePicker = ({
 
 	return (
 		<div className='relative'>
-			<Button
-				className='w-full truncate'
-				onClick={openCalendar}
-				variants='primary'
-			>
+			<Button sizes='full' onClick={openCalendar} variants='secondary'>
 				{date.startDate && date.endDate ? (
 					<>
-						<span>
+						<span className='text-xs text-muted-foreground'>
 							{format(date.startDate, 'dd/MM/yyyy', { locale: ptBR })}
 						</span>
-						<span>-</span>
-						<span>
+						<span className='text-muted-foreground'>-</span>
+						<span className='text-xs text-muted-foreground'>
 							{format(date.endDate, 'dd/MM/yyyy', { locale: ptBR })}
 						</span>
 					</>
 				) : (
-					<span className='flex items-center gap-1'>
+					<span className='flex items-center gap-1 text-sm'>
 						<FaCalendar />
-						Selecione uma data
+						Selecione
 					</span>
 				)}
 			</Button>
