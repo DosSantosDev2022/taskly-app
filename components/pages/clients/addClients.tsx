@@ -57,6 +57,7 @@ const AddClients = () => {
 		register,
 		handleSubmit,
 		control,
+		reset,
 		formState: { errors },
 	} = useForm<ClientFormData>({
 		resolver: zodResolver(clientSchema),
@@ -69,10 +70,11 @@ const AddClients = () => {
 
 		if (response.success) {
 			showNotification('Cliente cadastrado com sucesso !', 'success')
+			reset()
 			closeRef.current?.click() // Fecha o modal
 		} else {
 			console.error('Erro:', response.errors || response.message)
-			// Exibe erro no toast ou algo do tipo
+			showNotification('Erro ao cadastrar cliente !', 'error')
 		}
 	}
 	return (

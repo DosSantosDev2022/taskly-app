@@ -11,11 +11,11 @@ import { FaUser } from 'react-icons/fa'
 import { ActionTable } from '@/components/global/actionsTable'
 import { v4 as uuidv4 } from 'uuid'
 import { FiltersClients } from '@/components/pages/clients/filterClients'
+import type { ClientWithProjects } from '@/@types/dataTypes'
 
-export default function Clients() {
+export default async function Clients() {
 	const headers = [
 		'Nome',
-		'Projeto',
 		'Email',
 		'Telefone',
 		'Endereço',
@@ -24,128 +24,12 @@ export default function Clients() {
 		'Status',
 		'Ação',
 	]
-	const data = [
-		{
-			Nome: 'João Alves Silva',
-			Projeto: 'Projeto de teste dev',
-			Email: 'joao.silva@email.com',
-			Telefone: '(11) 91234-5678',
-			Endereço: 'Av. Paulista, 1000',
-			City: 'São Paulo',
-			State: 'SP',
-			Status: 'Ativo',
-		},
-		{
-			Nome: 'Maria Paula Rodrigues',
-			Projeto: 'Projeto de teste dev',
-			Email: 'maria.oliveira@email.com',
-			Telefone: '(21) 99876-5432',
-			Endereço: 'Rua das Laranjeiras, 250',
-			City: 'Rio de Janeiro',
-			state: 'RJ',
-			Status: 'Inativo',
-		},
-		{
-			Nome: 'Ana Maria Clara',
-			Projeto: 'Projeto de teste dev',
-			Email: 'ana.martins@email.com',
-			Telefone: '(21) 99654-3210',
-			Endereço: 'Av. Atlântica, 500',
-			City: 'Rio de Janeiro',
-			state: 'RJ',
-			Status: 'Inativo',
-		},
-		{
-			Nome: 'Carlos Alberto Coelho',
-			Projeto: 'Projeto de teste dev',
-			Email: 'carlos.souza@email.com',
-			Telefone: '(31) 98765-4321',
-			Endereço: 'Rua da Bahia, 150',
-			City: 'Belo Horizonte',
-			State: 'MG',
-			Status: 'Ativo',
-		},
-		{
-			Nome: 'Carlos Alberto Coelho',
-			Projeto: 'Projeto de teste dev',
-			Email: 'carlos.souza@email.com',
-			Telefone: '(31) 98765-4321',
-			Endereço: 'Rua da Bahia, 150',
-			City: 'Belo Horizonte',
-			State: 'MG',
-			Status: 'Ativo',
-		},
-		{
-			Nome: 'Carlos Alberto Coelho',
-			Projeto: 'Projeto de teste dev',
-			Email: 'carlos.souza@email.com',
-			Telefone: '(31) 98765-4321',
-			Endereço: 'Rua da Bahia, 150',
-			City: 'Belo Horizonte',
-			State: 'MG',
-			Status: 'Ativo',
-		},
-		{
-			Nome: 'Carlos Alberto Coelho',
-			Projeto: 'Projeto de teste dev',
-			Email: 'carlos.souza@email.com',
-			Telefone: '(31) 98765-4321',
-			Endereço: 'Rua da Bahia, 150',
-			City: 'Belo Horizonte',
-			State: 'MG',
-			Status: 'Ativo',
-		},
-		{
-			Nome: 'Carlos Alberto Coelho',
-			Projeto: 'Projeto de teste dev',
-			Email: 'carlos.souza@email.com',
-			Telefone: '(31) 98765-4321',
-			Endereço: 'Rua da Bahia, 150',
-			City: 'Belo Horizonte',
-			State: 'MG',
-			Status: 'Ativo',
-		},
-		{
-			Nome: 'Carlos Alberto Coelho',
-			Projeto: 'Projeto de teste dev',
-			Email: 'carlos.souza@email.com',
-			Telefone: '(31) 98765-4321',
-			Endereço: 'Rua da Bahia, 150',
-			City: 'Belo Horizonte',
-			State: 'MG',
-			Status: 'Ativo',
-		},
-		{
-			Nome: 'Carlos Alberto Coelho',
-			Projeto: 'Projeto de teste dev',
-			Email: 'carlos.souza@email.com',
-			Telefone: '(31) 98765-4321',
-			Endereço: 'Rua da Bahia, 150',
-			City: 'Belo Horizonte',
-			State: 'MG',
-			Status: 'Ativo',
-		},
-		{
-			Nome: 'Carlos Alberto Coelho',
-			Projeto: 'Projeto de teste dev',
-			Email: 'carlos.souza@email.com',
-			Telefone: '(31) 98765-4321',
-			Endereço: 'Rua da Bahia, 150',
-			City: 'Belo Horizonte',
-			State: 'MG',
-			Status: 'Ativo',
-		},
-		{
-			Nome: 'Carlos Alberto Coelho',
-			Projeto: 'Projeto de teste dev',
-			Email: 'carlos.souza@email.com',
-			Telefone: '(31) 98765-4321',
-			Endereço: 'Rua da Bahia, 150',
-			City: 'Belo Horizonte',
-			State: 'MG',
-			Status: 'Ativo',
-		},
-	]
+
+	const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/clients`, {
+		cache: 'no-store',
+	})
+	const clients = await res.json()
+	/* console.log(clients) */
 
 	return (
 		<div className='flex flex-col space-y-3 h-full overflow-hidden'>
@@ -172,17 +56,28 @@ export default function Clients() {
 						</tr>
 					</TableHeader>
 					<TableBody>
-						{data.map((row) => (
+						{clients.map((client: ClientWithProjects) => (
 							<TableRow key={uuidv4()}>
-								{Object.values(row).map((cell, cellIndex) => (
-									<TableCell key={uuidv4()}>
-										{headers[cellIndex] === 'Ação' ? (
-											<ActionTable id={uuidv4()} path='clients' />
-										) : (
-											cell
-										)}
-									</TableCell>
-								))}
+								<TableCell>{client.name}</TableCell>
+								<TableCell>{client.email}</TableCell>
+								<TableCell>{client.phone}</TableCell>
+								<TableCell>{client.address}</TableCell>
+								<TableCell>{client.city}</TableCell>
+								<TableCell>{client.state}</TableCell>
+								<TableCell>
+									{client.status === 'active' ? (
+										<span className='p-1 font-semibold text-success'>
+											Ativo
+										</span>
+									) : (
+										<span className='p-1 font-semibold text-warning'>
+											Inativo
+										</span>
+									)}
+								</TableCell>
+								<TableCell>
+									<ActionTable id={client.id} path='clients' />
+								</TableCell>
 							</TableRow>
 						))}
 					</TableBody>

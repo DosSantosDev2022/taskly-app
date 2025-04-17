@@ -1,5 +1,6 @@
 'use server'
 import { db } from '@/lib/prisma'
+import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 const clientSchema = z.object({
@@ -39,6 +40,8 @@ export async function addClient(formData: unknown) {
         status,
       }
     })
+
+    revalidatePath("/clients")
 
     return {
       success: true,
