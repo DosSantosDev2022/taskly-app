@@ -3,6 +3,7 @@ import * as React from 'react'
 import { type ReactNode, createContext, useContext, useState } from 'react'
 import { X } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { Button, type ButtonProps } from './button'
 
 interface ModalContextProps {
 	isOpen: boolean
@@ -175,37 +176,22 @@ const ModalOverlay = React.forwardRef<
 
 ModalOverlay.displayName = 'ModalOverlay'
 
-const ModalTrigger = React.forwardRef<
-	HTMLButtonElement,
-	React.HTMLAttributes<HTMLButtonElement> & {
-		size?: 'sm' | 'lg' | 'xl' | 'full'
-	}
->(({ className, size = 'full', ...props }, ref) => {
-	const { toggleOpen } = useModalContext()
-	const variantClasses = {
-		sm: 'w-24',
-		lg: 'w-36',
-		xl: 'w-48',
-		full: 'w-fulll',
-	}
+const ModalTrigger = React.forwardRef<HTMLButtonElement, ButtonProps>(
+	({ className, ...props }, ref) => {
+		const { toggleOpen } = useModalContext()
 
-	return (
-		<button
-			aria-label='modal-trigger'
-			value={'text'}
-			onClick={toggleOpen}
-			className={twMerge(
-				' flex h-10 w-full items-center justify-center gap-2 rounded-md border border-border px-2 py-1.5 text-sm',
-				'bg-background text-foreground hover:bg-muted-hover ',
-				'ring-offset-primary duration-300  focus:ring-ring active:scale-95',
-				variantClasses[size],
-				className,
-			)}
-			{...props}
-			ref={ref}
-		/>
-	)
-})
+		return (
+			<Button
+				aria-label='modal-trigger'
+				value={'text'}
+				onClick={toggleOpen}
+				className={twMerge('', className)}
+				{...props}
+				ref={ref}
+			/>
+		)
+	},
+)
 
 ModalTrigger.displayName = 'ModalTrigger'
 
@@ -220,7 +206,8 @@ const ModalClose = React.forwardRef<
 			value={'text'}
 			onClick={toggleOpen}
 			className={twMerge(
-				'flex h-7 w-7 items-center justify-center rounded-md bg-primary  text-primary-foreground hover:bg-primary-hover',
+				'flex h-7 w-7 items-center justify-center rounded-md cursor-pointer',
+				' bg-primary  text-primary-foreground hover:bg-primary-hover',
 				className,
 			)}
 			{...props}

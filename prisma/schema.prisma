@@ -103,6 +103,11 @@ enum ProjectStatus {
   archived
 }
 
+enum ClientStatus {
+  active
+  inactive
+}
+
 model Project {
   id          String        @id @default(uuid())
   name        String
@@ -111,15 +116,34 @@ model Project {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   ownerId     String
-  teamId      String
+  teamId      String?
+  clientId    String?
   owner       User          @relation(fields: [ownerId], references: [id])
-  team        Team          @relation(fields: [teamId], references: [id])
+  team        Team?         @relation(fields: [teamId], references: [id])
 
   tasks      Task[]
+  client     Client?         @relation(fields: [clientId], references: [id])
   comments   Comment[]
   sharedWith SharedProject[]
 
   @@index([ownerId])
+  @@index([clientId])
+}
+
+model Client {
+  id        String        @id @default(uuid())
+  name      String
+  email     String?       @unique
+  phone     String?
+  address   String?
+  zipcode   String?
+  state     String?
+  city      String?
+  status    ClientStatus?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  projects Project[]
 }
 
 // Status da Tarefa (Enum)
