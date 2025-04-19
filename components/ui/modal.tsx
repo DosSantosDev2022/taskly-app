@@ -4,6 +4,7 @@ import { type ReactNode, createContext, useContext, useState } from 'react'
 import { X } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { Button, type ButtonProps } from './button'
+import { ImSpinner9 } from 'react-icons/im'
 
 interface ModalContextProps {
 	isOpen: boolean
@@ -248,6 +249,27 @@ const ModalContent = React.forwardRef<
 
 ModalContent.displayName = 'ModalContent'
 
+const ModalLoading = React.forwardRef<
+	HTMLDivElement,
+	React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
+	return (
+		<div
+			{...props}
+			ref={ref}
+			className={twMerge(
+				'absolute inset-0 z-50 flex items-center justify-center',
+				'bg-background/50 backdrop-blur-sm rounded-lg',
+				className,
+			)}
+		>
+			<ImSpinner9 size={64} className='text-primary' />
+		</div>
+	)
+})
+
+ModalLoading.displayName = 'ModalLoading'
+
 export {
 	ModalClose,
 	ModalContent,
@@ -259,4 +281,5 @@ export {
 	ModalTitle,
 	ModalTrigger,
 	useModalContext,
+	ModalLoading,
 }

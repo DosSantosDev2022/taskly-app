@@ -14,21 +14,21 @@ import {
 	Label,
 	Input,
 	Button,
-} from '@/components/ui'
-import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@/components/ui/select'
+	ModalLoading,
+} from '@/components/ui'
 import { useStatesECities } from '@/hooks/useStatesECities'
 import { useNotification } from '@/context/notificationContext'
 import z from 'zod'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { addClient } from '@/actions/client/addClient'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
+import { ImSpinner9 } from 'react-icons/im'
 
 const clientSchema = z.object({
 	name: z.string().min(1, 'Nome é obrigatório'),
@@ -44,6 +44,7 @@ const clientSchema = z.object({
 type ClientFormData = z.infer<typeof clientSchema>
 
 const AddClients = () => {
+	const [isLoading, setIsLoading] = useState(false)
 	const { showNotification } = useNotification()
 	const {
 		cities,
@@ -66,6 +67,7 @@ const AddClients = () => {
 	const closeRef = useRef<HTMLButtonElement | null>(null)
 
 	const onSubmit = async (data: ClientFormData) => {
+		setIsLoading(true)
 		const response = await addClient(data)
 
 		if (response.success) {
@@ -76,6 +78,8 @@ const AddClients = () => {
 			console.error('Erro:', response.errors || response.message)
 			showNotification('Erro ao cadastrar cliente !', 'error')
 		}
+
+		setIsLoading(false)
 	}
 	return (
 		<ModalRoot>
@@ -83,7 +87,8 @@ const AddClients = () => {
 				Adicionar <FaPlus />
 			</ModalTrigger>
 			<ModalOverlay variant='dark' />
-			<ModalContent>
+			<ModalContent className='relative'>
+				{isLoading && <ModalLoading />}
 				<ModalHeader>
 					<ModalTitle>Cadastrar cliente</ModalTitle>
 					<ModalClose ref={closeRef}>

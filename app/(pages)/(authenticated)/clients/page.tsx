@@ -13,7 +13,17 @@ import { v4 as uuidv4 } from 'uuid'
 import { FiltersClients } from '@/components/pages/clients/filterClients'
 import type { ClientWithProjects } from '@/@types/dataTypes'
 
-export default async function Clients() {
+type ClientsProps = {
+	searchParams: Promise<{
+		search?: string
+		status?: string
+		state?: string
+		city?: string
+	}>
+}
+
+export default async function Clients({ searchParams }: ClientsProps) {
+	const { search, city, state, status } = await searchParams
 	const headers = [
 		'Nome',
 		'Email',
@@ -25,11 +35,19 @@ export default async function Clients() {
 		'Ação',
 	]
 
-	const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/clients`, {
-		cache: 'no-store',
-	})
+	const query = new URLSearchParams()
+	if (search) query.set('search', search)
+	if (status) query.set('status', status)
+	if (state) query.set('state', state)
+	if (city) query.set('city', city)
+
+	const res = await fetch(
+		`${process.env.NEXT_PUBLIC_URL}/api/clients?${query.toString()}`,
+		{
+			cache: 'no-store',
+		},
+	)
 	const clients = await res.json()
-	/* console.log(clients) */
 
 	return (
 		<div className='flex flex-col space-y-3 h-full overflow-hidden'>

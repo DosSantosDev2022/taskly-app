@@ -1,22 +1,24 @@
 'use client'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { FaCheck, FaFilter } from 'react-icons/fa'
+import { LuSearch } from 'react-icons/lu'
+import { SiCcleaner } from 'react-icons/si'
 import {
-	PopoverContent,
 	PopoverRoot,
 	PopoverTrigger,
+	PopoverContent,
 } from '@/components/global/popover'
 import { Button, Input, Label } from '@/components/ui'
 import {
 	Select,
+	SelectTrigger,
 	SelectContent,
 	SelectItem,
-	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
+
 import { useStatesECities } from '@/hooks/useStatesECities'
-import { useState } from 'react'
-import { FaCheck, FaFilter } from 'react-icons/fa'
-import { LuSearch } from 'react-icons/lu'
-import { SiCcleaner } from 'react-icons/si'
 
 const FiltersClients = () => {
 	const [searchTerm, setSearchTerm] = useState('')
@@ -24,6 +26,7 @@ const FiltersClients = () => {
 	const [addressIsOpen, setAddressIsOpen] = useState(false)
 	const [citySelected, setCitySelected] = useState('')
 	const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
+
 	const {
 		cities,
 		setStateSelected,
@@ -32,7 +35,72 @@ const FiltersClients = () => {
 		isLoadingCities,
 	} = useStatesECities()
 
-	const availabStatuses = ['Ativo', 'Inativo']
+	const router = useRouter()
+	const searchParams = useSearchParams()
+	const availabStatuses = ['active', 'inactive']
+	const isAddressSelected = stateSelected || citySelected
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		const search = searchParams.get('search') || ''
+		const state = searchParams.get('state') || ''
+		const city = searchParams.get('city') || ''
+		const status = searchParams.get('status')?.split(',') ?? []
+
+		setSearchTerm(search)
+		setStateSelected(state)
+		setCitySelected(city)
+		setSelectedStatuses(status)
+	}, [searchParams])
+
+	const handleSearchChange = (value: string) => {
+		setSearchTerm(value)
+
+		const params = new URLSearchParams(searchParams.toString())
+		value ? params.set('search', value) : params.delete('search')
+		router.push(`?${params.toString()}`)
+	}
+
+	const handleStatusChange = (status: string) => {
+		const updated = selectedStatuses.includes(status)
+			? selectedStatuses.filter((s) => s !== status) // Remove o status, se já estiver selecionado
+			: [...selectedStatuses, status] // Adiciona o status, caso contrário
+
+		setSelectedStatuses(updated) // Atualiza o estado do status selecionado
+
+		const params = new URLSearchParams(searchParams.toString())
+
+		if (updated.length > 0) {
+			params.set('status', updated.join(',')) // Passa o status como 'active,inactive'
+		} else {
+			params.delete('status') // Se não houver status selecionado, remove da URL
+		}
+
+		router.push(`?${params.toString()}`) // Atualiza a URL e faz a navegação
+	}
+
+	const handleStateChange = (value: string) => {
+		setStateSelected(value)
+		setCitySelected('')
+
+		const params = new URLSearchParams(searchParams.toString())
+		if (value) {
+			params.set('state', value)
+			params.delete('city')
+		} else {
+			params.delete('state')
+			params.delete('city')
+		}
+		router.push(`?${params.toString()}`)
+	}
+
+	const handleCityChange = (value: string) => {
+		setCitySelected(value)
+
+		const params = new URLSearchParams(searchParams.toString())
+		value ? params.set('city', value) : params.delete('city')
+		router.push(`?${params.toString()}`)
+	}
 
 	const clearFilters = () => {
 		setSearchTerm('')
@@ -41,29 +109,22 @@ const FiltersClients = () => {
 		setSelectedStatuses([])
 		setStatusIsOpen(false)
 		setAddressIsOpen(false)
-	}
 
-	const handleStatusChange = (status: string) => {
-		if (selectedStatuses.includes(status)) {
-			setSelectedStatuses(selectedStatuses.filter((s) => s !== status))
-		} else {
-			setSelectedStatuses([...selectedStatuses, status])
-		}
+		router.push('?')
 	}
-
-	const isAddressSelected = stateSelected || citySelected
 
 	return (
 		<div className='flex items-center space-x-2'>
-			{/* Filter Search */}
+			{/* 🔍 Search */}
 			<Input
 				className='w-56 h-10'
 				placeholder='Buscar...'
 				icon={<LuSearch />}
 				value={searchTerm}
-				onChange={(e) => setSearchTerm(e.target.value)}
+				onChange={(e) => handleSearchChange(e.target.value)}
 			/>
-			{/* <FilterAddress /> */}
+
+			{/* 📍 Endereço (Estado + Cidade) */}
 			<PopoverRoot
 				isOpen={addressIsOpen}
 				onToggle={() => setAddressIsOpen(!addressIsOpen)}
@@ -77,15 +138,12 @@ const FiltersClients = () => {
 				</PopoverTrigger>
 				<PopoverContent alignment='bottom' className='p-4 w-56 mt-1'>
 					<div className='flex flex-col gap-4'>
-						{/* ESTADO */}
+						{/* Estado */}
 						<div>
 							<Label className='text-sm font-medium'>Estado</Label>
 							<Select
-								onValueChange={(value) => {
-									setStateSelected(value)
-									setCitySelected('') // limpa cidade quando troca o estado
-								}}
 								value={stateSelected}
+								onValueChange={handleStateChange}
 							>
 								<SelectTrigger className='w-full'>
 									<SelectValue placeholder='Selecione o estado' />
@@ -100,20 +158,22 @@ const FiltersClients = () => {
 							</Select>
 						</div>
 
-						{/* CIDADE */}
+						{/* Cidade */}
 						<div>
 							<Label className='text-sm font-medium'>Cidade</Label>
 							<Select
-								onValueChange={(value) => setCitySelected(value)}
 								value={citySelected}
+								onValueChange={handleCityChange}
 								disabled={!stateSelected}
 							>
 								<SelectTrigger className='w-full'>
-									{isLoadingCities ? (
-										<SelectValue placeholder='Carregando...' />
-									) : (
-										<SelectValue placeholder='Seleciona a cidade' />
-									)}
+									<SelectValue
+										placeholder={
+											isLoadingCities
+												? 'Carregando...'
+												: 'Selecione a cidade'
+										}
+									/>
 								</SelectTrigger>
 								<SelectContent>
 									{cities.map((city) => (
@@ -128,15 +188,15 @@ const FiltersClients = () => {
 				</PopoverContent>
 			</PopoverRoot>
 
-			{/* Filter Status */}
+			{/* ✅ Status */}
 			<PopoverRoot
 				isOpen={statusIsOpen}
 				onToggle={() => setStatusIsOpen(!statusIsOpen)}
 			>
 				<PopoverTrigger
-					className='relative'
 					sizes='xs'
 					variants='secondary'
+					className='relative'
 				>
 					{selectedStatuses.length > 0 && (
 						<div className='w-4 h-4 rounded-full bg-primary dark:bg-muted absolute right-3 -top-2' />
@@ -145,34 +205,30 @@ const FiltersClients = () => {
 					Status
 				</PopoverTrigger>
 				<PopoverContent alignment='bottom' className='p-4 w-56 mt-1'>
-					<div>
-						{availabStatuses.map((status) => (
-							<div
-								key={status}
-								className='flex items-center mb-2 space-x-3'
+					{availabStatuses.map((status) => (
+						<div key={status} className='flex items-center mb-2 space-x-3'>
+							<label className='flex items-center cursor-pointer relative'>
+								<input
+									type='checkbox'
+									id={status}
+									checked={selectedStatuses.includes(status)}
+									onChange={() => handleStatusChange(status)}
+									className='peer h-5 w-5 cursor-pointer transition-all appearance-none rounded shadow hover:shadow-md border border-border checked:bg-primary checked:border-primary-foreground'
+								/>
+								<FaCheck className='absolute w-3 h-3 text-primary-foreground opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none' />
+							</label>
+							<label
+								htmlFor={status}
+								className='text-muted-foreground text-sm'
 							>
-								<label className='flex items-center cursor-pointer relative'>
-									<input
-										type='checkbox'
-										id={status}
-										checked={selectedStatuses.includes(status)}
-										onChange={() => handleStatusChange(status)}
-										className='peer h-5 w-5 cursor-pointer transition-all appearance-none rounded shadow hover:shadow-md border border-border checked:bg-primary checked:border-primary-foreground'
-									/>
-									<FaCheck className='absolute w-3 h-3 text-primary-foreground opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none' />
-								</label>
-								<label
-									className='text-muted-foreground text-sm'
-									htmlFor={status}
-								>
-									{status}
-								</label>
-							</div>
-						))}
-					</div>
+								{status === 'active' ? 'Ativo' : 'Inativo'}
+							</label>
+						</div>
+					))}
 				</PopoverContent>
 			</PopoverRoot>
 
+			{/* 🧹 Limpar */}
 			<Button sizes='xs' variants='secondary' onClick={clearFilters}>
 				<SiCcleaner size={18} />
 				Limpar
