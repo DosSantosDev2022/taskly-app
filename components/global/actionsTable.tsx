@@ -1,15 +1,9 @@
 'use client'
-import { TbListDetails } from 'react-icons/tb'
-
-import {
-	PopoverRoot,
-	PopoverTrigger,
-	PopoverContent,
-} from '@/components/global/popover'
-import { MoreVertical } from 'lucide-react'
-import Link from 'next/link'
+import { GrView } from 'react-icons/gr'
 import { Button } from '../ui'
-import { useState } from 'react'
+import { MdDelete } from 'react-icons/md'
+import { DeleteClient } from '@/actions/client/deleteClient'
+import { useNotification } from '@/context/notificationContext'
 
 interface ActionTableProps {
 	id: string
@@ -17,30 +11,32 @@ interface ActionTableProps {
 }
 
 const ActionTable = ({ id, path }: ActionTableProps) => {
-	const [isOpen, setIsOpen] = useState(false)
+	const { showNotification } = useNotification()
+
+	const handleDeleteClient = async () => {
+		const res = await DeleteClient({ id })
+
+		if (res.success) {
+			showNotification('Cliente deletado com sucesso !', 'success')
+		} else {
+			showNotification('Erro ao deletar cliente !', 'error')
+		}
+	}
+
 	return (
-		<PopoverRoot isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)}>
-			<PopoverTrigger sizes='icon' variants='link'>
-				<MoreVertical size={18} />
-			</PopoverTrigger>
-			<PopoverContent
-				alignment='bottom'
-				className='w-40 bg-background rounded shadow-lg p-1.5 space-y-2'
+		<div className='flex items-center justify-center gap-0.5 w-full'>
+			<Button className='text-sm h-8' sizes='icon' variants='link'>
+				<GrView size={24} />
+			</Button>
+			<Button
+				onClick={handleDeleteClient}
+				className='text-sm h-8'
+				sizes='icon'
+				variants='link'
 			>
-				<Button className='h-8' sizes='full' asChild variants='ghost'>
-					<Link href={`/${path}/${id}`} className='block text-sm'>
-						<TbListDetails />
-						Ver detalhes
-					</Link>
-				</Button>
-				<Button className='text-sm h-8' sizes='full' variants='ghost'>
-					Excluir
-				</Button>
-				<Button className='text-sm h-8' sizes='full' variants='ghost'>
-					Ver detalhes
-				</Button>
-			</PopoverContent>
-		</PopoverRoot>
+				<MdDelete size={24} />
+			</Button>
+		</div>
 	)
 }
 

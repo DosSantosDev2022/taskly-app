@@ -16,8 +16,6 @@ const clientSchema = z.object({
 
 export async function addClient(formData: unknown) {
   const result = clientSchema.safeParse(formData)
-
-
   if(!result.success) {
     return {
       success: false,
