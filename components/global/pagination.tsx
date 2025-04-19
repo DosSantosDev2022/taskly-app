@@ -1,72 +1,63 @@
 'use client'
-import { usePagination } from '@/hooks/usePagination'
-import { Button } from '../ui'
 import { v4 as uuidv4 } from 'uuid'
-import { useState } from 'react'
+import Link from 'next/link'
+import {
+	usePagination,
+	ELLIPSIS_LEFT,
+	ELLIPSIS_RIGTH,
+} from '@/hooks/usePagination'
+import { useSearchParams } from 'next/navigation'
+import { twMerge } from 'tailwind-merge'
 
-interface PaginationProps {
-	currentPage: number
-	totalItems: number
-	itemsPerPage: number
-	onPageChange: (page: number) => void
+type PaginationAppProps = {
+	page: number
+	limit: number
+	total: number
 }
 
-const Pagination: React.FC<PaginationProps> = ({
-	currentPage,
-	totalItems,
-	itemsPerPage,
-	onPageChange,
-}) => {
-	const { isCurrentPage, pages } = usePagination({
-		page: currentPage,
-		limit: itemsPerPage,
-		total: totalItems,
-	})
+export function Pagination({ page, limit, total }: PaginationAppProps) {
+	const { pages, isCurrentPage } = usePagination({ page, limit, total })
+
+	const searchParams = useSearchParams()
+
+	const createLink = (newPage: number) => {
+		const params = new URLSearchParams(searchParams)
+		params.set('page', newPage.toString())
+		return `?${params.toString()}`
+	}
+
+	if (pages.length <= 1) return null
 
 	return (
-		<nav aria-label='Pagination' className='flex justify-center'>
-			<ul className='flex list-none p-0'>
-				{pages.map((page) => (
-					<li key={uuidv4()} className='mx-1'>
-						{typeof page === 'number' ? (
-							<Button
-								variants='ghost'
-								sizes='icon'
-								onClick={() => onPageChange(page)}
-								className={`${
-									isCurrentPage(page) ? 'bg-primary text-white' : ''
-								}`}
-							>
-								{page}
-							</Button>
-						) : (
-							<span className='px-3 py-1 text-gray-600'>{page}</span>
+		<nav className='flex gap-1 flex-wrap'>
+			{pages.map((item) => {
+				if (item === ELLIPSIS_LEFT || item === ELLIPSIS_RIGTH) {
+					return (
+						<span
+							key={uuidv4()}
+							className='px-3 py-1 text-muted-foreground'
+						>
+							{item}
+						</span>
+					)
+				}
+				const isActive = isCurrentPage(Number(item))
+				return (
+					<Link
+						key={item}
+						href={isActive ? '#' : createLink(Number(item))}
+						className={twMerge(
+							'px-3 py-1 rounded-lg border border-border text-base',
+							' transition-all duration-500 active:scale-75',
+							isCurrentPage(Number(item))
+								? 'bg-primary text-primary-foreground font-bold pointer-events-none opacity-60'
+								: 'hover:bg-muted',
 						)}
-					</li>
-				))}
-			</ul>
+					>
+						{item}
+					</Link>
+				)
+			})}
 		</nav>
 	)
 }
-
-const PaginationApp = () => {
-	const [currentPage, setCurrentPage] = useState(1)
-	const totalItems = 100
-	const itemsPerPage = 10
-
-	const handlePageChange = (page: number) => {
-		setCurrentPage(page)
-		// Aqui você pode buscar os dados para a nova página
-		console.log(`Página alterada para: ${page}`)
-	}
-	return (
-		<Pagination
-			currentPage={currentPage}
-			itemsPerPage={itemsPerPage}
-			onPageChange={handlePageChange}
-			totalItems={totalItems}
-		/>
-	)
-}
-
-export { PaginationApp }

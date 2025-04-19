@@ -1,16 +1,21 @@
 import {NextResponse} from 'next/server'
 import {db} from '@/lib/prisma'
 import type { ClientWithProjects } from '@/@types/dataTypes'
+import  { ClientStatus, type Prisma } from '@prisma/client'
 
 export async function GET (request: Request) {
   try {
 
      const {searchParams} = new URL(request.url)
+     const page = Number.parseInt(searchParams.get('page') || '1',10)
+     const limit = Number.parseInt(searchParams.get('limit') || '10', 10)
+     const offset = (page - 1) * limit
+
      const search = searchParams.get('search')?.toLowerCase() || ''
      const state = searchParams.get('state') || ''
      const city = searchParams.get('city') || ''
      const status = searchParams.get('status') || ''
-     const filters: any = {}
+     const filters: Prisma.ClientWhereInput = {}
    
      if (search) {
       filters.OR = [
@@ -28,20 +33,39 @@ export async function GET (request: Request) {
       filters.city = city
      }
 
-     if (status) {
-      filters.status = { in: status.split(',') };
+     const statusValues = status
+     .split(',')
+     .filter((s): s is ClientStatus => Object.values(ClientStatus).includes(s as ClientStatus))
+
+     if (statusValues.length > 0) {
+      filters.status = {
+        in: statusValues,
+      }
     }
 
      const where = Object.keys(filters).length ? filters : undefined
 
-     const clients:ClientWithProjects[] = await db.client.findMany({
-      where,
-      orderBy: {createdAt: 'desc'},
-      include: {
-         projects: true,
-       },
-     })
-     return NextResponse.json(clients)
+    const [clients, total] = await Promise.all([
+          db.client.findMany({
+            where,
+            skip: offset,
+            take: limit,
+            orderBy: {createdAt: 'desc'},
+            include: {
+              projects: true,
+            },
+            }) as Promise<ClientWithProjects[]>,
+            db.client.count({
+              where,
+            })
+        ])
+
+     return NextResponse.json({
+      clients,
+      total,
+      page,
+      limit
+    })
   } catch(error) {
      console.error('[GET_CLIENTS_ERROR]', error)
      return NextResponse.json(

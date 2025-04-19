@@ -1,4 +1,4 @@
-import { PaginationApp } from '@/components/global/pagination'
+import { Pagination } from '@/components/global/pagination'
 import { AddClients } from '@/components/pages/clients/addClients'
 import {
 	Table,
@@ -19,11 +19,14 @@ type ClientsProps = {
 		status?: string
 		state?: string
 		city?: string
+		page?: string
 	}>
 }
 
 export default async function Clients({ searchParams }: ClientsProps) {
-	const { search, city, state, status } = await searchParams
+	const { search, city, state, status, page = '1' } = await searchParams
+	const currentPage = Number.parseInt(page, 10)
+	const limit = 10
 	const headers = [
 		'Nome',
 		'Email',
@@ -40,6 +43,8 @@ export default async function Clients({ searchParams }: ClientsProps) {
 	if (status) query.set('status', status)
 	if (state) query.set('state', state)
 	if (city) query.set('city', city)
+	query.set('page', page)
+	query.set('limit', limit.toString())
 
 	const res = await fetch(
 		`${process.env.NEXT_PUBLIC_URL}/api/clients?${query.toString()}`,
@@ -47,7 +52,7 @@ export default async function Clients({ searchParams }: ClientsProps) {
 			cache: 'no-store',
 		},
 	)
-	const clients = await res.json()
+	const { clients, total } = await res.json()
 
 	return (
 		<div className='flex flex-col space-y-3 h-full overflow-hidden'>
@@ -100,8 +105,11 @@ export default async function Clients({ searchParams }: ClientsProps) {
 						))}
 					</TableBody>
 				</Table>
-				<div className='w-full p-2 mt-1 flex items-center justify-end'>
-					<PaginationApp />
+				<div className='w-full p-2 mt-1 flex items-center justify-between'>
+					<span className='text-sm text-muted-foreground'>
+						Exibindo {clients.length} de {total} clientes
+					</span>
+					<Pagination limit={limit} page={currentPage} total={total} />
 				</div>
 			</div>
 		</div>
