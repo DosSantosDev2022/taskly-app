@@ -54,3 +54,17 @@ export type CodeData = z.infer<typeof codeSchema>
 export type NewPasswordData = z.infer<typeof newPasswordSchema>
 
 export type Step = 'email' | 'code' | 'new-password'
+
+
+export const clientSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+  email: z.string().email('E-mail inválido').optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  zipcode: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  status: z.enum(['active', 'inactive']).optional(),
+})
+
+export type ClientFormData = z.infer<typeof clientSchema>

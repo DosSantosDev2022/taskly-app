@@ -23,25 +23,11 @@ import {
 } from '@/components/ui'
 import { useStatesECities } from '@/hooks/useStatesECities'
 import { useNotification } from '@/context/notificationContext'
-import z from 'zod'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { addClient } from '@/actions/client/addClient'
 import { useRef, useState } from 'react'
-import { ImSpinner9 } from 'react-icons/im'
-
-const clientSchema = z.object({
-	name: z.string().min(1, 'Nome é obrigatório'),
-	email: z.string().email('E-mail inválido').optional(),
-	phone: z.string().optional(),
-	address: z.string().optional(),
-	zipcode: z.string().optional(),
-	state: z.string().optional(),
-	city: z.string().optional(),
-	status: z.enum(['active', 'inactive']).optional(),
-})
-
-type ClientFormData = z.infer<typeof clientSchema>
+import { type ClientFormData, clientSchema } from '@/@types/zodSchemas'
 
 const AddClients = () => {
 	const [isLoading, setIsLoading] = useState(false)

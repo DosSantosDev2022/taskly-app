@@ -4,6 +4,7 @@ import { Button } from '../ui'
 import { MdDelete } from 'react-icons/md'
 import { DeleteClient } from '@/actions/client/deleteClient'
 import { useNotification } from '@/context/notificationContext'
+import { ViewDetailsClient } from '../pages/clients/viewDetailsClient'
 
 interface ActionTableProps {
 	id: string
@@ -25,9 +26,7 @@ const ActionTable = ({ id, path }: ActionTableProps) => {
 
 	return (
 		<div className='flex items-center justify-center gap-0.5 w-full'>
-			<Button className='text-sm h-8' sizes='icon' variants='link'>
-				<GrView size={24} />
-			</Button>
+			<ViewDetailsClient id={id} />
 			<Button
 				onClick={handleDeleteClient}
 				className='text-sm h-8'

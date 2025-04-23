@@ -75,7 +75,7 @@ const ModalRoot = ({
 	<ModalProvider open={open} onOpenChange={onOpenChange}>
 		<div
 			aria-label='modal-root'
-			className={twMerge('w-full', className)}
+			className={twMerge('', className)}
 			{...props}
 		/>
 	</ModalProvider>
