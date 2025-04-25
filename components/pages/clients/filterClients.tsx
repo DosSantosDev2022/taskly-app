@@ -17,28 +17,34 @@ import {
 	SelectItem,
 	SelectValue,
 } from '@/components/ui/select'
-
-import { useStatesECities } from '@/hooks/useStatesECities'
+import { useHandleStatusChange } from '@/hooks/useStatusChange'
+import { useHandleSearchChange } from '@/hooks/useHandleSearchChange'
+import { useHandleLocationChange } from '@/hooks/useHandleLocationChange'
 
 const FiltersClients = () => {
-	const [searchTerm, setSearchTerm] = useState('')
 	const [statusIsOpen, setStatusIsOpen] = useState(false)
 	const [addressIsOpen, setAddressIsOpen] = useState(false)
-	const [citySelected, setCitySelected] = useState('')
-	const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
-
-	const {
-		cities,
-		setStateSelected,
-		stateSelected,
-		states,
-		isLoadingCities,
-	} = useStatesECities()
-
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const availabStatuses = ['active', 'inactive']
-	const isAddressSelected = stateSelected || citySelected
+
+	const { selectedStatuses, setSelectedStatuses, handleStatusChange } =
+		useHandleStatusChange(searchParams.toString())
+
+	const { searchTerm, handleSearchChange, setSearchTerm } =
+		useHandleSearchChange(searchParams.toString())
+
+	const {
+		states,
+		stateSelected,
+		citySelected,
+		cities,
+		isLoadingCities,
+		handleStateChange,
+		handleCityChange,
+		setStateSelected,
+		setCitySelected,
+	} = useHandleLocationChange(searchParams.toString())
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
@@ -46,61 +52,11 @@ const FiltersClients = () => {
 		const state = searchParams.get('state') || ''
 		const city = searchParams.get('city') || ''
 		const status = searchParams.get('status')?.split(',') ?? []
-
 		setSearchTerm(search)
 		setStateSelected(state)
 		setCitySelected(city)
 		setSelectedStatuses(status)
 	}, [searchParams])
-
-	const handleSearchChange = (value: string) => {
-		setSearchTerm(value)
-
-		const params = new URLSearchParams(searchParams.toString())
-		value ? params.set('search', value) : params.delete('search')
-		router.push(`?${params.toString()}`)
-	}
-
-	const handleStatusChange = (status: string) => {
-		const updated = selectedStatuses.includes(status)
-			? selectedStatuses.filter((s) => s !== status) // Remove o status, se já estiver selecionado
-			: [...selectedStatuses, status] // Adiciona o status, caso contrário
-
-		setSelectedStatuses(updated) // Atualiza o estado do status selecionado
-
-		const params = new URLSearchParams(searchParams.toString())
-
-		if (updated.length > 0) {
-			params.set('status', updated.join(',')) // Passa o status como 'active,inactive'
-		} else {
-			params.delete('status') // Se não houver status selecionado, remove da URL
-		}
-
-		router.push(`?${params.toString()}`) // Atualiza a URL e faz a navegação
-	}
-
-	const handleStateChange = (value: string) => {
-		setStateSelected(value)
-		setCitySelected('')
-
-		const params = new URLSearchParams(searchParams.toString())
-		if (value) {
-			params.set('state', value)
-			params.delete('city')
-		} else {
-			params.delete('state')
-			params.delete('city')
-		}
-		router.push(`?${params.toString()}`)
-	}
-
-	const handleCityChange = (value: string) => {
-		setCitySelected(value)
-
-		const params = new URLSearchParams(searchParams.toString())
-		value ? params.set('city', value) : params.delete('city')
-		router.push(`?${params.toString()}`)
-	}
 
 	const clearFilters = () => {
 		setSearchTerm('')
@@ -130,9 +86,9 @@ const FiltersClients = () => {
 				onToggle={() => setAddressIsOpen(!addressIsOpen)}
 			>
 				<PopoverTrigger sizes='xs' variants='secondary'>
-					{isAddressSelected && (
+					{/* {isAddressSelected && (
 						<div className='w-4 h-4 rounded-full bg-primary dark:bg-muted absolute right-3 -top-2' />
-					)}
+					)} */}
 					<FaFilter size={24} />
 					Localização
 				</PopoverTrigger>

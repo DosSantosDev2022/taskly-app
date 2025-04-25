@@ -12,6 +12,7 @@ import { ActionTable } from '@/components/global/actionsTable'
 import { v4 as uuidv4 } from 'uuid'
 import { FiltersClients } from '@/components/pages/clients/filterClients'
 import type { ClientWithProjects } from '@/@types/dataTypes'
+import { fetchClients } from '@/lib/api/fetchClients'
 
 type ClientsProps = {
 	searchParams: Promise<{
@@ -27,6 +28,14 @@ export default async function Clients({ searchParams }: ClientsProps) {
 	const { search, city, state, status, page = '1' } = await searchParams
 	const currentPage = Number.parseInt(page, 10)
 	const limit = 10
+	const query = new URLSearchParams()
+	if (search) query.set('search', search)
+	if (status) query.set('status', status)
+	if (state) query.set('state', state)
+	if (city) query.set('city', city)
+	query.set('page', page)
+	query.set('limit', limit.toString())
+
 	const headers = [
 		'Nome',
 		'Email',
@@ -38,21 +47,16 @@ export default async function Clients({ searchParams }: ClientsProps) {
 		'Ação',
 	]
 
-	const query = new URLSearchParams()
-	if (search) query.set('search', search)
-	if (status) query.set('status', status)
-	if (state) query.set('state', state)
-	if (city) query.set('city', city)
-	query.set('page', page)
-	query.set('limit', limit.toString())
-
-	const res = await fetch(
-		`${process.env.NEXT_PUBLIC_URL}/api/clients?${query.toString()}`,
-		{
-			cache: 'no-store',
+	const { clients, total } = await fetchClients({
+		query: {
+			search,
+			status,
+			state,
+			city,
+			page,
+			limit,
 		},
-	)
-	const { clients, total } = await res.json()
+	})
 
 	return (
 		<div className='flex flex-col space-y-3 h-full overflow-hidden'>

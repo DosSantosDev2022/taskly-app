@@ -68,3 +68,14 @@ export const clientSchema = z.object({
 })
 
 export type ClientFormData = z.infer<typeof clientSchema>
+
+export const projectSchema = z.object({
+  name: z.string().min(1, 'O nome do projeto é obrigatório'),
+  description: z.string().min(1, 'A descrição é obrigatória'),
+  clientId: z.string().optional(),
+  teamId: z.string().optional(),
+  status: z.enum(['active','archived']),
+  ownerId: z.string()
+})
+
+export type ProjectFormData = z.infer<typeof projectSchema>

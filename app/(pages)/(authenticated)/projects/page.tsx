@@ -1,4 +1,5 @@
-import { PaginationApp } from '@/components/global/pagination'
+import type { ProjectWithRelations } from '@/@types/dataTypes'
+import { Pagination } from '@/components/global/pagination'
 import { AddProjects } from '@/components/pages/project/addProject'
 import { FiltersProject } from '@/components/pages/project/filtersProject'
 import {
@@ -8,69 +9,54 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui'
+import { fetchClients } from '@/lib/api/fetchClients'
+import { fetchProjects } from '@/lib/api/fetchProjects'
+import { formatDate } from '@/utils/formatDate'
 import { FaFile } from 'react-icons/fa'
-import { v4 as uuidv4 } from 'uuid'
 
-export default function Projects() {
+type ProjectProps = {
+	searchParams: Promise<{
+		search?: string
+		status?: string
+		start?: string
+		end?: string
+		page?: string
+	}>
+}
+
+export default async function Projects({ searchParams }: ProjectProps) {
+	const { search, start, end, status, page = '1' } = await searchParams
+	const currentPage = Number.parseInt(page, 10)
+	const limit = 10
+	const query = new URLSearchParams()
+	if (search) query.set('search', search)
+	if (status) query.set('status', status)
+	if (start) query.set('start', start)
+	if (end) query.set('end', end)
+	query.set('page', page)
+	query.set('limit', limit.toString())
+
+	const { projects, total } = await fetchProjects({
+		query: {
+			search,
+			status,
+			start,
+			end,
+			page,
+			limit,
+		},
+	})
+	const { clients } = await fetchClients()
+
 	const headers = [
 		'Nome',
 		'Descrição',
+		'Cliente',
 		'Proprietário',
 		'Time',
 		'Data',
 		'Status',
 	]
-
-	const data = [
-		{
-			Nome: 'Desenvolvimento de Novo Site',
-			Descrição: 'Criar um site moderno e responsivo para a empresa.',
-			Proprietário: 'Juliano Santos',
-			Time: 'Equipe de Desenvolvimento',
-			Data: '14/04/2025',
-			Status: 'EM ANDAMENTO',
-		},
-		{
-			Nome: 'Campanha de Marketing Digital',
-			Descrição:
-				'Planejar e executar uma campanha de marketing para aumentar as vendas.',
-			Proprietário: 'Juliano Santos',
-			Time: 'Equipe de Desenvolvimento',
-			Data: '14/04/2025',
-			Status: 'CONCLUIDO',
-		},
-		{
-			Nome: 'Desenvolvimento de Aplicativo Móvel',
-			Descrição: 'Criar um aplicativo móvel para iOS e Android.',
-			Proprietário: 'Juliano Santos',
-			Time: 'Equipe de Desenvolvimento',
-			Data: '14/04/2025',
-			Status: 'PENDENTE',
-		},
-		{
-			Nome: 'Otimização de Processos Internos',
-			Descrição: 'Analisar e otimizar os processos internos da empresa.',
-			Proprietário: 'Juliano Santos',
-			Time: 'Equipe de Desenvolvimento',
-			Data: '14/04/2025',
-			Status: 'EM ANDAMENTO',
-		},
-		{
-			Nome: 'Lançamento de Novo Produto',
-			Descrição:
-				'Planejar e executar o lançamento de um novo produto no mercado.',
-			Proprietário: 'Juliano Santos',
-			Time: 'Equipe de Desenvolvimento',
-			Data: '14/04/2025',
-			Status: 'CONCLUIDO',
-		},
-	]
-
-	const statusColors = {
-		'EM ANDAMENTO': 'bg-warning/60',
-		CONCLUIDO: 'bg-success/60',
-		PENDENTE: 'bg-danger/60',
-	}
 
 	return (
 		<div className='flex flex-col space-y-3 h-full overflow-hidden'>
@@ -83,7 +69,7 @@ export default function Projects() {
 				</div>
 
 				<div className='flex items-center justify-between p-1.5 space-x-2'>
-					<AddProjects />
+					<AddProjects clients={clients} />
 					{/* Filters */}
 					<FiltersProject />
 				</div>
@@ -101,28 +87,33 @@ export default function Projects() {
 						</tr>
 					</TableHeader>
 					<TableBody>
-						{data.map((row) => (
-							<TableRow key={uuidv4()}>
-								{Object.values(row).map((cell, index) => {
-									if (headers[index] === 'Status') {
-										return (
-											<TableCell key={uuidv4()} className={'w-28'}>
-												<span
-													className={`${statusColors[cell]} flex justify-center items-center w-full text-[11px] font-medium text-accent-foreground dark:text-foreground px-1.5 py-0.5 rounded-2xl`}
-												>
-													{cell}
-												</span>
-											</TableCell>
-										)
-									}
-									return <TableCell key={uuidv4()}>{cell}</TableCell>
-								})}
+						{projects.map((project: ProjectWithRelations) => (
+							<TableRow key={project.id}>
+								<TableCell>{project.name}</TableCell>
+								<TableCell>{project.description}</TableCell>
+								<TableCell>{project.client?.name}</TableCell>
+								<TableCell>{project.owner.name}</TableCell>
+								<TableCell>
+									{project.team ? <>{project.team?.teamName}</> : <>-</>}
+								</TableCell>
+								<TableCell>{formatDate(project.createdAt)}</TableCell>
+								<TableCell>
+									{project.status === 'active' ? (
+										<span className='p-1 font-semibold text-success'>
+											Ativo
+										</span>
+									) : (
+										<span className='p-1 font-semibold text-muted-foreground'>
+											Arquivado
+										</span>
+									)}
+								</TableCell>
 							</TableRow>
 						))}
 					</TableBody>
 				</Table>
 				<div className='w-full p-2 mt-1 flex items-center justify-end'>
-					<PaginationApp />
+					<Pagination limit={limit} page={currentPage} total={total} />
 				</div>
 			</div>
 		</div>

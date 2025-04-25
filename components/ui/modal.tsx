@@ -235,8 +235,9 @@ const ModalContent = React.forwardRef<
 				<div
 					data-state={isOpen ? 'open' : 'closed'}
 					className={twMerge(
-						'w-3/4 space-y-2 border border-border bg-background p-3 shadow-lg sm:w-1/2 sm:rounded-lg sm:p-6',
+						'space-y-2 border border-border bg-background p-6 shadow-lg w-full max-w-2xl sm:rounded-lg sm:p-6',
 						'data-[state=closed]:animate-modal-out data-[state=open]:animate-modal-in',
+						'transition-all duration-200',
 						className,
 					)}
 					ref={ref}

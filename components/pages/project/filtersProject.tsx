@@ -6,44 +6,57 @@ import {
 } from '@/components/global/popover'
 import { Button, Input } from '@/components/ui'
 import { DatePicker } from '@/components/ui/datePicker'
-import { useState } from 'react'
+import {
+	DATE_FORMAT,
+	useHandleDateChange,
+} from '@/hooks/useHandleDateChange'
+import { useHandleSearchChange } from '@/hooks/useHandleSearchChange'
+import { useHandleStatusChange } from '@/hooks/useStatusChange'
+import { parse } from 'date-fns'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { FaCheck, FaFilter } from 'react-icons/fa'
 import { LuSearch } from 'react-icons/lu'
 import { SiCcleaner } from 'react-icons/si'
 
 const FiltersProject = () => {
-	const [searchTerm, setSearchTerm] = useState('')
+	const searchParams = useSearchParams()
 	const [isOpen, setIsOpen] = useState(false)
-	const [date, setDate] = useState<{
-		startDate: Date | null
-		endDate: Date | null
-	}>({
-		startDate: null,
-		endDate: null,
-	})
-	const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
-	const availabStatuses = ['Em andamento', 'Concluído', 'Pendente']
+	const availabStatuses = ['active', 'archived']
+
+	const { selectedStatuses, setSelectedStatuses, handleStatusChange } =
+		useHandleStatusChange(searchParams.toString())
+
+	const { searchTerm, handleSearchChange, setSearchTerm } =
+		useHandleSearchChange(searchParams.toString())
+
+	const { date, handleDateChange, clearDateFilters, setDate } =
+		useHandleDateChange(searchParams.toString())
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		const search = searchParams.get('search') || ''
+		const status = searchParams.get('status')?.split(',') ?? []
+		const startdate = searchParams.get('start') || ''
+		const endDate = searchParams.get('end') || ''
+
+		const parsedStartDate = startdate
+			? parse(startdate, DATE_FORMAT, new Date())
+			: null
+		const parsedEndDate = endDate
+			? parse(endDate, DATE_FORMAT, new Date())
+			: null
+
+		setSearchTerm(search)
+		setSelectedStatuses(status)
+		setDate({ startDate: parsedStartDate, endDate: parsedEndDate })
+	}, [searchParams])
 
 	const clearFilters = () => {
 		setSearchTerm('')
-		setDate({ startDate: null, endDate: null })
+		clearDateFilters()
 		setSelectedStatuses([])
 		setIsOpen(false)
-	}
-
-	const handleDateChange = (newDate: {
-		startDate: Date | null
-		endDate: Date | null
-	}) => {
-		setDate(newDate)
-	}
-
-	const handleStatusChange = (status: string) => {
-		if (selectedStatuses.includes(status)) {
-			setSelectedStatuses(selectedStatuses.filter((s) => s !== status))
-		} else {
-			setSelectedStatuses([...selectedStatuses, status])
-		}
 	}
 
 	return (
@@ -54,7 +67,7 @@ const FiltersProject = () => {
 				placeholder='Buscar...'
 				icon={<LuSearch />}
 				value={searchTerm}
-				onChange={(e) => setSearchTerm(e.target.value)}
+				onChange={(e) => handleSearchChange(e.target.value)}
 			/>
 			{/* <FilterDate /> */}
 			<DatePicker date={date} onChange={handleDateChange} />
@@ -92,7 +105,7 @@ const FiltersProject = () => {
 									className='text-muted-foreground text-sm'
 									htmlFor={status}
 								>
-									{status}
+									{status === 'active' ? 'Ativo' : 'Arquivado'}
 								</label>
 							</div>
 						))}
