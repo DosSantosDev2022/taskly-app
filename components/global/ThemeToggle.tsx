@@ -6,13 +6,28 @@ const ThemeToggle = () => {
 	const [isDark, setIsDark] = useState(false)
 
 	useEffect(() => {
-		const savedTheme = localStorage.getItem('theme')
-		const prefersDark = window.matchMedia(
-			'(prefers-color-scheme: dark)',
-		).matches
-		const isDark = savedTheme === 'dark' || (!savedTheme && prefersDark)
-		setIsDark(isDark)
-		document.documentElement.classList.toggle('dark', isDark)
+		// Função para atualizar o tema com base no localStorage
+		const updateTheme = () => {
+			const savedTheme = localStorage.getItem('theme')
+			const prefersDark = window.matchMedia(
+				'(prefers-color-scheme: dark)',
+			).matches
+			const newIsDark =
+				savedTheme === 'dark' || (!savedTheme && prefersDark)
+			setIsDark(newIsDark)
+			document.documentElement.classList.toggle('dark', newIsDark)
+		}
+
+		// Inicialização do tema ao montar o componente
+		updateTheme()
+
+		// Listener para mudanças no localStorage (outros tabs/janelas)
+		window.addEventListener('storage', updateTheme)
+
+		// Remover o listener quando o componente é desmontado
+		return () => {
+			window.removeEventListener('storage', updateTheme)
+		}
 	}, [])
 
 	const toggleTheme = () => {
