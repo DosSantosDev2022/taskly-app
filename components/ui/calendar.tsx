@@ -24,6 +24,7 @@ const Calendar = ({ value, onChange, range }: CalendarProps) => {
 			<div className='mb-2 flex w-full items-center gap-2'>
 				<div className='flex w-full items-center justify-between gap-8 rounded-xl  border border-border p-1'>
 					<Button
+						type='button'
 						aria-label='chevron-left'
 						variants='ghost'
 						sizes='icon'
@@ -35,6 +36,7 @@ const Calendar = ({ value, onChange, range }: CalendarProps) => {
 						{format(currentDate, 'MMMM yyyy', { locale: ptBR })}
 					</span>
 					<Button
+						type='button'
 						aria-label='chevron-right'
 						variants='ghost'
 						sizes='icon'

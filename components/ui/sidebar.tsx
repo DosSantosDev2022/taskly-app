@@ -267,7 +267,7 @@ const SideBarTooltip = React.forwardRef<
 			{...props}
 			className={twMerge(
 				'absolute left-16 z-50 ml-2',
-				' whitespace-nowrap rounded-md bg-accent px-2 py-1.5 text-sm text-accent-foreground shadow-md',
+				' whitespace-nowrap rounded-md bg-secondary px-2 py-1.5 text-sm text-secondary-foreground shadow-md',
 				'invisible opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100',
 			)}
 		>
