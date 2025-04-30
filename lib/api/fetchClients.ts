@@ -4,6 +4,7 @@ type FetchClientsParams = {
 	query?: Record<string, string | number | boolean | undefined>
 	baseUrl?: string
 	cache?: RequestCache
+	revalidade?: number
 }
 
 type FetchClientsResponse = {
@@ -14,7 +15,8 @@ type FetchClientsResponse = {
 export async function fetchClients({
 	query = {},
 	baseUrl = process.env.NEXT_PUBLIC_URL,
-	cache = 'no-store',
+	cache = 'force-cache',
+	revalidade
 }: FetchClientsParams = {}): Promise<FetchClientsResponse> {
 	const searchParams = new URLSearchParams()
 
@@ -28,6 +30,9 @@ export async function fetchClients({
 	try {
 		const res = await fetch(`${baseUrl}/api/clients?${searchParams.toString()}`, {
 			cache,
+			next: {
+				revalidate: revalidade
+			}
 		})
 
 		if (!res.ok) {

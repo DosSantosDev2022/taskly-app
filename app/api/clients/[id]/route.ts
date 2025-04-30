@@ -1,5 +1,4 @@
 import { db } from '@/lib/prisma'
-import type { ClientWithProjects } from '@/@types/dataTypes'
 import { NextResponse } from 'next/server'
 
 

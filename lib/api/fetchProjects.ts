@@ -4,12 +4,14 @@ export type FetchProjectsParams = {
 	query?: Record<string, string | number | boolean | undefined>
 	baseUrl?: string // opcional, útil para SSR
 	cache?: RequestCache
+	revalidade?: number
 }
 
 export const fetchProjects = async ({
 	query = {},
 	baseUrl = process.env.NEXT_PUBLIC_URL,
-	cache = 'no-store',
+	cache,
+	revalidade
 }: FetchProjectsParams) => {
 	const searchParams = new URLSearchParams()
 
@@ -22,6 +24,9 @@ export const fetchProjects = async ({
 
 	const res = await fetch(`${baseUrl}/api/projects?${searchParams.toString()}`, {
 		cache,
+		next : {
+			revalidate: revalidade
+		}
 	})
 
 	if (!res.ok) {
