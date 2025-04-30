@@ -14,7 +14,7 @@ export async function addProject(formData: unknown) {
 		}
 	}
 
-	const { name, description, ownerId,clientId,teamId, status } = result.data
+	const { name, description, ownerId,clientId,teamId, status, dueDate } = result.data
 
 	try {
 		await db.project.create({
@@ -25,6 +25,7 @@ export async function addProject(formData: unknown) {
 				teamId,
         ownerId,
 				status,
+				dueDate
 			},
 		})
 
