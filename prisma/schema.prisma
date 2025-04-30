@@ -99,8 +99,10 @@ model PasswordResetToken {
 
 // Status do Projeto (Enum)
 enum ProjectStatus {
-  active
-  archived
+  in_progress // Em andamento
+  pending // Pendente
+  completed // Concluído
+  archived // Arquivado
 }
 
 enum ClientStatus {
@@ -115,6 +117,7 @@ model Project {
   status      ProjectStatus
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  dueDate     DateTime?
   ownerId     String
   teamId      String?
   clientId    String?
@@ -162,20 +165,20 @@ enum TaskPriority {
 }
 
 model Task {
-  id         String       @id @default(uuid())
-  title      String
-  desciption String?
-  status     TaskStatus[]
-  priority   TaskPriority
-  dueDate    DateTime
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  projectId  String
-  ownerId    String
-  teamId     String
-  project    Project      @relation(fields: [projectId], references: [id])
-  owner      User         @relation(fields: [ownerId], references: [id])
-  team       Team         @relation(fields: [teamId], references: [id])
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus
+  priority    TaskPriority
+  dueDate     DateTime
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  projectId   String
+  ownerId     String
+  teamId      String?
+  project     Project      @relation(fields: [projectId], references: [id])
+  owner       User         @relation(fields: [ownerId], references: [id])
+  team        Team?        @relation(fields: [teamId], references: [id])
 
   comments     Comment[]
   tags         TaskTag[]
@@ -216,9 +219,9 @@ model Comment {
   id        String   @id @default(uuid())
   content   String
   createdAt DateTime @default(now())
-  taskId    String
+  taskId    String?
   userId    String
-  task      Task     @relation(fields: [taskId], references: [id])
+  task      Task?    @relation(fields: [taskId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
   Project   Project? @relation(fields: [projectId], references: [id])
   projectId String?
