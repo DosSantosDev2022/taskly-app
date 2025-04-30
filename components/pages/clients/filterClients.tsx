@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { FaCheck, FaFilter } from 'react-icons/fa'
+import { FaCheck, FaFilter, FaMapMarkerAlt } from 'react-icons/fa'
 import { LuSearch } from 'react-icons/lu'
 import { SiCcleaner } from 'react-icons/si'
 import {
@@ -20,6 +20,8 @@ import {
 import { useHandleStatusChange } from '@/hooks/useStatusChange'
 import { useHandleSearchChange } from '@/hooks/useHandleSearchChange'
 import { useHandleLocationChange } from '@/hooks/useHandleLocationChange'
+import { Tooltip } from '@/components/ui/tooltip'
+import { IndicatorBadge } from '@/components/global/indicatorBadge'
 
 const FiltersClients = () => {
 	const [statusIsOpen, setStatusIsOpen] = useState(false)
@@ -71,30 +73,29 @@ const FiltersClients = () => {
 
 	return (
 		<div className='flex items-center space-x-2'>
-			{/* 🔍 Search */}
 			<Input
-				className='w-56 h-10'
+				className='w-56  h-8'
 				placeholder='Buscar...'
 				icon={<LuSearch />}
 				value={searchTerm}
 				onChange={(e) => handleSearchChange(e.target.value)}
 			/>
 
-			{/* 📍 Endereço (Estado + Cidade) */}
 			<PopoverRoot
 				isOpen={addressIsOpen}
 				onToggle={() => setAddressIsOpen(!addressIsOpen)}
 			>
-				<PopoverTrigger sizes='xs' variants='secondary'>
-					{/* {isAddressSelected && (
-						<div className='w-4 h-4 rounded-full bg-primary dark:bg-muted absolute right-3 -top-2' />
-					)} */}
-					<FaFilter size={24} />
-					Localização
-				</PopoverTrigger>
+				{stateSelected.length > 0 && <IndicatorBadge color='secondary' />}
+				<Tooltip content='Localização'>
+					<PopoverTrigger>
+						<Button sizes='icon' variants='secondary'>
+							<FaMapMarkerAlt />
+						</Button>
+					</PopoverTrigger>
+				</Tooltip>
+
 				<PopoverContent alignment='bottom' className='p-4 w-56 mt-1'>
 					<div className='flex flex-col gap-4'>
-						{/* Estado */}
 						<div>
 							<Label className='text-sm font-medium'>Estado</Label>
 							<Select
@@ -113,8 +114,6 @@ const FiltersClients = () => {
 								</SelectContent>
 							</Select>
 						</div>
-
-						{/* Cidade */}
 						<div>
 							<Label className='text-sm font-medium'>Cidade</Label>
 							<Select
@@ -143,23 +142,21 @@ const FiltersClients = () => {
 					</div>
 				</PopoverContent>
 			</PopoverRoot>
-
-			{/* ✅ Status */}
 			<PopoverRoot
 				isOpen={statusIsOpen}
 				onToggle={() => setStatusIsOpen(!statusIsOpen)}
 			>
-				<PopoverTrigger
-					sizes='xs'
-					variants='secondary'
-					className='relative'
-				>
-					{selectedStatuses.length > 0 && (
-						<div className='w-4 h-4 rounded-full bg-primary dark:bg-muted absolute right-3 -top-2' />
-					)}
-					<FaFilter size={10} />
-					Status
-				</PopoverTrigger>
+				<Tooltip content='Status'>
+					<PopoverTrigger>
+						<Button sizes='icon' variants='secondary' className='relative'>
+							{selectedStatuses.length > 0 && (
+								<IndicatorBadge color='secondary' />
+							)}
+							<FaFilter />
+						</Button>
+					</PopoverTrigger>
+				</Tooltip>
+
 				<PopoverContent alignment='bottom' className='p-4 w-56 mt-1'>
 					{availabStatuses.map((status) => (
 						<div key={status} className='flex items-center mb-2 space-x-3'>
@@ -183,12 +180,11 @@ const FiltersClients = () => {
 					))}
 				</PopoverContent>
 			</PopoverRoot>
-
-			{/* 🧹 Limpar */}
-			<Button sizes='xs' variants='secondary' onClick={clearFilters}>
-				<SiCcleaner size={18} />
-				Limpar
-			</Button>
+			<Tooltip position='top-end' content='Limpar filtros'>
+				<Button sizes='icon' variants='secondary' onClick={clearFilters}>
+					<SiCcleaner />
+				</Button>
+			</Tooltip>
 		</div>
 	)
 }

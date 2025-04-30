@@ -1,4 +1,5 @@
 'use client'
+import { IndicatorBadge } from '@/components/global/indicatorBadge'
 import {
 	PopoverContent,
 	PopoverRoot,
@@ -6,12 +7,14 @@ import {
 } from '@/components/global/popover'
 import { Button, Input } from '@/components/ui'
 import { DatePicker } from '@/components/ui/datePicker'
+import { Tooltip } from '@/components/ui/tooltip'
 import {
 	DATE_FORMAT,
 	useHandleDateChange,
 } from '@/hooks/useHandleDateChange'
 import { useHandleSearchChange } from '@/hooks/useHandleSearchChange'
 import { useHandleStatusChange } from '@/hooks/useStatusChange'
+import { translateStatus } from '@/utils/translateStatus'
 import { parse } from 'date-fns'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -22,7 +25,12 @@ import { SiCcleaner } from 'react-icons/si'
 const FiltersProject = () => {
 	const searchParams = useSearchParams()
 	const [isOpen, setIsOpen] = useState(false)
-	const availabStatuses = ['active', 'archived']
+	const availabStatuses = [
+		'in_progress',
+		'pending',
+		'completed',
+		'archived',
+	]
 
 	const { selectedStatuses, setSelectedStatuses, handleStatusChange } =
 		useHandleStatusChange(searchParams.toString())
@@ -63,27 +71,33 @@ const FiltersProject = () => {
 		<div className='flex items-center space-x-2'>
 			{/* Filter Search */}
 			<Input
-				className='w-56 h-10'
+				className='w-56 h-8'
 				placeholder='Buscar...'
 				icon={<LuSearch />}
 				value={searchTerm}
 				onChange={(e) => handleSearchChange(e.target.value)}
 			/>
 			{/* <FilterDate /> */}
-			<DatePicker date={date} onChange={handleDateChange} />
+			<DatePicker
+				variants='secondary'
+				sizes='full'
+				date={date}
+				onChange={handleDateChange}
+				range
+			/>
 			{/* Filter Status */}
 			<PopoverRoot isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)}>
-				<PopoverTrigger
-					className='relative'
-					sizes='xs'
-					variants='secondary'
-				>
-					{selectedStatuses.length > 0 && (
-						<div className='w-4 h-4 rounded-full bg-primary dark:bg-muted absolute right-3 -top-2' />
-					)}
-					<FaFilter size={10} />
-					Status
+				<PopoverTrigger>
+					<Button sizes='icon' variants='secondary'>
+						<Tooltip content='Status'>
+							{selectedStatuses.length > 0 && (
+								<IndicatorBadge color='secondary' />
+							)}
+							<FaFilter size={14} />
+						</Tooltip>
+					</Button>
 				</PopoverTrigger>
+
 				<PopoverContent alignment='bottom' className='p-4 w-56 mt-1'>
 					<div>
 						{availabStatuses.map((status) => (
@@ -105,18 +119,18 @@ const FiltersProject = () => {
 									className='text-muted-foreground text-sm'
 									htmlFor={status}
 								>
-									{status === 'active' ? 'Ativo' : 'Arquivado'}
+									{translateStatus(status)}
 								</label>
 							</div>
 						))}
 					</div>
 				</PopoverContent>
 			</PopoverRoot>
-
-			<Button sizes='xs' variants='secondary' onClick={clearFilters}>
-				<SiCcleaner size={18} />
-				Limpar
-			</Button>
+			<Tooltip position='top-end' content='Limpar filtros'>
+				<Button sizes='icon' variants='secondary' onClick={clearFilters}>
+					<SiCcleaner />
+				</Button>
+			</Tooltip>
 		</div>
 	)
 }

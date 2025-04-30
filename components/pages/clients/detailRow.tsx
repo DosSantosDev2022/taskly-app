@@ -5,10 +5,10 @@ type DetailRowProps = {
 }
 
 const DetailRow = ({ label, value }: DetailRowProps) => (
-	<p>
+	<div>
 		<strong className='font-bold'>{label}</strong>{' '}
 		<span className='text-foreground'>{value}</span>
-	</p>
+	</div>
 )
 
 export { DetailRow }

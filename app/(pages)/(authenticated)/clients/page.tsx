@@ -1,20 +1,21 @@
 import { Pagination } from '@/components/global/pagination'
 import { AddClients } from '@/components/pages/clients/addClients'
 import {
+	Badge,
 	Table,
 	TableBody,
 	TableCell,
+	TableHead,
 	TableHeader,
 	TableRow,
 } from '@/components/ui'
 import { FaUser } from 'react-icons/fa'
-import { ActionTable } from '@/components/global/actionsTable'
-import { v4 as uuidv4 } from 'uuid'
+import { ActionClientTable } from '@/components/pages/clients/actionsClientsTable'
 import { FiltersClients } from '@/components/pages/clients/filterClients'
 import type { ClientWithProjects } from '@/@types/dataTypes'
 import { fetchClients } from '@/lib/api/fetchClients'
 
-type ClientsProps = {
+type ClientsSearchParams = {
 	searchParams: Promise<{
 		search?: string
 		status?: string
@@ -24,11 +25,16 @@ type ClientsProps = {
 	}>
 }
 
-export default async function Clients({ searchParams }: ClientsProps) {
+export default async function Clients({
+	searchParams,
+}: ClientsSearchParams) {
 	const { search, city, state, status, page = '1' } = await searchParams
+
 	const currentPage = Number.parseInt(page, 10)
 	const limit = 10
+
 	const query = new URLSearchParams()
+
 	if (search) query.set('search', search)
 	if (status) query.set('status', status)
 	if (state) query.set('state', state)
@@ -59,7 +65,7 @@ export default async function Clients({ searchParams }: ClientsProps) {
 	})
 
 	return (
-		<div className='flex flex-col space-y-3 h-full overflow-hidden'>
+		<div className='flex flex-col space-y-1 h-full overflow-hidden'>
 			<div className='flex flex-col space-y-3'>
 				<div className='flex items-center space-x-3 p-1.5'>
 					<FaUser size={28} />
@@ -67,7 +73,7 @@ export default async function Clients({ searchParams }: ClientsProps) {
 						Meus Clientes
 					</h3>
 				</div>
-				<div className='flex items-center justify-between p-1.5 space-x-2'>
+				<div className='flex items-center justify-between p-1 space-x-2'>
 					<AddClients />
 					<FiltersClients />
 				</div>
@@ -76,37 +82,41 @@ export default async function Clients({ searchParams }: ClientsProps) {
 			<div className='flex-grow'>
 				<Table>
 					<TableHeader>
-						<tr>
+						<TableRow>
 							{headers.map((header) => (
-								<TableCell key={header}>{header}</TableCell>
+								<TableHead key={header}>{header}</TableHead>
 							))}
-						</tr>
+						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{clients.map((client: ClientWithProjects) => (
-							<TableRow key={uuidv4()}>
-								<TableCell>{client.name}</TableCell>
-								<TableCell>{client.email}</TableCell>
-								<TableCell>{client.phone}</TableCell>
-								<TableCell>{client.address}</TableCell>
-								<TableCell>{client.city}</TableCell>
-								<TableCell>{client.state}</TableCell>
-								<TableCell>
-									{client.status === 'active' ? (
-										<span className='p-1 font-semibold text-success'>
-											Ativo
-										</span>
-									) : (
-										<span className='p-1 font-semibold text-warning'>
-											Inativo
-										</span>
-									)}
-								</TableCell>
-								<TableCell>
-									<ActionTable id={client.id} path='clients' />
+						{clients.length > 0 ? (
+							clients.map((client: ClientWithProjects) => (
+								<TableRow key={client.id}>
+									<TableCell>{client.name}</TableCell>
+									<TableCell>{client.email}</TableCell>
+									<TableCell className='w-24'>{client.phone}</TableCell>
+									<TableCell>{client.address}</TableCell>
+									<TableCell>{client.city}</TableCell>
+									<TableCell className='w-4'>{client.state}</TableCell>
+									<TableCell className='w-4'>
+										{client.status === 'active' ? (
+											<Badge>Ativo</Badge>
+										) : (
+											<Badge variant='warning'>Inativo</Badge>
+										)}
+									</TableCell>
+									<TableCell className='w-10'>
+										<ActionClientTable id={client.id} path='clients' />
+									</TableCell>
+								</TableRow>
+							))
+						) : (
+							<TableRow>
+								<TableCell colSpan={8} className='text-center py-6'>
+									Nenhum cliente encontrado.
 								</TableCell>
 							</TableRow>
-						))}
+						)}
 					</TableBody>
 				</Table>
 				<div className='w-full p-2 mt-1 flex items-center justify-between'>

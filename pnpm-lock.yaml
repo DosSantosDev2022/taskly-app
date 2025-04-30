@@ -20,6 +20,9 @@ importers:
       '@radix-ui/react-popover':
         specifier: ^1.1.7
         version: 1.1.7(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@radix-ui/react-progress':
+        specifier: ^1.1.4
+        version: 1.1.4(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-select':
         specifier: ^2.1.7
         version: 2.1.7(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -38,12 +41,18 @@ importers:
       bcryptjs:
         specifier: ^3.0.2
         version: 3.0.2
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
       framer-motion:
         specifier: ^12.6.3
         version: 12.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
       lucide-react:
         specifier: ^0.484.0
         version: 0.484.0(react@19.1.0)
@@ -53,6 +62,9 @@ importers:
       next-auth:
         specifier: ^4.24.11
         version: 4.24.11(next@15.3.0(@babel/core@7.26.10)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      npm:
+        specifier: ^11.3.0
+        version: 11.3.0
       postcss:
         specifier: ^8.5.3
         version: 8.5.3
@@ -959,6 +971,32 @@ packages:
       '@types/react-dom':
         optional: true
 
+  '@radix-ui/react-primitive@2.1.0':
+    resolution: {integrity: sha512-/J/FhLdK0zVcILOwt5g+dH4KnkonCtkVJsa2G6JmvbbtZfBEI1gMsO3QMjseL4F/SwfAMt1Vc/0XKYKq+xJ1sw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-progress@1.1.4':
+    resolution: {integrity: sha512-8rl9w7lJdcVPor47Dhws9mUHRHLE+8JEgyJRdNWCpGPa6HIlr3eh+Yn9gyx1CnCLbw5naHsI2gaO9dBWO50vzw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
   '@radix-ui/react-select@2.1.7':
     resolution: {integrity: sha512-exzGIRtc7S8EIM2KjFg+7lJZsH7O7tpaBaJbBNVDnOZNhtoQ2iV+iSNfi2Wth0m6h3trJkMVvzAehB3c6xj/3Q==}
     peerDependencies:
@@ -1587,6 +1625,9 @@ packages:
     resolution: {integrity: sha512-OAlb+T7V4Op9OwdkjmguYRqncdlx5JiofwOAUkmTF+jNdHwzTaTs4sRAGpzLF3oOz5xAyDGrPgeIDFQmDOTiJw==}
     engines: {node: '>= 16'}
 
+  class-variance-authority@0.7.1:
+    resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
+
   cli-cursor@5.0.0:
     resolution: {integrity: sha512-aCj4O5wKyszjMmDT4tZj93kxyydN/K5zPWSCe6/0AV/AA1pqe5ZBIw0a2ZfPQV7lL5/yb5HsUreJ6UFAF1tEQw==}
     engines: {node: '>=18'}
@@ -1601,6 +1642,10 @@ packages:
   cliui@8.0.1:
     resolution: {integrity: sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ==}
     engines: {node: '>=12'}
+
+  clsx@2.1.1:
+    resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
+    engines: {node: '>=6'}
 
   color-convert@2.0.1:
     resolution: {integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==}
@@ -1991,6 +2036,10 @@ packages:
     resolution: {integrity: sha512-QQnnxNyfvmHFIsj7gkPcYymR8Jdw/o7mp5ZFihxn6h8Ci6fh3Dx4E1gPjpQEpIuPo9XVNY/ZUwh4BPMjGyL01g==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
+  install@0.13.0:
+    resolution: {integrity: sha512-zDml/jzr2PKU9I8J/xyZBQn8rPCAY//UOYNmR01XwNwyfhEWObo2SWfSl1+0tm1u6PhxLwDnfsT/6jB7OUxqFA==}
+    engines: {node: '>= 0.10'}
+
   is-arrayish@0.2.1:
     resolution: {integrity: sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg==}
 
@@ -2323,6 +2372,78 @@ packages:
   npm-run-path@5.3.0:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  npm@11.3.0:
+    resolution: {integrity: sha512-luthFIP0nFX3+nTfYbWI3p4hP4CiVnKOZ5jdxnF2x7B+Shz8feiSJCLLzgJUNxQ2cDdTaVUiH6RRsMT++vIMZg==}
+    engines: {node: ^20.17.0 || >=22.9.0}
+    hasBin: true
+    bundledDependencies:
+      - '@isaacs/string-locale-compare'
+      - '@npmcli/arborist'
+      - '@npmcli/config'
+      - '@npmcli/fs'
+      - '@npmcli/map-workspaces'
+      - '@npmcli/package-json'
+      - '@npmcli/promise-spawn'
+      - '@npmcli/redact'
+      - '@npmcli/run-script'
+      - '@sigstore/tuf'
+      - abbrev
+      - archy
+      - cacache
+      - chalk
+      - ci-info
+      - cli-columns
+      - fastest-levenshtein
+      - fs-minipass
+      - glob
+      - graceful-fs
+      - hosted-git-info
+      - ini
+      - init-package-json
+      - is-cidr
+      - json-parse-even-better-errors
+      - libnpmaccess
+      - libnpmdiff
+      - libnpmexec
+      - libnpmfund
+      - libnpmorg
+      - libnpmpack
+      - libnpmpublish
+      - libnpmsearch
+      - libnpmteam
+      - libnpmversion
+      - make-fetch-happen
+      - minimatch
+      - minipass
+      - minipass-pipeline
+      - ms
+      - node-gyp
+      - nopt
+      - normalize-package-data
+      - npm-audit-report
+      - npm-install-checks
+      - npm-package-arg
+      - npm-pick-manifest
+      - npm-profile
+      - npm-registry-fetch
+      - npm-user-validate
+      - p-map
+      - pacote
+      - parse-conflict-json
+      - proc-log
+      - qrcode-terminal
+      - read
+      - semver
+      - spdx-expression-parse
+      - ssri
+      - supports-color
+      - tar
+      - text-table
+      - tiny-relative-date
+      - treeverse
+      - validate-npm-package-name
+      - which
 
   nwsapi@2.2.20:
     resolution: {integrity: sha512-/ieB+mDe4MrrKMT8z+mQL8klXydZWGR5Dowt4RAGKbJ3kIGEx3X4ljUo+6V73IXtUPWgfOlU5B9MlGxFO5T+cA==}
@@ -3734,6 +3855,25 @@ snapshots:
       '@types/react': 19.0.10
       '@types/react-dom': 19.0.4(@types/react@19.0.10)
 
+  '@radix-ui/react-primitive@2.1.0(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@radix-ui/react-slot': 1.2.0(@types/react@19.0.10)(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+    optionalDependencies:
+      '@types/react': 19.0.10
+      '@types/react-dom': 19.0.4(@types/react@19.0.10)
+
+  '@radix-ui/react-progress@1.1.4(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@radix-ui/react-context': 1.1.2(@types/react@19.0.10)(react@19.1.0)
+      '@radix-ui/react-primitive': 2.1.0(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+    optionalDependencies:
+      '@types/react': 19.0.10
+      '@types/react-dom': 19.0.4(@types/react@19.0.10)
+
   '@radix-ui/react-select@2.1.7(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@radix-ui/number': 1.1.1
@@ -4307,6 +4447,10 @@ snapshots:
 
   check-error@2.1.1: {}
 
+  class-variance-authority@0.7.1:
+    dependencies:
+      clsx: 2.1.1
+
   cli-cursor@5.0.0:
     dependencies:
       restore-cursor: 5.1.0
@@ -4323,6 +4467,8 @@ snapshots:
       string-width: 4.2.3
       strip-ansi: 6.0.1
       wrap-ansi: 7.0.0
+
+  clsx@2.1.1: {}
 
   color-convert@2.0.1:
     dependencies:
@@ -4714,6 +4860,8 @@ snapshots:
 
   ini@4.1.1: {}
 
+  install@0.13.0: {}
+
   is-arrayish@0.2.1: {}
 
   is-arrayish@0.3.2:
@@ -5005,6 +5153,8 @@ snapshots:
   npm-run-path@5.3.0:
     dependencies:
       path-key: 4.0.0
+
+  npm@11.3.0: {}
 
   nwsapi@2.2.20: {}
 

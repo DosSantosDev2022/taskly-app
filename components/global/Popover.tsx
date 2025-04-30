@@ -1,7 +1,13 @@
 'use client'
-import React, { createContext, type ReactNode, useContext } from 'react'
+import React, {
+	createContext,
+	forwardRef,
+	type ReactNode,
+	useContext,
+} from 'react'
 import { twMerge } from 'tailwind-merge'
 import { type ButtonProps, Button } from '@/components/ui/button'
+import { Slot } from '@radix-ui/react-slot'
 
 interface PopoverContextProps {
 	isOpen: boolean
@@ -52,16 +58,19 @@ const PopoverRoot = React.forwardRef<
 
 PopoverRoot.displayName = 'PopoverRoot'
 
-const PopoverTrigger = React.forwardRef<HTMLButtonElement, ButtonProps>(
+interface PopoverTriggerProps extends React.HTMLAttributes<HTMLElement> {}
+
+const PopoverTrigger = forwardRef<HTMLElement, PopoverTriggerProps>(
 	({ className, ...props }, ref) => {
 		const { toggleOpen, isOpen } = usePopoverContext()
+
 		return (
-			<Button
+			<Slot
 				onClick={toggleOpen}
 				aria-expanded={isOpen}
 				{...props}
-				className={twMerge('', className)}
 				ref={ref}
+				className={twMerge('relative', className)}
 			/>
 		)
 	},

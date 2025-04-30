@@ -30,6 +30,7 @@ import type { Client, Team } from '@prisma/client'
 import { addProject } from '@/actions/project/addProject'
 import { useSession } from 'next-auth/react'
 import { useNotification } from '@/context/notificationContext'
+import { DatePicker } from '@/components/ui/datePicker'
 
 const AddProjects = ({ clients }: { clients: Client[] }) => {
 	const { showNotification } = useNotification()
@@ -60,6 +61,7 @@ const AddProjects = ({ clients }: { clients: Client[] }) => {
 			status: data.status,
 			clientId: data.clientId || undefined,
 			teamId: data.teamId || undefined,
+			dueDate: data.dueDate,
 			ownerId,
 		}
 		const result = await addProject(formData)
@@ -79,7 +81,7 @@ const AddProjects = ({ clients }: { clients: Client[] }) => {
 	}, [errors])
 	return (
 		<ModalRoot>
-			<ModalTrigger>
+			<ModalTrigger sizes='xs'>
 				Adicionar <FaPlus />
 			</ModalTrigger>
 			<ModalOverlay variant='dark' />
@@ -188,32 +190,71 @@ const AddProjects = ({ clients }: { clients: Client[] }) => {
 							</div>
 						</div>
 
-						{/* Status */}
-						<div>
-							<Label htmlFor='status'>Status</Label>
-							<Controller
-								control={control}
-								name='status'
-								render={({ field }) => (
-									<Select
-										onValueChange={field.onChange}
-										value={field.value}
-									>
-										<SelectTrigger className='w-full'>
-											<SelectValue placeholder='Selecione o status' />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value='active'>Ativo</SelectItem>
-											<SelectItem value='archived'>Arquivado</SelectItem>
-										</SelectContent>
-									</Select>
+						<div className='grid grid-cols-2 gap-2'>
+							{/* Status */}
+							<div>
+								<Label htmlFor='status'>Status</Label>
+								<Controller
+									control={control}
+									name='status'
+									render={({ field }) => (
+										<Select
+											onValueChange={field.onChange}
+											value={field.value}
+										>
+											<SelectTrigger className='w-full'>
+												<SelectValue placeholder='Selecione o status' />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value='in_progress'>
+													Em andamento
+												</SelectItem>
+												<SelectItem value='pending'>Pendente</SelectItem>
+												<SelectItem value='completed'>
+													Concluído
+												</SelectItem>
+												<SelectItem value='archived'>Arquivado</SelectItem>
+											</SelectContent>
+										</Select>
+									)}
+								/>
+								{errors.status && (
+									<span className='text-danger text-sm'>
+										{errors.status.message}
+									</span>
 								)}
-							/>
-							{errors.status && (
-								<span className='text-danger text-sm'>
-									{errors.status.message}
-								</span>
-							)}
+							</div>
+
+							<div>
+								<Label htmlFor='dueDate'>Prazo de entrega</Label>
+								<Controller
+									control={control}
+									name='dueDate'
+									render={({ field }) => {
+										const value = field.value
+											? { startDate: field.value, endDate: field.value }
+											: { startDate: null, endDate: null }
+
+										return (
+											<DatePicker
+												date={value}
+												onChange={(newDate) =>
+													field.onChange(newDate.startDate)
+												}
+												range
+												sizes='full'
+												className='h-10'
+												variants='accent'
+											/>
+										)
+									}}
+								/>
+								{errors.dueDate && (
+									<p className='text-danger text-sm'>
+										{errors.dueDate.message}
+									</p>
+								)}
+							</div>
 						</div>
 					</div>
 					<ModalFooter className='p-2 pb-4 pt-2 flex justify-end'>

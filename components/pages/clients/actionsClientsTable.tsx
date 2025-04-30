@@ -1,17 +1,16 @@
 'use client'
-import { GrView } from 'react-icons/gr'
-import { Button } from '../ui'
+import { Button } from '@/components/ui'
 import { MdDelete } from 'react-icons/md'
 import { DeleteClient } from '@/actions/client/deleteClient'
 import { useNotification } from '@/context/notificationContext'
-import { ViewDetailsClient } from '../pages/clients/viewDetailsClient'
+import { ViewDetailsClient } from '@/components/pages/clients/viewDetailsClient'
 
 interface ActionTableProps {
 	id: string
 	path: string
 }
 
-const ActionTable = ({ id, path }: ActionTableProps) => {
+const ActionClientTable = ({ id, path }: ActionTableProps) => {
 	const { showNotification } = useNotification()
 
 	const handleDeleteClient = async () => {
@@ -25,18 +24,16 @@ const ActionTable = ({ id, path }: ActionTableProps) => {
 	}
 
 	return (
-		<div className='flex items-center justify-center gap-0.5 w-full'>
+		<div className='flex items-center justify-start gap-0.5'>
 			<ViewDetailsClient id={id} />
-			<Button
-				onClick={handleDeleteClient}
-				className='text-sm h-8'
-				sizes='icon'
-				variants='link'
-			>
-				<MdDelete size={24} />
+			<Button onClick={handleDeleteClient} sizes='icon' variants='link'>
+				<MdDelete
+					className='hover:scale-95 duration-300 transition-all'
+					size={20}
+				/>
 			</Button>
 		</div>
 	)
 }
 
-export { ActionTable }
+export { ActionClientTable }

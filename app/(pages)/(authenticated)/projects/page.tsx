@@ -1,4 +1,3 @@
-import type { ProjectWithRelations } from '@/@types/dataTypes'
 import { Pagination } from '@/components/global/pagination'
 import { AddProjects } from '@/components/pages/project/addProject'
 import { FiltersProject } from '@/components/pages/project/filtersProject'
@@ -6,6 +5,7 @@ import {
 	Table,
 	TableBody,
 	TableCell,
+	TableHead,
 	TableHeader,
 	TableRow,
 } from '@/components/ui'
@@ -13,6 +13,11 @@ import { fetchClients } from '@/lib/api/fetchClients'
 import { fetchProjects } from '@/lib/api/fetchProjects'
 import { formatDate } from '@/utils/formatDate'
 import { FaFile } from 'react-icons/fa'
+import { ActionProjectTable } from '@/components/pages/project/actionProjectTable'
+import { Badge } from '@/components/ui'
+import { isPastDueDate } from '@/utils/isPastDueDate'
+import { translateStatus } from '@/utils/translateStatus'
+import type { Project } from '@/@types/prismaSchema'
 
 type ProjectProps = {
 	searchParams: Promise<{
@@ -26,8 +31,10 @@ type ProjectProps = {
 
 export default async function Projects({ searchParams }: ProjectProps) {
 	const { search, start, end, status, page = '1' } = await searchParams
+
 	const currentPage = Number.parseInt(page, 10)
 	const limit = 10
+
 	const query = new URLSearchParams()
 	if (search) query.set('search', search)
 	if (status) query.set('status', status)
@@ -45,8 +52,10 @@ export default async function Projects({ searchParams }: ProjectProps) {
 			page,
 			limit,
 		},
+		cache: 'no-cache',
 	})
-	const { clients } = await fetchClients()
+
+	const { clients } = await fetchClients({ revalidade: 60 * 60 * 60 }) // revalida a cada 1h
 
 	const headers = [
 		'Nome',
@@ -55,7 +64,10 @@ export default async function Projects({ searchParams }: ProjectProps) {
 		'Proprietário',
 		'Time',
 		'Data',
+		'Prazo',
+		'Status prazo',
 		'Status',
+		'Ações',
 	]
 
 	return (
@@ -78,41 +90,76 @@ export default async function Projects({ searchParams }: ProjectProps) {
 			<div className='flex-grow'>
 				<Table>
 					<TableHeader>
-						<tr>
+						<TableRow>
 							{headers.map((header) => (
-								<TableCell className=' font-semibold' key={header}>
+								<TableHead className='text-sm font-semibold' key={header}>
 									{header}
-								</TableCell>
+								</TableHead>
 							))}
-						</tr>
+						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{projects.map((project: ProjectWithRelations) => (
-							<TableRow key={project.id}>
-								<TableCell>{project.name}</TableCell>
-								<TableCell>{project.description}</TableCell>
-								<TableCell>{project.client?.name}</TableCell>
-								<TableCell>{project.owner.name}</TableCell>
-								<TableCell>
-									{project.team ? <>{project.team?.teamName}</> : <>-</>}
-								</TableCell>
-								<TableCell>{formatDate(project.createdAt)}</TableCell>
-								<TableCell>
-									{project.status === 'active' ? (
-										<span className='p-1 font-semibold text-success'>
-											Ativo
-										</span>
-									) : (
-										<span className='p-1 font-semibold text-muted-foreground'>
-											Arquivado
-										</span>
-									)}
+						{projects.length > 0 ? (
+							projects.map((project: Project) => (
+								<TableRow key={project.id}>
+									<TableCell className='w-32'>{project.name}</TableCell>
+									<TableCell>{project.description}</TableCell>
+									<TableCell className='w-32'>
+										{project.client?.name}
+									</TableCell>
+									<TableCell className='w-28'>
+										{project.owner.surname}
+									</TableCell>
+									<TableCell>
+										{project.team ? <>{project.team?.teamName}</> : <>-</>}
+									</TableCell>
+									<TableCell className='w-10'>
+										{formatDate(project.createdAt)}
+									</TableCell>
+									<TableCell className='w-10'>
+										{formatDate(project.dueDate || '')}
+									</TableCell>
+									<TableCell className='w-10'>
+										{project.dueDate ? (
+											<Badge
+												variant={
+													isPastDueDate(project.dueDate)
+														? 'danger'
+														: 'primary'
+												}
+											>
+												{isPastDueDate(project.dueDate)
+													? 'Fora do prazo'
+													: 'No prazo'}
+											</Badge>
+										) : (
+											'-'
+										)}
+									</TableCell>
+									<TableCell className='w-8'>
+										{translateStatus(project.status)}
+									</TableCell>
+									<TableCell className='w-10'>
+										<ActionProjectTable
+											projectId={project.id}
+											path='projects'
+										/>
+									</TableCell>
+								</TableRow>
+							))
+						) : (
+							<TableRow>
+								<TableCell colSpan={8} className='text-center py-6'>
+									Nenhum projeto encontrado.
 								</TableCell>
 							</TableRow>
-						))}
+						)}
 					</TableBody>
 				</Table>
-				<div className='w-full p-2 mt-1 flex items-center justify-end'>
+				<div className='w-full p-2 mt-1 flex items-center justify-between'>
+					<span className='text-sm text-muted-foreground'>
+						Exibindo {projects.length} de {total} projetos
+					</span>
 					<Pagination limit={limit} page={currentPage} total={total} />
 				</div>
 			</div>

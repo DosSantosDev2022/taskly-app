@@ -69,7 +69,7 @@ const AddClients = () => {
 	}
 	return (
 		<ModalRoot>
-			<ModalTrigger>
+			<ModalTrigger sizes='xs'>
 				Adicionar <FaPlus />
 			</ModalTrigger>
 			<ModalOverlay variant='dark' />
