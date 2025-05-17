@@ -80,7 +80,7 @@ const AddTasks = ({
 			<ModalContent className='w-xl'>
 				<ModalHeader>
 					<ModalTitle>Adicione uma nova tarefa</ModalTitle>
-					<ModalClose />
+					<ModalClose sizes='icon' icon />
 				</ModalHeader>
 				<form onSubmit={handleSubmit(onSubmit)} className='space-y-2'>
 					<input
@@ -90,7 +90,7 @@ const AddTasks = ({
 					/>
 					<input type='hidden' value={ownerId} {...register('ownerId')} />
 					<input type='hidden' value={teamId} {...register('teamId')} />
-					<div className='space-y-2'>
+					<div className='flex flex-col space-y-2'>
 						<Label>Nome da tarefa</Label>
 						<Input placeholder='Nome da tarefa' {...register('title')} />
 					</div>

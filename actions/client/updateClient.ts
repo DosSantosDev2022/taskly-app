@@ -23,6 +23,7 @@ export async function updateClient(id: string, formData: unknown) {
      })
 
       revalidatePath('/clients')
+     
 
       return{success: true, data: updateClient}
 

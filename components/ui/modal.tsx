@@ -198,24 +198,21 @@ ModalTrigger.displayName = 'ModalTrigger'
 
 const ModalClose = React.forwardRef<
 	HTMLButtonElement,
-	React.HTMLAttributes<HTMLButtonElement>
->(({ className, ...props }, ref) => {
+	ButtonProps & { icon?: boolean }
+>(({ className, icon, ...props }, ref) => {
 	const { toggleOpen } = useModalContext()
 	return (
-		<button
+		<Button
 			aria-label='modal-close'
 			value={'text'}
 			onClick={toggleOpen}
-			className={twMerge(
-				'flex h-7 w-7 items-center justify-center rounded-md cursor-pointer',
-				' bg-primary  text-primary-foreground hover:bg-primary-hover',
-				className,
-			)}
+			className={twMerge('', className)}
 			{...props}
 			ref={ref}
 		>
-			<X size={18} />
-		</button>
+			{props.children}
+			{icon && <X size={18} />}
+		</Button>
 	)
 })
 ModalClose.displayName = 'ModalClose'
@@ -264,7 +261,7 @@ const ModalLoading = React.forwardRef<
 				className,
 			)}
 		>
-			<ImSpinner9 size={64} className='text-primary' />
+			<ImSpinner9 size={64} className='text-primary animate-spin' />
 		</div>
 	)
 })

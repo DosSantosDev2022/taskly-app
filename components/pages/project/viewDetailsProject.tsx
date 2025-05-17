@@ -28,12 +28,23 @@ import { AddTasks } from '../tasks/addTasks'
 import { getPriorityInfo } from '@/utils/mapPriorityToBadgeVariant'
 import { FaEdit } from 'react-icons/fa'
 import { getTaskProgress } from '@/utils/getTaskProgress'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 const ViewDetailsProject = ({ projectId }: { projectId: string }) => {
+	const [expandedComments, setExpandedComments] = useState<
+		Record<string, boolean>
+	>({})
 	const [isEditable, setIsEditable] = useState(false)
 	const [project, setProject] = useState<Project | null>(null)
 	const [loading, setLoading] = useState(true)
 	const progress = getTaskProgress(project?.tasks ?? [])
+
+	const toggleExpand = (id: string) => {
+		setExpandedComments((prev) => ({
+			...prev,
+			[id]: !prev[id],
+		}))
+	}
 
 	const handleEditProject = () => {
 		setIsEditable((prev) => !prev)
@@ -77,7 +88,7 @@ const ViewDetailsProject = ({ projectId }: { projectId: string }) => {
 			<ModalContent>
 				<ModalHeader>
 					<ModalTitle>Detalhes do projeto</ModalTitle>
-					<ModalClose />
+					<ModalClose sizes='icon' icon />
 				</ModalHeader>
 
 				{loading ? (
@@ -221,27 +232,56 @@ const ViewDetailsProject = ({ projectId }: { projectId: string }) => {
 									</div>
 
 									{/* Lista de comentários */}
-									<ul className='space-y-2 max-h-[428px]  overflow-y-scroll scrollbar-custom p-1 '>
-										{project.comments?.map((comment) => (
-											<li
-												key={comment.id}
-												className='rounded-lg border border-border p-4 bg-background hover:bg-background/50 cursor-pointer flex flex-col gap-2 shadow-sm'
-											>
-												{/* Info do autor e data */}
-												<div className='flex items-center justify-between text-xs text-muted-foreground'>
-													<span>
-														Comentado por:{' '}
-														<strong>{comment.user?.name}</strong>
-													</span>
-													<span>{formatDate(comment.createdAt)}</span>
-												</div>
+									<ul className='space-y-2 max-h-[428px] overflow-y-scroll scrollbar-custom p-1'>
+										{project.comments?.map((comment) => {
+											const isExpanded =
+												expandedComments[comment.id] ?? false
+											return (
+												<li
+													key={comment.id}
+													className='rounded-lg border border-border p-4 bg-background hover:bg-background/50 cursor-pointer flex flex-col gap-2 shadow-sm'
+												>
+													{/* Info do autor e data */}
+													<div className='flex items-center justify-between text-xs text-muted-foreground'>
+														<span>
+															Comentado por:{' '}
+															<strong>{comment.user?.name}</strong>
+														</span>
+														<div className='flex items-center gap-2'>
+															<span>{formatDate(comment.createdAt)}</span>
+															{/* Botão de expandir/recolher */}
+															{comment.content.length > 100 && (
+																<Button
+																	sizes='icon'
+																	onClick={() => toggleExpand(comment.id)}
+																>
+																	{isExpanded ? (
+																		<>
+																			<ChevronUp size={20} />
+																		</>
+																	) : (
+																		<>
+																			<ChevronDown size={20} />
+																		</>
+																	)}
+																</Button>
+															)}
+														</div>
+													</div>
 
-												{/* Conteúdo do comentário */}
-												<p className='text-sm text-foreground break-words truncate max-w-[500px]'>
-													{comment.content}
-												</p>
-											</li>
-										))}
+													{/* Conteúdo do comentário com expansão */}
+													<div
+														className={`text-sm text-foreground break-words  transition-all duration-300 ease-in-out ${
+															isExpanded
+																? 'max-h-full whitespace-pre-line'
+																: 'line-clamp-3'
+														}`}
+													>
+														{comment.content}
+													</div>
+												</li>
+											)
+										})}
 									</ul>
 								</section>
 

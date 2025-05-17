@@ -77,7 +77,7 @@ const AddClients = () => {
 				{isLoading && <ModalLoading />}
 				<ModalHeader>
 					<ModalTitle>Cadastrar cliente</ModalTitle>
-					<ModalClose ref={closeRef}>
+					<ModalClose sizes='icon' ref={closeRef}>
 						<LuX />
 					</ModalClose>
 				</ModalHeader>

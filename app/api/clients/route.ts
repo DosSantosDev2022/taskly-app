@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server'
 import {db} from '@/lib/prisma'
-import type { ClientWithProjects } from '@/@types/dataTypes'
+import type { Client } from '@/@types/prismaSchema'
 import  { ClientStatus, type Prisma } from '@prisma/client'
 
 export async function GET (request: Request) {
@@ -54,7 +54,7 @@ export async function GET (request: Request) {
             include: {
               projects: true,
             },
-            }) as Promise<ClientWithProjects[]>,
+            }) as Promise<Client[]>,
             db.client.count({
               where,
             })

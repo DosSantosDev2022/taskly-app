@@ -12,8 +12,8 @@ import {
 import { FaUser } from 'react-icons/fa'
 import { ActionClientTable } from '@/components/pages/clients/actionsClientsTable'
 import { FiltersClients } from '@/components/pages/clients/filterClients'
-import type { ClientWithProjects } from '@/@types/dataTypes'
 import { fetchClients } from '@/lib/api/fetchClients'
+import type { Client } from '@/@types/prismaSchema'
 
 type ClientsSearchParams = {
 	searchParams: Promise<{
@@ -90,7 +90,7 @@ export default async function Clients({
 					</TableHeader>
 					<TableBody>
 						{clients.length > 0 ? (
-							clients.map((client: ClientWithProjects) => (
+							clients.map((client: Client) => (
 								<TableRow key={client.id}>
 									<TableCell>{client.name}</TableCell>
 									<TableCell>{client.email}</TableCell>
@@ -106,7 +106,7 @@ export default async function Clients({
 										)}
 									</TableCell>
 									<TableCell className='w-10'>
-										<ActionClientTable id={client.id} path='clients' />
+										<ActionClientTable client={client} path='clients' />
 									</TableCell>
 								</TableRow>
 							))

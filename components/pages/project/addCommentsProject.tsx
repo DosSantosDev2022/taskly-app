@@ -85,7 +85,7 @@ const AddCommentsProjects = ({
 			<ModalContent className='w-xl'>
 				<ModalHeader>
 					<ModalTitle>Adicione um comentário ao projeto</ModalTitle>
-					<ModalClose />
+					<ModalClose sizes='icon' icon />
 				</ModalHeader>
 				<div className='space-y-2'>
 					<form onSubmit={handleSubmit(OnSubmit)}>

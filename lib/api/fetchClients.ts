@@ -1,4 +1,4 @@
-import type { ClientWithProjects } from '@/@types/dataTypes'
+import type { Client } from '@/@types/prismaSchema'
 
 type FetchClientsParams = {
 	query?: Record<string, string | number | boolean | undefined>
@@ -8,7 +8,7 @@ type FetchClientsParams = {
 }
 
 type FetchClientsResponse = {
-	clients: ClientWithProjects[]
+	clients: Client[]
   total: number
 }
 

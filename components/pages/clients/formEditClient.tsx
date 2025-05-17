@@ -4,6 +4,7 @@ import {
 	Button,
 	Input,
 	Label,
+	ModalLoading,
 	Select,
 	SelectContent,
 	SelectItem,
@@ -90,6 +91,7 @@ const FormEditClient = ({
 
 			if (result.success) {
 				showNotification('Cliente atualizado com sucesso !', 'success')
+				handleEditClient()
 			} else {
 				showNotification('Erro ao atualizar cliente !', 'error')
 			}
