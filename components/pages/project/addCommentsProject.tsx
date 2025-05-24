@@ -21,17 +21,13 @@ import { FaPlus } from 'react-icons/fa'
 interface AddCommentsProjectsProps {
 	projectId?: string
 	taskId?: string
-	onCommentAdded?: () => void
-	triggerLabel?: string
-	triggerSize?: 'icon' | 'xs' | 'sm' | 'lg' | 'full'
+	onCommentAdded: () => void
 }
 
 const AddCommentsProjects = ({
 	projectId,
 	taskId,
 	onCommentAdded,
-	triggerLabel,
-	triggerSize,
 }: AddCommentsProjectsProps) => {
 	const [open, setOpen] = useState(false)
 	const [isPending, startTransition] = useTransition()
@@ -49,8 +45,6 @@ const AddCommentsProjects = ({
 	const userId = session?.user.id
 
 	const OnSubmit = (data: CommentFormData) => {
-		console.log('data - ', data) // Verificar dados antes de enviar para o servidor
-
 		startTransition(async () => {
 			if (!userId) {
 				console.error('Usuário não autenticado')
@@ -65,10 +59,8 @@ const AddCommentsProjects = ({
 			try {
 				await AddComment(finalData)
 				reset()
-				if (onCommentAdded) {
-					onCommentAdded()
-				}
 				setOpen(false)
+				onCommentAdded()
 			} catch (error) {
 				console.error('Erro ao adicionar nova tarefa', error)
 			}
@@ -77,8 +69,7 @@ const AddCommentsProjects = ({
 
 	return (
 		<ModalRoot open={open} onOpenChange={setOpen}>
-			<ModalTrigger sizes={triggerSize}>
-				{triggerLabel}
+			<ModalTrigger sizes='icon'>
 				<FaPlus size={16} />
 			</ModalTrigger>
 			<ModalOverlay variant='darkBlur' />

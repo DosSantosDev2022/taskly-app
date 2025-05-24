@@ -18,6 +18,7 @@ import {
 	ModalTrigger,
 } from '@/components/ui'
 import { FormEditClient } from './formEditClient'
+import { MdEdit } from 'react-icons/md'
 
 interface ViewDetailsClientProps {
 	client: Client
@@ -51,9 +52,19 @@ const ViewDetailsClient = ({ client }: ViewDetailsClientProps) => {
 					) : (
 						<div className='space-y-6'>
 							<div className='border border-border rounded-lg p-4 bg-muted/10 space-y-2'>
-								<h2 className='text-lg font-semibold tracking-tight text-foreground mb-2'>
-									Bio
-								</h2>
+								<div className='flex items-center justify-between w-full'>
+									<h2 className='text-lg font-semibold tracking-tight text-foreground mb-2'>
+										Bio
+									</h2>
+									<Button
+										variants='secondary'
+										sizes='icon'
+										onClick={handleEditClient}
+									>
+										<MdEdit size={20} />
+									</Button>
+								</div>
+
 								<DetailRow label='Nome:' value={client.name} />
 								<DetailRow label='Email:' value={client.email} />
 								<DetailRow label='Telefone:' value={client.phone} />
@@ -92,12 +103,6 @@ const ViewDetailsClient = ({ client }: ViewDetailsClientProps) => {
 										</p>
 									)}
 								</ul>
-							</div>
-
-							<div className='flex justify-end'>
-								<Button sizes='xs' onClick={handleEditClient}>
-									Editar
-								</Button>
 							</div>
 						</div>
 					)

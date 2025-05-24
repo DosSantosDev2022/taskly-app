@@ -1,6 +1,6 @@
 'use client'
 import { BiTask } from 'react-icons/bi'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { GrView } from 'react-icons/gr'
 import { formatDate } from '@/utils/formatDate'
 import { DetailRow } from '@/components/pages/clients/detailRow'
@@ -26,17 +26,19 @@ import type { Project } from '@/@types/prismaSchema'
 import { AddCommentsProjects } from './addCommentsProject'
 import { AddTasks } from '../tasks/addTasks'
 import { getPriorityInfo } from '@/utils/mapPriorityToBadgeVariant'
-import { FaEdit } from 'react-icons/fa'
 import { getTaskProgress } from '@/utils/getTaskProgress'
 import { ChevronDown, ChevronUp } from 'lucide-react'
+import { MdEdit } from 'react-icons/md'
 
-const ViewDetailsProject = ({ projectId }: { projectId: string }) => {
+interface ViewDetailsProjectProps {
+	project: Project
+}
+
+const ViewDetailsProject = ({ project }: ViewDetailsProjectProps) => {
 	const [expandedComments, setExpandedComments] = useState<
 		Record<string, boolean>
 	>({})
 	const [isEditable, setIsEditable] = useState(false)
-	const [project, setProject] = useState<Project | null>(null)
-	const [loading, setLoading] = useState(true)
 	const progress = getTaskProgress(project?.tasks ?? [])
 
 	const toggleExpand = (id: string) => {
@@ -50,28 +52,7 @@ const ViewDetailsProject = ({ projectId }: { projectId: string }) => {
 		setIsEditable((prev) => !prev)
 	}
 
-	const fetchData = async () => {
-		try {
-			const data = await FetchProjectId({
-				projectId,
-				cache: 'no-cache',
-				revalidate: 0,
-			})
-			setProject(data)
-		} catch (error) {
-			console.error('Erro ao buscar detalhes do projeto:', error)
-		} finally {
-			setLoading(false)
-		}
-	}
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	useEffect(() => {
-		fetchData()
-	}, [projectId])
-
 	const handleProjectUpdated = () => {
-		fetchData()
 		setIsEditable(false) // Fechar o formulário de edição após atualização
 	}
 
@@ -91,20 +72,15 @@ const ViewDetailsProject = ({ projectId }: { projectId: string }) => {
 					<ModalClose sizes='icon' icon />
 				</ModalHeader>
 
-				{loading ? (
-					<ModalLoading />
-				) : project ? (
+				{project ? (
 					isEditable ? (
-						<div>
-							{/* Aqui entraria o formulário de edição */}
-							<FormEditProject
-								handleEditProject={handleEditProject}
-								project={project}
-								handleProjectUpdated={handleProjectUpdated}
-							/>
-						</div>
+						<FormEditProject
+							handleEditProject={handleEditProject}
+							project={project}
+							handleProjectUpdated={handleProjectUpdated}
+						/>
 					) : (
-						<div className='space-y-2  max-h-[628px] overflow-y-scroll scrollbar-custom p-1 '>
+						<div className='space-y-2  max-h-[528px] overflow-y-scroll scrollbar-custom p-1 '>
 							{/* bloco infos */}
 							<div className='rounded-2xl border border-border bg-muted/20 p-4 shadow-sm space-y-6'>
 								<div className='flex items-center justify-between'>
@@ -112,7 +88,7 @@ const ViewDetailsProject = ({ projectId }: { projectId: string }) => {
 										Informações
 									</h2>
 									<Button sizes='icon' onClick={handleEditProject}>
-										<FaEdit size={20} />
+										<MdEdit size={18} />
 									</Button>
 								</div>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -226,8 +202,7 @@ const ViewDetailsProject = ({ projectId }: { projectId: string }) => {
 										</h2>
 										<AddCommentsProjects
 											onCommentAdded={handleProjectUpdated}
-											projectId={projectId}
-											triggerSize='icon'
+											projectId={project.id}
 										/>
 									</div>
 
@@ -239,7 +214,7 @@ const ViewDetailsProject = ({ projectId }: { projectId: string }) => {
 											return (
 												<li
 													key={comment.id}
-													className='rounded-lg border border-border p-4 bg-background hover:bg-background/50 cursor-pointer flex flex-col gap-2 shadow-sm'
+													className='rounded-lg border border-border p-4 bg-background hover:bg-background/50  flex flex-col gap-2 shadow-sm'
 												>
 													{/* Info do autor e data */}
 													<div className='flex items-center justify-between text-xs text-muted-foreground'>
@@ -252,6 +227,7 @@ const ViewDetailsProject = ({ projectId }: { projectId: string }) => {
 															{/* Botão de expandir/recolher */}
 															{comment.content.length > 100 && (
 																<Button
+																	variants='link'
 																	sizes='icon'
 																	onClick={() => toggleExpand(comment.id)}
 																>

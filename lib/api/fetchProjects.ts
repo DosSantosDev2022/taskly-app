@@ -1,4 +1,4 @@
-import type { ProjectWithRelations } from "@/@types/dataTypes"
+import type { Project } from "@/@types/prismaSchema"
 
 export type FetchProjectsParams = {
 	query?: Record<string, string | number | boolean | undefined>
@@ -33,5 +33,5 @@ export const fetchProjects = async ({
 		throw new Error('Erro ao buscar projetos')
 	}
 
-	return res.json() as Promise<{ projects: ProjectWithRelations[]; total: number }>
+	return res.json() as Promise<{ projects: Project[]; total: number }>
 }

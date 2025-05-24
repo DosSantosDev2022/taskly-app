@@ -1,5 +1,5 @@
 'use client'
-import { GrView } from 'react-icons/gr'
+
 import {
 	Button,
 	ModalClose,
@@ -14,18 +14,19 @@ import { DeleteProject } from '@/actions/project/deleteProject'
 import { useNotification } from '@/context/notificationContext'
 import { ViewDetailsProject } from './viewDetailsProject'
 import { useState } from 'react'
+import type { Project } from '@/@types/prismaSchema'
 
 interface ActionTableProps {
-	projectId: string
+	project: Project
 	path: string
 }
 
-const ActionProjectTable = ({ projectId, path }: ActionTableProps) => {
+const ActionProjectTable = ({ project, path }: ActionTableProps) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const { showNotification } = useNotification()
 
 	const handleDeleteProject = async () => {
-		const res = await DeleteProject({ projectId })
+		const res = await DeleteProject({ projectId: project.id })
 
 		if (res.success) {
 			showNotification('Projeto deletado com sucesso !', 'success')
@@ -36,7 +37,7 @@ const ActionProjectTable = ({ projectId, path }: ActionTableProps) => {
 
 	return (
 		<div className='flex items-center justify-start gap-0.5'>
-			<ViewDetailsProject projectId={projectId} />
+			<ViewDetailsProject project={project} />
 			<ModalRoot open={isOpen} onOpenChange={setIsOpen}>
 				<ModalTrigger sizes='icon' variants='link'>
 					<MdDelete

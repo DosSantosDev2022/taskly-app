@@ -18,6 +18,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { MdSpaceDashboard } from 'react-icons/md'
 import { FaUser, FaFolderOpen, FaMoneyBill } from 'react-icons/fa'
 import { GrTasks } from 'react-icons/gr'
+import { SiGoogledocs } from 'react-icons/si'
 
 const AppSidebar = () => {
 	const links = [
@@ -50,6 +51,12 @@ const AppSidebar = () => {
 			url: '/finances',
 			label: 'Finanças',
 			icon: <FaMoneyBill size={20} />,
+		},
+		{
+			id: uuidv4(),
+			url: '/proposals',
+			label: 'Propostas',
+			icon: <SiGoogledocs size={20} />,
 		},
 	]
 

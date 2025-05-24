@@ -15,7 +15,7 @@ type FetchClientsResponse = {
 export async function fetchClients({
 	query = {},
 	baseUrl = process.env.NEXT_PUBLIC_URL,
-	cache = 'force-cache',
+	cache = 'no-cache',
 	revalidade
 }: FetchClientsParams = {}): Promise<FetchClientsResponse> {
 	const searchParams = new URLSearchParams()

@@ -89,9 +89,7 @@ const AddProjects = ({ clients }: { clients: Client[] }) => {
 				{isLoading && <ModalLoading />}
 				<ModalHeader>
 					<ModalTitle>Cadastrar Projeto</ModalTitle>
-					<ModalClose ref={closeRef}>
-						<LuX />
-					</ModalClose>
+					<ModalClose icon sizes='icon' ref={closeRef} />
 				</ModalHeader>
 
 				<form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>

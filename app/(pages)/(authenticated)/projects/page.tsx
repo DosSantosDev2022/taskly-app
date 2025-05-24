@@ -55,7 +55,7 @@ export default async function Projects({ searchParams }: ProjectProps) {
 		cache: 'no-cache',
 	})
 
-	const { clients } = await fetchClients({ revalidade: 60 * 60 * 60 }) // revalida a cada 1h
+	const { clients } = await fetchClients({ revalidade: 0 }) // revalida a cada 1h
 
 	const headers = [
 		'Nome',
@@ -141,7 +141,7 @@ export default async function Projects({ searchParams }: ProjectProps) {
 									</TableCell>
 									<TableCell className='w-10'>
 										<ActionProjectTable
-											projectId={project.id}
+											project={project}
 											path='projects'
 										/>
 									</TableCell>

@@ -31,7 +31,7 @@ export async function AddComment(formData: CommentFormData) {
 			},
 		})
 
-    /* revalidatePath('/') */
+    revalidatePath('/projects')
 	} catch (error) {
     console.error('Erro ao adicionar commentário:', error)
     throw new Error('Não foi possível adicionar a commentário.')
