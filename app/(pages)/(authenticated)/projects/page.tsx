@@ -9,8 +9,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui'
-import { fetchClients } from '@/lib/api/fetchClients'
-import { fetchProjects } from '@/lib/api/fetchProjects'
+import { fetchProjects } from '@/actions/project/fetchProjects'
 import { formatDate } from '@/utils/formatDate'
 import { FaFile } from 'react-icons/fa'
 import { ActionProjectTable } from '@/components/pages/project/actionProjectTable'
@@ -44,18 +43,11 @@ export default async function Projects({ searchParams }: ProjectProps) {
 	query.set('limit', limit.toString())
 
 	const { projects, total } = await fetchProjects({
-		query: {
-			search,
-			status,
-			start,
-			end,
-			page,
-			limit,
-		},
-		cache: 'no-cache',
+		page: currentPage,
+		pageSize: limit,
+		search,
+		status,
 	})
-
-	const { clients } = await fetchClients({ revalidade: 0 }) // revalida a cada 1h
 
 	const headers = [
 		'Nome',
@@ -81,7 +73,7 @@ export default async function Projects({ searchParams }: ProjectProps) {
 				</div>
 
 				<div className='flex items-center justify-between p-1.5 space-x-2'>
-					<AddProjects clients={clients} />
+					<AddProjects />
 					{/* Filters */}
 					<FiltersProject />
 				</div>
@@ -140,10 +132,7 @@ export default async function Projects({ searchParams }: ProjectProps) {
 										{translateStatus(project.status)}
 									</TableCell>
 									<TableCell className='w-10'>
-										<ActionProjectTable
-											project={project}
-											path='projects'
-										/>
+										<ActionProjectTable project={project} />
 									</TableCell>
 								</TableRow>
 							))

@@ -22,22 +22,30 @@ import {
 	TextArea,
 } from '@/components/ui'
 import { useEffect, useRef, useState } from 'react'
-import { LuX } from 'react-icons/lu'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type ProjectFormData, projectSchema } from '@/@types/zodSchemas'
-import type { Client, Team } from '@prisma/client'
+import type { Team } from '@prisma/client'
 import { addProject } from '@/actions/project/addProject'
 import { useSession } from 'next-auth/react'
 import { useNotification } from '@/context/notificationContext'
 import { DatePicker } from '@/components/ui/datePicker'
+import RichTextEditor from '@/components/ui/richTextEditor'
+import { useClientsQuery } from '@/hooks/useClientsQuery'
 
-const AddProjects = ({ clients }: { clients: Client[] }) => {
+const AddProjects = () => {
 	const { showNotification } = useNotification()
 	const { data: session } = useSession()
 	const ownerId = session?.user?.id
 	const [isLoading, setIsLoading] = useState(false)
 	const [teams, setTeams] = useState<Team[]>([])
+
+	const {
+		clients,
+		isLoading: isLoadingClients,
+		isError: isErrorClients,
+	} = useClientsQuery()
+
 	const {
 		register,
 		handleSubmit,
@@ -79,13 +87,27 @@ const AddProjects = ({ clients }: { clients: Client[] }) => {
 	useEffect(() => {
 		console.log('Erros de validação:', errors)
 	}, [errors])
+
+	// Adiciona um estado de loading e erro para os clientes
+	if (isLoadingClients) {
+		return <p className='text-center py-4'>Carregando clientes...</p>
+	}
+
+	if (isErrorClients) {
+		return (
+			<p className='text-danger text-center py-4'>
+				Erro ao carregar lista de clientes.
+			</p>
+		)
+	}
+
 	return (
 		<ModalRoot>
 			<ModalTrigger sizes='xs'>
 				Adicionar <FaPlus />
 			</ModalTrigger>
 			<ModalOverlay variant='dark' />
-			<ModalContent>
+			<ModalContent className='max-w-4xl'>
 				{isLoading && <ModalLoading />}
 				<ModalHeader>
 					<ModalTitle>Cadastrar Projeto</ModalTitle>
@@ -112,10 +134,22 @@ const AddProjects = ({ clients }: { clients: Client[] }) => {
 						{/* Descrição */}
 						<div>
 							<Label htmlFor='description'>Descrição</Label>
-							<TextArea
+							{/* <TextArea
 								placeholder='Descreva o seu projeto...'
 								id='description'
 								{...register('description')}
+							/> */}
+							<Controller
+								name='description'
+								control={control}
+								render={({ field }) => (
+									<RichTextEditor
+										content={field.value}
+										onChange={field.onChange}
+										placeholder='Descreva seu projeto em detalhes...'
+										maxCharacters={10000}
+									/>
+								)}
 							/>
 							{errors.description && (
 								<span className='text-danger text-sm'>
@@ -140,7 +174,7 @@ const AddProjects = ({ clients }: { clients: Client[] }) => {
 												<SelectValue placeholder='Selecione um cliente' />
 											</SelectTrigger>
 											<SelectContent>
-												{clients.map((client) => (
+												{clients?.map((client) => (
 													<SelectItem key={client.id} value={client.id}>
 														{client.name}
 													</SelectItem>

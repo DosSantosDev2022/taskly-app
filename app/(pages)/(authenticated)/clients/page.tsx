@@ -12,7 +12,7 @@ import {
 import { FaUser } from 'react-icons/fa'
 import { ActionClientTable } from '@/components/pages/clients/actionsClientsTable'
 import { FiltersClients } from '@/components/pages/clients/filterClients'
-import { fetchClients } from '@/lib/api/fetchClients'
+import { fetchClients } from '@/actions/client/fetchClients'
 import type { Client } from '@/@types/prismaSchema'
 
 type ClientsSearchParams = {
@@ -54,14 +54,9 @@ export default async function Clients({
 	]
 
 	const { clients, total } = await fetchClients({
-		query: {
-			search,
-			status,
-			state,
-			city,
-			page,
-			limit,
-		},
+		page: currentPage,
+		pageSize: limit,
+		search,
 	})
 
 	return (

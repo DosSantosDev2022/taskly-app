@@ -19,6 +19,8 @@ import { updateProject } from '@/actions/project/updateProject'
 import { useNotification } from '@/context/notificationContext'
 import { DatePicker } from '@/components/ui/datePicker'
 import type { Project } from '@/@types/prismaSchema'
+import RichTextEditor from '@/components/ui/richTextEditor'
+import { useClientsQuery } from '@/hooks/useClientsQuery'
 
 interface FormEditProjectProps {
 	project: Project
@@ -33,6 +35,13 @@ const FormEditProject = ({
 }: FormEditProjectProps) => {
 	const { showNotification } = useNotification()
 	const [isPending, startTransition] = useTransition()
+
+	//hook para buscar a lista de clientes
+	const {
+		clients,
+		isLoading: isLoadingClients,
+		isError: isErrorClients,
+	} = useClientsQuery()
 
 	const {
 		register,
@@ -81,6 +90,19 @@ const FormEditProject = ({
 		})
 	}
 
+	// Adiciona um estado de loading e erro para os clientes
+	if (isLoadingClients) {
+		return <p className='text-center py-4'>Carregando clientes...</p>
+	}
+
+	if (isErrorClients) {
+		return (
+			<p className='text-danger text-center py-4'>
+				Erro ao carregar lista de clientes.
+			</p>
+		)
+	}
+
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
 			{/* Nome */}
@@ -96,10 +118,17 @@ const FormEditProject = ({
 			<div className='flex flex-col'>
 				{/* Descrição */}
 				<Label htmlFor='description'>Descrição</Label>
-				<TextArea
-					id='description'
-					placeholder='Descreva o projeto...'
-					{...register('description')}
+				<Controller
+					name='description'
+					control={control}
+					render={({ field }) => (
+						<RichTextEditor
+							content={field.value}
+							onChange={field.onChange}
+							placeholder='Descreva seu projeto em detalhes...'
+							maxCharacters={10000}
+						/>
+					)}
 				/>
 				{errors.description && (
 					<span className='text-danger text-sm'>
@@ -120,16 +149,16 @@ const FormEditProject = ({
 									<SelectValue placeholder='Selecione o status' />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem key={'item01'} value='in_progress'>
+									<SelectItem key={'in_progress'} value='in_progress'>
 										Em andamento
 									</SelectItem>
-									<SelectItem key={'item02'} value='pending'>
+									<SelectItem key={'pending'} value='pending'>
 										Pendente
 									</SelectItem>
-									<SelectItem key={'item03'} value='completed'>
+									<SelectItem key={'completed'} value='completed'>
 										Concluído
 									</SelectItem>
-									<SelectItem key={'item04'} value='archived'>
+									<SelectItem key={'archived'} value='archived'>
 										Arquivado
 									</SelectItem>
 								</SelectContent>
@@ -183,12 +212,12 @@ const FormEditProject = ({
 									<SelectValue placeholder='Selecione o cliente' />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem
-										key={project.client?.id}
-										value={project.client?.id as string}
-									>
-										{project.client?.name}
-									</SelectItem>
+									{/* Mapeia a lista de clientes obtida pelo hook */}
+									{clients?.map((client) => (
+										<SelectItem key={client.id} value={client.id}>
+											{client.name}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
 						)}
@@ -200,34 +229,33 @@ const FormEditProject = ({
 					)}
 				</div>
 
-				{/* Equipe */}
+				{/* Equipe (descomente quando tiver um hook useTeamsQuery e uma API para buscar teams) */}
 				{/* <div>
-					<Label htmlFor='teamId'>Equipe</Label>
-					<Controller
-						control={control}
-						name='teamId'
-						render={({ field }) => (
-							<Select onValueChange={field.onChange} value={field.value}>
-								<SelectTrigger id='teamId'>
-									<SelectValue placeholder='Selecione a equipe' />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem
-										key={project.team?.id}
-										value={project.team?.id as string}
-									>
-										{project.team?.teamName}
-									</SelectItem>
-								</SelectContent>
-							</Select>
-						)}
-					/>
-					{errors.teamId && (
-						<span className='text-danger text-sm'>
-							{errors.teamId.message}
-						</span>
-					)}
-				</div> */}
+          <Label htmlFor='teamId'>Equipe</Label>
+          <Controller
+            control={control}
+            name='teamId'
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger id='teamId'>
+                  <SelectValue placeholder='Selecione a equipe' />
+                </SelectTrigger>
+                <SelectContent>
+                  {teams?.map((team) => (
+                    <SelectItem key={team.id} value={team.id}>
+                      {team.teamName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.teamId && (
+            <span className='text-danger text-sm'>
+              {errors.teamId.message}
+            </span>
+          )}
+        </div> */}
 			</div>
 
 			<div className='flex items-center justify-end w-full gap-2'>

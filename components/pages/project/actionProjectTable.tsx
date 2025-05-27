@@ -15,21 +15,24 @@ import { useNotification } from '@/context/notificationContext'
 import { ViewDetailsProject } from './viewDetailsProject'
 import { useState } from 'react'
 import type { Project } from '@/@types/prismaSchema'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface ActionTableProps {
 	project: Project
-	path: string
 }
 
-const ActionProjectTable = ({ project, path }: ActionTableProps) => {
+const ActionProjectTable = ({ project }: ActionTableProps) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const { showNotification } = useNotification()
+	const queryClient = useQueryClient()
 
 	const handleDeleteProject = async () => {
 		const res = await DeleteProject({ projectId: project.id })
 
 		if (res.success) {
 			showNotification('Projeto deletado com sucesso !', 'success')
+			setIsOpen(false)
+			queryClient.invalidateQueries({ queryKey: ['projects'] })
 		} else {
 			showNotification('Erro ao deletar projeto !', 'error')
 		}
@@ -37,7 +40,7 @@ const ActionProjectTable = ({ project, path }: ActionTableProps) => {
 
 	return (
 		<div className='flex items-center justify-start gap-0.5'>
-			<ViewDetailsProject project={project} />
+			<ViewDetailsProject projectId={project.id} />
 			<ModalRoot open={isOpen} onOpenChange={setIsOpen}>
 				<ModalTrigger sizes='icon' variants='link'>
 					<MdDelete

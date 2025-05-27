@@ -128,6 +128,7 @@ model Project {
   client     Client?         @relation(fields: [clientId], references: [id])
   comments   Comment[]
   sharedWith SharedProject[]
+  Briefing   Briefing[]
 
   @@index([ownerId])
   @@index([clientId])
@@ -147,6 +148,7 @@ model Client {
   updatedAt DateTime      @updatedAt
 
   projects Project[]
+  Briefing Briefing[]
 }
 
 // Status da Tarefa (Enum)
@@ -312,4 +314,80 @@ model TeamMember {
   teamId   String
 
   @@index([userId, teamId])
+}
+
+model Note {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  content    String
+  briefingId String // Campo para relacionar com o Briefing
+  briefing   Briefing @relation(fields: [briefingId], references: [id], onDelete: Cascade) // Relacionamento
+}
+
+model Briefing {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+
+  // 1. Company Information
+  companyName         String
+  cnpj                String?
+  projectLead         String
+  phoneNumberWhatsapp String
+  email               String
+  address             String? // Made optional
+  instagram           String?
+  facebook            String?
+  linkedin            String?
+  currentWebsite      String?
+
+  // 2. About the Business
+  businessDescription    String
+  mainProductsServices   String
+  businessDifferentiator String
+  targetAudience         String
+  websiteObjectives      String[]
+  otherWebsiteObjective  String?
+
+  // 3. Website Goal
+  websiteExpectation String
+  essentialFeatures  String? // Made optional
+
+  // 4. Website Content
+  hasContent        String
+  websitePages      String[]
+  otherWebsitePages String?
+  hasLogoIdentity   String
+
+  // 5. References and Inspirations
+  referenceLink1      String?
+  whatLikedAboutLink1 String?
+  referenceLink2      String?
+  whatLikedAboutLink2 String?
+  referenceLink3      String?
+  whatLikedAboutLink3 String?
+  preferredColors     String?
+  desiredStyle        String[]
+  otherDesiredStyle   String?
+
+  // 6. Hosting and Domain
+  hasDomain  String
+  hasHosting String
+
+  // 7. Deadlines and Investment
+  desiredDeadline  String // Made required
+  hasDefinedBudget String
+  budgetRange      String?
+
+  // 8. Final Observations
+  howDidYouHear          String
+  otherHowDidYouHear     String?
+  additionalObservations String?
+
+  notes Note[]
 }
