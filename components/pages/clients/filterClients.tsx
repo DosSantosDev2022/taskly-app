@@ -8,7 +8,7 @@ import {
 	PopoverRoot,
 	PopoverTrigger,
 	PopoverContent,
-} from '@/components/global/popover'
+} from '@/components/global/Popover'
 import { Button, Input, Label } from '@/components/ui'
 import {
 	Select,

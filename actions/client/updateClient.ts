@@ -18,7 +18,8 @@ export async function updateClient(id: string, formData: unknown) {
         address: data.address,
         state: data.state,
         city: data.city,
-        zipcode: data.zipcode
+        zipcode: data.zipcode,
+        status: data.status
       }
      })
 

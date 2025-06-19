@@ -10,6 +10,9 @@ export type FetchClientsParams = {
   page?: number;
   pageSize?: number;
   search?: string; // Exemplo de filtro por nome do cliente
+  status?: string
+  city?: string
+  state?:string
   // Adicione outros filtros se necessário
 };
 
@@ -24,6 +27,9 @@ export async function fetchClients({
   page = 1,
   pageSize = 10,
   search,
+  status,
+  city,
+  state
   // ... outros filtros
 }: FetchClientsParams = {}): Promise<FetchClientsResult> {
   try {
@@ -39,6 +45,17 @@ export async function fetchClients({
       };
     }
     // Adicione mais filtros conforme necessário
+    if(status) {
+      where.status = status
+    }
+
+    if(city) {
+      where.city = city
+    }
+
+    if(state) {
+      where.state = state
+    }
 
     // Buscar os clientes com paginação e filtros diretamente com Prisma
     const clients = await db.client.findMany({

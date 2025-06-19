@@ -1,5 +1,5 @@
 import { Pagination } from '@/components/global/pagination'
-import { AddClients } from '@/components/pages/clients/addClients'
+import { AddClients, FiltersClients, ViewDetailsClient, DeleteClientAction } from '@/components/pages/clients'
 import {
 	Badge,
 	Table,
@@ -10,8 +10,6 @@ import {
 	TableRow,
 } from '@/components/ui'
 import { FaUser } from 'react-icons/fa'
-import { ActionClientTable } from '@/components/pages/clients/actionsClientsTable'
-import { FiltersClients } from '@/components/pages/clients/filterClients'
 import { fetchClients } from '@/actions/client/fetchClients'
 import type { Client } from '@/@types/prismaSchema'
 
@@ -57,6 +55,9 @@ export default async function Clients({
 		page: currentPage,
 		pageSize: limit,
 		search,
+		status,
+		city,
+		state
 	})
 
 	return (
@@ -101,7 +102,10 @@ export default async function Clients({
 										)}
 									</TableCell>
 									<TableCell className='w-10'>
-										<ActionClientTable client={client} path='clients' />
+										<div className='flex'>
+											<ViewDetailsClient client={client} />
+											<DeleteClientAction clientId={client.id} />
+										</div>
 									</TableCell>
 								</TableRow>
 							))
