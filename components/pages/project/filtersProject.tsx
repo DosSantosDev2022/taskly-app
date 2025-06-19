@@ -25,6 +25,7 @@ import { SiCcleaner } from 'react-icons/si'
 const FiltersProject = () => {
 	const searchParams = useSearchParams()
 	const [isOpen, setIsOpen] = useState(false)
+	const router = useRouter()
 	const availabStatuses = [
 		'in_progress',
 		'pending',
@@ -65,6 +66,7 @@ const FiltersProject = () => {
 		clearDateFilters()
 		setSelectedStatuses([])
 		setIsOpen(false)
+		router.push('?')
 	}
 
 	return (

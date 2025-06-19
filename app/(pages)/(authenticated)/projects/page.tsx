@@ -1,6 +1,5 @@
 import { Pagination } from '@/components/global/pagination'
-import { AddProjects } from '@/components/pages/project/addProject'
-import { FiltersProject } from '@/components/pages/project/filtersProject'
+import { AddProjects, DeleteProjectAction, FiltersProject, ViewDetailsProject } from '@/components/pages/project'
 import {
 	Table,
 	TableBody,
@@ -8,15 +7,15 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
+	Badge
 } from '@/components/ui'
 import { fetchProjects } from '@/actions/project/fetchProjects'
 import { formatDate } from '@/utils/formatDate'
 import { FaFile } from 'react-icons/fa'
-import { ActionProjectTable } from '@/components/pages/project/actionProjectTable'
-import { Badge } from '@/components/ui'
 import { isPastDueDate } from '@/utils/isPastDueDate'
 import { translateStatus } from '@/utils/translateStatus'
 import type { Project } from '@/@types/prismaSchema'
+
 
 type ProjectProps = {
 	searchParams: Promise<{
@@ -95,7 +94,12 @@ export default async function Projects({ searchParams }: ProjectProps) {
 							projects.map((project: Project) => (
 								<TableRow key={project.id}>
 									<TableCell className='w-32'>{project.name}</TableCell>
-									<TableCell>{project.description}</TableCell>
+									<TableCell
+										// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+										dangerouslySetInnerHTML={{
+											__html: project.description || '',
+										}}
+									/>
 									<TableCell className='w-32'>
 										{project.client?.name}
 									</TableCell>
@@ -132,7 +136,10 @@ export default async function Projects({ searchParams }: ProjectProps) {
 										{translateStatus(project.status)}
 									</TableCell>
 									<TableCell className='w-10'>
-										<ActionProjectTable project={project} />
+										<div className='flex'>
+											<ViewDetailsProject project={project} />
+											<DeleteProjectAction projectId={project.id} />
+										</div>
 									</TableCell>
 								</TableRow>
 							))

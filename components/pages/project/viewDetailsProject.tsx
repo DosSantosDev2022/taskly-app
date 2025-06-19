@@ -17,12 +17,10 @@ import {
 	ModalTrigger,
 	TextArea,
 } from '@/components/ui'
-import { fetchProjectId } from '@/actions/project/fetchProjectId'
 import { FormEditProject } from './formEditProject'
 import { isPastDueDate } from '@/utils/isPastDueDate'
 import { translateStatus } from '@/utils/translateStatus'
 import { Progress } from '@/components/ui/progress'
-import type { Project } from '@/@types/prismaSchema'
 import { AddCommentsProjects } from './addCommentsProject'
 import { AddTasks } from '../tasks/addTasks'
 import { getPriorityInfo } from '@/utils/mapPriorityToBadgeVariant'
@@ -30,19 +28,15 @@ import { getTaskProgress } from '@/utils/getTaskProgress'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { MdEdit } from 'react-icons/md'
 import { useProjectDetails } from '@/hooks/useProjectDetails'
+import type { Project } from '@/@types/prismaSchema'
 
 interface ViewDetailsProjectProps {
-	projectId: string
+	project: Project
 }
 
-const ViewDetailsProject = ({ projectId }: ViewDetailsProjectProps) => {
-	const [expandedComments, setExpandedComments] = useState<
-		Record<string, boolean>
-	>({})
+const ViewDetailsProject = ({ project }: ViewDetailsProjectProps) => {
+	const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
 	const [isEditable, setIsEditable] = useState(false)
-	// Use o hook para buscar os detalhes do projeto
-	const { project, isLoading, isError, error, refetch } =
-		useProjectDetails(projectId)
 	const progress = getTaskProgress(project?.tasks ?? [])
 
 	const toggleExpand = (id: string) => {
@@ -58,90 +52,8 @@ const ViewDetailsProject = ({ projectId }: ViewDetailsProjectProps) => {
 
 	const handleProjectUpdated = () => {
 		setIsEditable(false) // Fechar o formulário de edição após atualização
-		refetch() // Força a revalidação e busca dos detalhes mais recentes do projeto
 	}
 
-	// Renderização condicional para estados de carregamento e erro
-	if (isLoading) {
-		return (
-			<ModalRoot>
-				<ModalTrigger
-					className='hover:scale-95 duration-300 transition-all'
-					sizes='icon'
-					variants='link'
-				>
-					<GrView size={24} />
-				</ModalTrigger>
-				<ModalOverlay variant='dark' />
-				<ModalContent className='max-w-4xl'>
-					<ModalLoading /> {/* Componente de loading para o modal */}
-					<ModalHeader>
-						<ModalTitle>Carregando detalhes do projeto...</ModalTitle>
-						<ModalClose sizes='icon' icon />
-					</ModalHeader>
-				</ModalContent>
-			</ModalRoot>
-		)
-	}
-
-	if (isError) {
-		return (
-			<ModalRoot>
-				<ModalTrigger
-					className='hover:scale-95 duration-300 transition-all'
-					sizes='icon'
-					variants='link'
-				>
-					<GrView size={24} />
-				</ModalTrigger>
-				<ModalOverlay variant='dark' />
-				<ModalContent className='max-w-4xl'>
-					<ModalHeader>
-						<ModalTitle>Erro ao carregar detalhes</ModalTitle>
-						<ModalClose sizes='icon' icon />
-					</ModalHeader>
-					<p className='p-4 text-danger'>
-						Erro:{' '}
-						{error?.message ||
-							'Não foi possível carregar os detalhes do projeto.'}
-					</p>
-					<div className='flex items-center w-full justify-end gap-2 p-4'>
-						<Button sizes='xs' onClick={() => refetch()}>
-							Tentar Novamente
-						</Button>
-						<ModalClose sizes='xs' variants='danger'>
-							Fechar
-						</ModalClose>
-					</div>
-				</ModalContent>
-			</ModalRoot>
-		)
-	}
-
-	if (!project) {
-		// Caso o projeto não seja encontrado após o carregamento
-		return (
-			<ModalRoot>
-				<ModalTrigger
-					className='hover:scale-95 duration-300 transition-all'
-					sizes='icon'
-					variants='link'
-				>
-					<GrView size={24} />
-				</ModalTrigger>
-				<ModalOverlay variant='dark' />
-				<ModalContent className='max-w-4xl'>
-					<ModalHeader>
-						<ModalTitle>Projeto não encontrado</ModalTitle>
-						<ModalClose sizes='icon' icon />
-					</ModalHeader>
-					<p className='p-4'>
-						O projeto com o ID "{projectId}" não foi encontrado.
-					</p>
-				</ModalContent>
-			</ModalRoot>
-		)
-	}
 
 	return (
 		<ModalRoot>
@@ -340,11 +252,10 @@ const ViewDetailsProject = ({ projectId }: ViewDetailsProjectProps) => {
 
 													{/* Conteúdo do comentário com expansão */}
 													<div
-														className={`text-sm text-foreground break-words  transition-all duration-300 ease-in-out ${
-															isExpanded
-																? 'max-h-full whitespace-pre-line'
-																: 'line-clamp-3'
-														}`}
+														className={`text-sm text-foreground break-words  transition-all duration-300 ease-in-out ${isExpanded
+															? 'max-h-full whitespace-pre-line'
+															: 'line-clamp-3'
+															}`}
 													>
 														{comment.content}
 													</div>

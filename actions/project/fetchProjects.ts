@@ -59,6 +59,8 @@ export async function fetchProjects({
         client: true,
         owner: true,
         team: true,
+        comments: true,
+        tasks: true,
         // Não inclua tudo aqui se a tabela não precisar; inclua apenas o necessário para performance.
         // Se a tabela só mostra nome e status, não precisa de tasks, comments, etc.
       },

@@ -134,11 +134,6 @@ const AddProjects = () => {
 						{/* Descrição */}
 						<div>
 							<Label htmlFor='description'>Descrição</Label>
-							{/* <TextArea
-								placeholder='Descreva o seu projeto...'
-								id='description'
-								{...register('description')}
-							/> */}
 							<Controller
 								name='description'
 								control={control}
