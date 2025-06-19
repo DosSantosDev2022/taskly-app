@@ -1,21 +1,18 @@
 // src/app/actions.ts
 'use server';
-
-import { PrismaClient } from '@prisma/client';
 import { briefingSchema, type BriefingFormValues } from '@/@types/briefingSchema';
 import { ZodError } from 'zod';
+import { db } from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
 
-const prisma = new PrismaClient();
 
+  // ação para salvar um novo briefings
 export async function saveBriefing(formData: BriefingFormValues) {
   try {
-    // 1. Validação dos dados com Zod
-    // Usamos o schema Zod diretamente aqui para garantir que os dados recebidos
-    // pela Server Action estão no formato esperado antes de interagir com o DB.
     const validatedData = briefingSchema.parse(formData);
 
     // 2. Salvando no Banco de Dados
-    const briefing = await prisma.briefing.create({
+    await db.briefing.create({
       data: {
         companyName: validatedData.companyName,
         cnpj: validatedData.cnpj,
@@ -55,11 +52,9 @@ export async function saveBriefing(formData: BriefingFormValues) {
         budgetRange: validatedData.budgetRange,
         howDidYouHear: validatedData.howDidYouHear,
         otherHowDidYouHear: validatedData.otherHowDidYouHear,
-        additionalObservations: validatedData.additionalObservations
+        additionalObservations: validatedData.additionalObservations,
       },
     });
-
-    console.log('Briefing saved:', briefing);
     return { success: true, message: 'Briefing enviado com sucesso!' };
   } catch (error) {
     if (error instanceof ZodError) {
@@ -67,10 +62,43 @@ export async function saveBriefing(formData: BriefingFormValues) {
       console.error('Validation error:', error.errors);
       return { success: false, message: 'Dados inválidos.', errors: error.flatten().fieldErrors };
     }
-    // Outros erros (ex: erro de banco de dados)
-    console.error('Failed to save briefing:', error);
+   
     return { success: false, message: 'Ocorreu um erro ao salvar o briefing.' };
   } finally {
-    await prisma.$disconnect(); // Boas práticas: desconectar o Prisma no final
+    await db.$disconnect();
   }
+}
+
+// ação para buscar lista de briefings
+export async function getBriefings(): Promise<BriefingFormValues[]> {
+  try {
+    // Em um ambiente real, você faria:
+    const briefings = await db.briefing.findMany({
+      orderBy: {
+        createdAt: 'desc', // Ou outro campo para ordenar
+      },
+    })
+    return briefings as BriefingFormValues[] // Casting para o tipo Briefing
+  } catch (error) {
+    console.error('Erro ao buscar briefings:', error)
+    // Em produção, você pode querer lançar um erro ou retornar um array vazio
+    return []
+  } finally {
+    await db.$disconnect()
+  }
+}
+
+export async function deleteBriefings (briefingId: string):Promise<{success:boolean, error?: string}> {
+   try {
+     await db.briefing.delete({
+      where : {
+        id: briefingId
+      }
+     })
+     revalidatePath('/briefings')
+     return {success: true}
+   } catch(error) {
+     console.error('Erro ao deletar briefing !', error);
+     return {success: false, error: 'Ocorreu um erro ao deletar a anotação.'}
+   }
 }

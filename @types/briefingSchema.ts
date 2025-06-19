@@ -1,6 +1,15 @@
 // src/schemas/briefingSchema.ts
 import { z } from 'zod';
 
+export const noteSchema = z.object({
+  id: z.string().optional(), // Gerado pelo Prisma
+  createdAt: z.date().optional(), // Gerado pelo Prisma
+  content: z.string().min(1, 'Note content cannot be empty.'),
+  briefingId: z.string().uuid(), // ID do briefing ao qual esta nota pertence
+});
+
+export type NoteFormValues = z.infer<typeof noteSchema>;
+
 export const briefingSchema = z.object({
   // 1. Company Information
   id: z.string().optional(),
@@ -57,9 +66,9 @@ export const briefingSchema = z.object({
   howDidYouHear: z.enum(['Indicação', 'Pesquisa Online', 'Redes sociais', 'Google', 'Outro'], { required_error: 'How you heard about us is required.' }), // Changed name
   otherHowDidYouHear: z.string().optional().or(z.literal('')), // Conditional for "Outro"
   additionalObservations: z.string().optional().or(z.literal('')), // Changed name
-  createdAt: z.date().optional(),
+/*   createdAt: z.date().optional(),
   clientId: z.string().uuid().optional().nullable(),
-  projectId: z.string().uuid().optional().nullable(),
+  projectId: z.string().uuid().optional().nullable(), */
 }).refine(data => {
   // Refinements for conditional validation
   if (data.websiteObjectives.includes('Outro') && !data.otherWebsiteObjective) {

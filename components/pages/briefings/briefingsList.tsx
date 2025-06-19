@@ -1,11 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import type { BriefingFormValues } from '@/@types/briefingSchema'
 import { BriefingDetail } from '@/components/pages/briefings'
 import { Button } from '@/components/ui/button'
 import { BriefingNotes } from '@/components/pages/briefings'
 import { twMerge } from 'tailwind-merge'
+import { deleteBriefings } from '@/actions/briefings/briefingsActions'
+import { useNotification } from '@/context/notificationContext'
+import { MdDelete } from 'react-icons/md'
 
 interface BriefingsListProps {
 	briefings: BriefingFormValues[]
@@ -26,7 +29,7 @@ export function BriefingsList({ briefings }: BriefingsListProps) {
 							{briefings.map((briefing) => (
 								<Button
 									key={briefing.id}
-									variants='primary'
+									variants='ghost'
 									className={twMerge(
 										'w-full justify-start text-left h-auto py-2 px-3',
 										selectedBriefing?.id === briefing.id &&

@@ -1,4 +1,4 @@
-import { getBriefings } from '@/actions/briefings/getBriefings'
+import { getBriefings } from '@/actions/briefings/briefingsActions'
 import { BriefingsList } from '@/components/pages/briefings'
 
 export const dynamic = 'force-dynamic'

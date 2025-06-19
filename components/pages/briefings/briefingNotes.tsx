@@ -12,13 +12,17 @@ import {
 	ModalTrigger,
 	TextArea,
 } from '@/components/ui'
+import { Notification } from '@/components/global/Notification'
 import {
 	addNote,
+	deleteNote,
 	getNotesByBriefingId,
 	type Note as NoteType,
-} from '@/actions/briefings/addNotes'
+} from '@/actions/briefings/notesActions'
 import { IoDocumentText } from 'react-icons/io5'
 import { NoteSkeleton } from '@/components/pages/briefings'
+import { useNotification } from '@/context/notificationContext'
+import { MdDelete } from 'react-icons/md'
 
 interface BriefingNotesProps {
 	briefingId: string
@@ -31,6 +35,7 @@ export function BriefingNotes({ briefingId }: BriefingNotesProps) {
 	const scrollRef = useRef<HTMLDivElement>(null)
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [isLoadingNotes, setIsLoadingNotes] = useState(true)
+	const { showNotification } = useNotification()
 
 	const fetchNotes = async () => {
 		setIsLoadingNotes(true)
@@ -53,7 +58,7 @@ export function BriefingNotes({ briefingId }: BriefingNotesProps) {
 
 	const handleAddNote = async () => {
 		if (!newNoteContent.trim()) {
-			alert('A anotação não pode estar vazia.')
+			showNotification('Nenhuma anotação encontrada !', 'alert')
 			return
 		}
 
@@ -62,10 +67,28 @@ export function BriefingNotes({ briefingId }: BriefingNotesProps) {
 			if (addedNote) {
 				setNotes((prevNotes) => [...prevNotes, addedNote])
 				setNewNoteContent('')
-				alert('Anotação salva com sucesso!')
+				showNotification('Anotação salva com sucesso!', 'success')
 				setIsModalOpen(false)
 			} else {
-				alert('Falha ao salvar a anotação.')
+				showNotification('Erro ao salvar anotação !', 'error')
+			}
+		})
+	}
+
+	const handleDeleteNote = async (noteId: string) => {
+		startTransition(async () => {
+			const result = await deleteNote(briefingId, noteId)
+
+			if (result.success) {
+				setNotes((prevNotes) =>
+					prevNotes.filter((note) => note.id !== noteId),
+				)
+				showNotification('Anotação deletada !', 'success')
+			} else {
+				showNotification(
+					result.error || 'Erro ao deletar anotação !',
+					'error',
+				)
 			}
 		})
 	}
@@ -102,9 +125,19 @@ export function BriefingNotes({ briefingId }: BriefingNotesProps) {
 							key={note.id}
 							className='bg-secondary/10 p-3 rounded-md border border-border text-sm shadow-xs'
 						>
-							<p className='text-primary-foreground break-words whitespace-pre-wrap'>
-								{note.content}
-							</p>
+							<div className='flex items-center justify-between w-full'>
+								<p className='text-primary-foreground break-words whitespace-pre-wrap'>
+									{note.content}
+								</p>
+								<Button
+									onClick={() => handleDeleteNote(note.id)}
+									sizes='icon'
+									variants='ghost'
+									className='active:scale-95'
+								>
+									<MdDelete />
+								</Button>
+							</div>
 							<p className='text-xs text-primary-foreground mt-1 text-start'>
 								{new Date(note.createdAt).toLocaleString()}
 							</p>

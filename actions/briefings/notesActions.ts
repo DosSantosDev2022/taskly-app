@@ -56,3 +56,27 @@ export async function getNotesByBriefingId(briefingId: string): Promise<Note[]> 
     return []
   }
 }
+
+/**  
+ * Deleta as anotações de um briefing específico
+ * @param briefingId O ID do briefing ao qual a anotação pertence
+ * @param noteId  noteId O ID da anotação a ser deletada.
+ * @returns Um objeto indicando sucesso ou erro.
+*/
+
+export async function deleteNote(briefingId:string, noteId: string): Promise<{success:boolean, error?: string}> {
+   try {
+      await db.note.delete({
+        where: {
+          id: noteId,
+          briefingId: briefingId
+        }
+      })
+
+      revalidatePath(`/briefings/${briefingId}`)
+      return {success: true}
+   } catch(error) {
+     console.error(`Erro ao deletar anotação ${noteId} bo briefing ${briefingId}`)
+     return {success: false, error: 'Ocorreu um erro ao deletar a anotação.'}
+   }
+}
