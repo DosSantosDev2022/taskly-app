@@ -9,18 +9,18 @@ interface ButtonProps
 	asChild?: boolean
 	sizes?: 'xs' | 'sm' | 'lg' | 'icon' | 'full'
 	variants?:
-		| 'primary'
-		| 'secondary'
-		| 'outline'
-		| 'ghost'
-		| 'accent'
-		| 'disabled'
-		| 'link'
-		| 'danger'
-		| 'warning'
-		| 'success'
-		| 'shine'
-		| 'swipe'
+	| 'primary'
+	| 'secondary'
+	| 'outline'
+	| 'ghost'
+	| 'accent'
+	| 'disabled'
+	| 'link'
+	| 'danger'
+	| 'warning'
+	| 'success'
+	| 'shine'
+	| 'swipe'
 	ref?: ForwardedRef<HTMLButtonElement>
 }
 
@@ -44,7 +44,7 @@ const variantClasses = {
 		'hover:before:bg-accent-foreground hover:before:text-accent relative overflow-hidden bg-accent text-accent-foreground shadow-2xl transition-all before:absolute before:bottom-0 before:left-0 before:top-0 before:z-0 before:h-full before:w-0 before:bg-accent before:transition-all before:duration-500 hover:text-accent-foreground hover:shadow-primary hover:before:left-0 hover:before:w-full',
 }
 const sizeClasses = {
-	xs: 'h-10 w-28 text-sm',
+	xs: 'h-8 w-28 text-sm',
 	sm: 'h-12 w-28 text-sm',
 	lg: 'h-14 w-28 text-lg',
 	icon: 'h-8 w-8 p-0',

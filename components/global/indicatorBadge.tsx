@@ -33,7 +33,7 @@ const indicatorVariants = cva('absolute rounded-full', {
 
 interface IndicatorBadgeProps
 	extends Omit<React.HTMLAttributes<HTMLDivElement>, 'color'>,
-		VariantProps<typeof indicatorVariants> {
+	VariantProps<typeof indicatorVariants> {
 	className?: string
 	positionClassName?: string
 }
@@ -45,7 +45,7 @@ const IndicatorBadge = React.forwardRef<
 	(
 		{
 			className,
-			positionClassName = 'left-4 -top-1.5',
+			positionClassName = 'left-4 -top-2 z-10 animate-pulse',
 			color,
 			animation,
 			size,

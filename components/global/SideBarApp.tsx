@@ -54,8 +54,8 @@ const AppSidebar = () => {
 		},
 		{
 			id: uuidv4(),
-			url: '/proposals',
-			label: 'Propostas',
+			url: '/briefings',
+			label: 'Briefings',
 			icon: <SiGoogledocs size={20} />,
 		},
 	]
