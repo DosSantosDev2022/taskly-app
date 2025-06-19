@@ -178,7 +178,7 @@ model Task {
   projectId   String
   ownerId     String
   teamId      String?
-  project     Project      @relation(fields: [projectId], references: [id])
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   owner       User         @relation(fields: [ownerId], references: [id])
   team        Team?        @relation(fields: [teamId], references: [id])
 
@@ -212,7 +212,7 @@ model SharedProject {
   projectId String
   role      Role
   user      User    @relation(fields: [userId], references: [id])
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([userId, projectId])
 }
@@ -225,7 +225,7 @@ model Comment {
   userId    String
   task      Task?    @relation(fields: [taskId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
-  Project   Project? @relation(fields: [projectId], references: [id])
+  Project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String?
 }
 
@@ -332,7 +332,7 @@ model Briefing {
   client   Client? @relation(fields: [clientId], references: [id])
 
   projectId String?
-  project   Project? @relation(fields: [projectId], references: [id])
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // 1. Company Information
   companyName         String
