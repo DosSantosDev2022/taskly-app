@@ -7,7 +7,14 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["node_modules"]
+		"ignore": [
+			"node_modules",
+			".next",
+			".husky",
+			"styles",
+			"public",
+			"prisma"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -21,10 +28,16 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
+			"complexity": {
+				"noBannedTypes": "warn"
+			},
 			"recommended": true,
 			"a11y": {
 				"noRedundantRoles": "warn",
 				"useAltText": "warn"
+			},
+			"style": {
+				"useImportType": "off"
 			}
 		}
 	},

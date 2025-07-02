@@ -1,0 +1,402 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  name              String
+  surname           String? // optional
+  description       String? // optional
+  email             String    @unique
+  emailVerified     DateTime? @map("email_verified")
+  verificationToken String?   @unique
+  password          String? // optional
+  image             String? // optional
+  coverImage        String? // optional
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  projects        Project[]
+  tasks           Task[]
+  commentsProject CommentProject[]
+  commentsTask    CommentTask[]
+  notifications   Notification[]
+  timeTracking    TimeTracking[]
+  sharedProjects  SharedProject[]
+  subscription    Subscription?
+  TeamMember      TeamMember[]
+
+  accounts           Account[]
+  sessions           Session[]
+  PasswordResetCode  PasswordResetCode[]
+  PasswordResetToken PasswordResetToken[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model PasswordResetCode {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// Status do Projeto (Enum)
+enum ProjectStatus {
+  in_progress // Em andamento
+  pending // Pendente
+  completed // Concluído
+  archived // Arquivado
+}
+
+enum ClientStatus {
+  active
+  inactive
+}
+
+model Project {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  status      ProjectStatus
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  dueDate     DateTime?
+  ownerId     String
+  teamId      String?
+  clientId    String?
+  owner       User          @relation(fields: [ownerId], references: [id])
+  team        Team?         @relation(fields: [teamId], references: [id])
+
+  tasks           Task[]
+  client          Client?          @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  commentsProject CommentProject[]
+  sharedWith      SharedProject[]
+  Briefing        Briefing[]
+
+  @@index([ownerId])
+  @@index([clientId])
+}
+
+model Client {
+  id        String        @id @default(uuid())
+  name      String
+  email     String?       @unique
+  phone     String?
+  address   String?
+  zipcode   String?
+  state     String?
+  city      String?
+  status    ClientStatus?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  projects Project[]
+  Briefing Briefing[]
+}
+
+// Status da Tarefa (Enum)
+enum TaskStatus {
+  to_do
+  in_progress
+  done
+}
+
+// Prioridade da Tarefa (Enum)
+enum TaskPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus
+  priority    TaskPriority
+  dueDate     DateTime
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  projectId   String
+  ownerId     String
+  teamId      String?
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  owner       User         @relation(fields: [ownerId], references: [id])
+  team        Team?        @relation(fields: [teamId], references: [id])
+
+  commentsTask CommentTask[]
+  tags         TaskTag[]
+  subTasks     SubTask[]
+  TimeTracking TimeTracking[]
+
+  @@index([projectId, ownerId])
+}
+
+model SubTask {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id])
+}
+
+// Papel no Compartilhamento (Enum)
+enum Role {
+  viewer
+  editor
+}
+
+model SharedProject {
+  id        String  @id @default(uuid())
+  userId    String
+  projectId String
+  role      Role
+  user      User    @relation(fields: [userId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([userId, projectId])
+}
+
+model CommentProject {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  Project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String?
+}
+
+model CommentTask {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  taskId    String?
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model TaskTag {
+  id     String @id @default(uuid())
+  name   String
+  color  String @default("#000000")
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id])
+}
+
+// Tipo da Notificação (Enum)
+enum NotificationType {
+  task_due
+  new_comment
+  task_assignment
+}
+
+// Tipo do Item Relacionado (Enum)
+enum RelatedType {
+  task
+  project
+  comment
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  message     String
+  type        NotificationType
+  read        Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  expiresAt   DateTime?
+  userId      String
+  relatedId   String
+  relatedType RelatedType
+  user        User             @relation(fields: [userId], references: [id])
+
+  @@index([userId, relatedId])
+}
+
+model TimeTracking {
+  id        String   @id @default(uuid())
+  duration  Int // em segundos
+  startedAt DateTime
+  userId    String
+  taskId    String? // opcional
+  user      User     @relation(fields: [userId], references: [id])
+  task      Task?    @relation(fields: [taskId], references: [id])
+}
+
+// Plano de Assinatura (Enum)
+enum SubscriptionPlan {
+  free
+  pro
+  premium
+}
+
+model Subscription {
+  id        String           @id @default(uuid())
+  userId    String           @unique
+  plan      SubscriptionPlan
+  expiresAt DateTime?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id])
+}
+
+model Team {
+  id              String       @id @default(uuid())
+  teamName        String?
+  teamDescription String?
+  teamAvatarImage String? // opitional
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  projects        Project[]
+  members         TeamMember[]
+  Task            Task[]
+}
+
+model TeamMember {
+  id       String   @id @default(uuid())
+  userId   String
+  role     String
+  joinedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId   String
+
+  @@index([userId, teamId])
+}
+
+model Note {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  content    String
+  briefingId String // Campo para relacionar com o Briefing
+  briefing   Briefing @relation(fields: [briefingId], references: [id], onDelete: Cascade) // Relacionamento
+}
+
+model Briefing {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // 1. Company Information
+  companyName         String
+  cnpj                String?
+  projectLead         String
+  phoneNumberWhatsapp String
+  email               String
+  address             String? // Made optional
+  instagram           String?
+  facebook            String?
+  linkedin            String?
+  currentWebsite      String?
+
+  // 2. About the Business
+  businessDescription    String
+  mainProductsServices   String
+  businessDifferentiator String
+  targetAudience         String
+  websiteObjectives      String[]
+  otherWebsiteObjective  String?
+
+  // 3. Website Goal
+  websiteExpectation String
+  essentialFeatures  String? // Made optional
+
+  // 4. Website Content
+  hasContent        String
+  websitePages      String[]
+  otherWebsitePages String?
+  hasLogoIdentity   String
+
+  // 5. References and Inspirations
+  referenceLink1      String?
+  whatLikedAboutLink1 String?
+  referenceLink2      String?
+  whatLikedAboutLink2 String?
+  referenceLink3      String?
+  whatLikedAboutLink3 String?
+  preferredColors     String?
+  desiredStyle        String[]
+  otherDesiredStyle   String?
+
+  // 6. Hosting and Domain
+  hasDomain  String
+  hasHosting String
+
+  // 7. Deadlines and Investment
+  desiredDeadline  String // Made required
+  hasDefinedBudget String
+  budgetRange      String?
+
+  // 8. Final Observations
+  howDidYouHear          String
+  otherHowDidYouHear     String?
+  additionalObservations String?
+
+  notes Note[]
+}
