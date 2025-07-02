@@ -51,14 +51,15 @@ model User {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  projects       Project[]
-  tasks          Task[]
-  comments       Comment[]
-  notifications  Notification[]
-  timeTracking   TimeTracking[]
-  sharedProjects SharedProject[]
-  subscription   Subscription?
-  TeamMember     TeamMember[]
+  projects        Project[]
+  tasks           Task[]
+  commentsProject CommentProject[]
+  commentsTask    CommentTask[]
+  notifications   Notification[]
+  timeTracking    TimeTracking[]
+  sharedProjects  SharedProject[]
+  subscription    Subscription?
+  TeamMember      TeamMember[]
 
   accounts           Account[]
   sessions           Session[]
@@ -124,11 +125,11 @@ model Project {
   owner       User          @relation(fields: [ownerId], references: [id])
   team        Team?         @relation(fields: [teamId], references: [id])
 
-  tasks      Task[]
-  client     Client?         @relation(fields: [clientId], references: [id])
-  comments   Comment[]
-  sharedWith SharedProject[]
-  Briefing   Briefing[]
+  tasks           Task[]
+  client          Client?          @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  commentsProject CommentProject[]
+  sharedWith      SharedProject[]
+  Briefing        Briefing[]
 
   @@index([ownerId])
   @@index([clientId])
@@ -182,7 +183,7 @@ model Task {
   owner       User         @relation(fields: [ownerId], references: [id])
   team        Team?        @relation(fields: [teamId], references: [id])
 
-  comments     Comment[]
+  commentsTask CommentTask[]
   tags         TaskTag[]
   subTasks     SubTask[]
   TimeTracking TimeTracking[]
@@ -217,16 +218,24 @@ model SharedProject {
   @@index([userId, projectId])
 }
 
-model Comment {
+model CommentProject {
   id        String   @id @default(uuid())
   content   String
   createdAt DateTime @default(now())
-  taskId    String?
   userId    String
-  task      Task?    @relation(fields: [taskId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
   Project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String?
+}
+
+model CommentTask {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  taskId    String?
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
 }
 
 model TaskTag {
@@ -310,7 +319,7 @@ model TeamMember {
   role     String
   joinedAt DateTime @default(now())
   user     User     @relation(fields: [userId], references: [id])
-  team     Team     @relation(fields: [teamId], references: [id])
+  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId   String
 
   @@index([userId, teamId])
