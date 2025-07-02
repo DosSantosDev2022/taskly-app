@@ -18,10 +18,10 @@ const SelectTrigger = React.forwardRef<
 	<SelectPrimitive.Trigger
 		ref={ref}
 		className={twMerge(
-			'flex h-10 w-full items-center cursor-pointer justify-between rounded-md border border-input bg-input px-3 py-2 text-sm',
+			'flex h-9 w-full items-center cursor-pointer justify-between rounded-md px-3 py-2 text-sm',
 			'ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring',
 			' focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
-			'text-muted-foreground',
+			'border text-muted-foreground bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
 			className,
 		)}
 		{...props}
@@ -91,7 +91,7 @@ const SelectContent = React.forwardRef<
 				className={twMerge(
 					'p-1 ',
 					position === 'popper' &&
-						'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]',
+					'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]',
 				)}
 			>
 				{children}
@@ -124,7 +124,7 @@ const SelectItem = React.forwardRef<
 	<SelectPrimitive.Item
 		ref={ref}
 		className={twMerge(
-			'relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+			'relative flex w-full hover:bg-accent cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
 			className,
 		)}
 		{...props}

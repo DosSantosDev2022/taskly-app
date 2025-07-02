@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google'
 import '@/styles/globals.css'
 import { NotificationProvider } from '@/context/notificationContext'
 import { ThemeScript } from '@/utils/themeScript'
+import { NotificationsDisplay } from '@/components/global'
 
 const poppins = Poppins({
 	subsets: ['latin'],
@@ -28,6 +29,7 @@ export default function RootLayout({
 				<NotificationProvider>
 					<ThemeScript />
 					{children}
+					<NotificationsDisplay />
 				</NotificationProvider>
 			</body>
 		</html>

@@ -2,16 +2,15 @@
 import { useState } from 'react'
 import { FaBell } from 'react-icons/fa'
 import { BsChatTextFill } from 'react-icons/bs'
-import { PopoverContent, PopoverRoot, PopoverTrigger } from '../popover'
-import { NotificationMessage } from '../notifications/notificationMessages'
+import { PopoverContent, Popover, PopoverTrigger } from '@/components/ui'
+import { AppAlert, MessageNotification } from '@/components/global'
 import { useSession } from 'next-auth/react'
 import {
 	NotificationMessageSkeleton,
 	AlertNotificationSkeleton,
 } from '../skeletons'
-import { AlertNotification } from '../notifications/alertNotifications'
 
-const NotificationsApp = () => {
+const AlertsAndMessages = () => {
 	const { data: session, status } = useSession()
 	const [openPopover, setOpenPopover] = useState<
 		'messages' | 'notifications' | null
@@ -23,14 +22,14 @@ const NotificationsApp = () => {
 
 	return (
 		<div className='flex items-center space-x-2 text-muted-foreground'>
-			<PopoverRoot
-				isOpen={openPopover === 'messages'}
-				onToggle={() => handleToggle('messages')}
+			<Popover
+				open={openPopover === 'messages'}
+				onOpenChange={() => handleToggle('messages')}
 			>
-				<PopoverTrigger sizes='icon' variants='ghost'>
+				<PopoverTrigger className='cursor-pointer' >
 					<BsChatTextFill size={20} />
 				</PopoverTrigger>
-				<PopoverContent className='' alignment='bottom'>
+				<PopoverContent className='w-96' align='end' sideOffset={5} collisionPadding={{ right: 16, bottom: 16 }}>
 					<div className='p-2 w-full flex items-center gap-1 mb-3'>
 						<FaBell className='text-muted-foreground' />
 						<span className='text-base font-medium text-muted-foreground'>
@@ -39,25 +38,26 @@ const NotificationsApp = () => {
 					</div>
 					<div className='space-y-2 max-h-80 overflow-y-auto'>
 						<NotificationMessageSkeleton />
-						<NotificationMessage
+						<MessageNotification
 							id=''
 							img={session?.user.image as string}
 							fallback='js'
 							title='Titulo da mensagem'
 							content='Conteúdo resumido  da mensagem da mensagem da mensagem da mensagem da mensagem '
+							time='Time da folha'
 						/>
 					</div>
 				</PopoverContent>
-			</PopoverRoot>
+			</Popover>
 
-			<PopoverRoot
-				isOpen={openPopover === 'notifications'}
-				onToggle={() => handleToggle('notifications')}
+			<Popover
+				open={openPopover === 'notifications'}
+				onOpenChange={() => handleToggle('notifications')}
 			>
-				<PopoverTrigger sizes='icon' variants='ghost'>
+				<PopoverTrigger className='cursor-pointer'>
 					<FaBell size={20} />
 				</PopoverTrigger>
-				<PopoverContent alignment='bottom'>
+				<PopoverContent align='end' sideOffset={5} collisionPadding={{ right: 16, bottom: 16 }}>
 					<div className='p-2 w-full flex items-center gap-1 mb-3'>
 						<FaBell className='text-muted-foreground' />
 						<span className='text-base font-medium text-muted-foreground'>
@@ -66,7 +66,7 @@ const NotificationsApp = () => {
 					</div>
 					<div className='space-y-2 max-h-80 overflow-y-auto'>
 						<AlertNotificationSkeleton />
-						<AlertNotification
+						<AppAlert
 							id=''
 							title='Você recebeu um novo projeto !'
 							content='O usuário jhon doe acabou de compartilhar um novo projeto com você,talvez você precise de ajuda'
@@ -75,9 +75,9 @@ const NotificationsApp = () => {
 						/>
 					</div>
 				</PopoverContent>
-			</PopoverRoot>
+			</Popover>
 		</div>
 	)
 }
 
-export { NotificationsApp }
+export { AlertsAndMessages }

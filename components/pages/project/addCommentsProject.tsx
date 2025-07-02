@@ -1,16 +1,15 @@
 'use client'
 import { type CommentFormData, CommentSchema } from '@/@types/zodSchemas'
-import { AddComment } from '@/actions/comment/addComment'
+import { AddCommentProject } from '@/actions/project/addComment'
 import {
-	TextArea,
+	Textarea,
 	Button,
-	ModalRoot,
-	ModalTrigger,
-	ModalContent,
-	ModalHeader,
-	ModalTitle,
-	ModalClose,
-	ModalOverlay,
+	Dialog,
+	DialogTrigger,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogClose,
 } from '@/components/ui'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSession } from 'next-auth/react'
@@ -19,16 +18,18 @@ import { useForm } from 'react-hook-form'
 import { FaPlus } from 'react-icons/fa'
 
 interface AddCommentsProjectsProps {
-	projectId?: string
-	taskId?: string
+	projectId: string
 	onCommentAdded: () => void
 }
 
 const AddCommentsProjects = ({
 	projectId,
-	taskId,
 	onCommentAdded,
 }: AddCommentsProjectsProps) => {
+
+	const { data: session } = useSession()
+	const userId = session?.user.id
+
 	const [open, setOpen] = useState(false)
 	const [isPending, startTransition] = useTransition()
 	const {
@@ -38,11 +39,12 @@ const AddCommentsProjects = ({
 		formState: { errors },
 	} = useForm<CommentFormData>({
 		resolver: zodResolver(CommentSchema),
-		defaultValues: {},
+		defaultValues: {
+			userId,
+			content: '',
+			projectId: projectId,
+		},
 	})
-
-	const { data: session } = useSession()
-	const userId = session?.user.id
 
 	const OnSubmit = (data: CommentFormData) => {
 		startTransition(async () => {
@@ -56,8 +58,13 @@ const AddCommentsProjects = ({
 				userId,
 			}
 
+			if (!finalData.projectId) {
+				console.error('Um comentário deve estar associado a um Projeto')
+				return
+			}
+
 			try {
-				await AddComment(finalData)
+				await AddCommentProject(finalData)
 				reset()
 				setOpen(false)
 				onCommentAdded()
@@ -68,34 +75,37 @@ const AddCommentsProjects = ({
 	}
 
 	return (
-		<ModalRoot open={open} onOpenChange={setOpen}>
-			<ModalTrigger sizes='icon'>
-				<FaPlus size={16} />
-			</ModalTrigger>
-			<ModalOverlay variant='darkBlur' />
-			<ModalContent className='w-xl'>
-				<ModalHeader>
-					<ModalTitle>Adicione um comentário ao projeto</ModalTitle>
-					<ModalClose sizes='icon' icon />
-				</ModalHeader>
-				<div className='space-y-2'>
-					<form onSubmit={handleSubmit(OnSubmit)}>
-						<TextArea
-							{...register('content')}
-							placeholder='Escreva um comentário...'
-						/>
-						{errors.content && (
-							<p className='text-sm text-danger'>
-								{errors.content.message}
-							</p>
-						)}
-						<Button type='submit' sizes='full'>
-							{isPending ? 'Adicionando...' : 'Adicionar comentário'}
-						</Button>
-					</form>
-				</div>
-			</ModalContent>
-		</ModalRoot>
+		<Dialog open={open} onOpenChange={setOpen}>
+			<DialogTrigger asChild>
+				<Button variant={'ghost'} size='icon'>
+					<FaPlus />
+				</Button>
+
+			</DialogTrigger>
+
+			<DialogContent className='w-xl'>
+				<DialogHeader>
+					<DialogTitle>Adicione um comentário ao projeto</DialogTitle>
+					<DialogClose />
+				</DialogHeader>
+
+				<form onSubmit={handleSubmit(OnSubmit)}>
+					<Textarea
+						{...register('content')}
+						placeholder='Escreva um comentário...'
+					/>
+					{errors.content && (
+						<p className='text-sm text-danger'>
+							{errors.content.message}
+						</p>
+					)}
+					<Button className='w-full mt-2' type='submit'>
+						{isPending ? 'Adicionando...' : 'Adicionar comentário'}
+					</Button>
+				</form>
+
+			</DialogContent>
+		</Dialog>
 	)
 }
 

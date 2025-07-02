@@ -1,15 +1,6 @@
 'use client'
 import { FaPlus } from 'react-icons/fa'
 import {
-	ModalRoot,
-	ModalTrigger,
-	ModalContent,
-	ModalClose,
-	ModalDescription,
-	ModalFooter,
-	ModalOverlay,
-	ModalHeader,
-	ModalTitle,
 	Label,
 	Input,
 	Button,
@@ -18,8 +9,17 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-	ModalLoading,
-	TextArea,
+	Dialog,
+	DialogTrigger,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogDescription,
+	DialogFooter,
+	DialogClose,
+	Textarea,
+	DatePicker,
+	RichTextEditor
 } from '@/components/ui'
 import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -29,13 +29,13 @@ import type { Team } from '@prisma/client'
 import { addProject } from '@/actions/project/addProject'
 import { useSession } from 'next-auth/react'
 import { useNotification } from '@/context/notificationContext'
-import { DatePicker } from '@/components/ui/datePicker'
-import RichTextEditor from '@/components/ui/richTextEditor'
 import { useClientsQuery } from '@/hooks/useClientsQuery'
+import { Loader2 } from 'lucide-react'
 
 const AddProjects = () => {
 	const { showNotification } = useNotification()
-	const { data: session } = useSession()
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
+	const { data: session, status: sessionStatus } = useSession()
 	const ownerId = session?.user?.id
 	const [isLoading, setIsLoading] = useState(false)
 	const [teams, setTeams] = useState<Team[]>([])
@@ -46,20 +46,52 @@ const AddProjects = () => {
 		isError: isErrorClients,
 	} = useClientsQuery()
 
+	const initialDefaultValues = {
+		name: '',
+		description: '',
+		dueDate: undefined,
+		clientId: '',
+		teamId: '',
+		status: 'pending' as const, // Definindo 'pending' como default
+		ownerId: '', // Será atualizado via useEffect
+	};
+
 	const {
 		register,
 		handleSubmit,
 		control,
 		reset,
+		setValue,
 		formState: { errors },
 	} = useForm<ProjectFormData>({
 		resolver: zodResolver(projectSchema),
-		defaultValues: {
-			ownerId: ownerId || '',
-		},
+		defaultValues: initialDefaultValues,
 	})
 
 	const closeRef = useRef<HTMLButtonElement | null>(null)
+
+	// useEffect para resetar o formulário quando o modal é fechado
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		// Se o modal está fechado (!isDialogOpen), resete o formulário para os valores iniciais.
+		// Isso garante que ele estará limpo na próxima vez que for aberto.
+		if (!isDialogOpen) {
+			reset({
+				...initialDefaultValues,
+				// Garante que o ownerId seja o mais atual da sessão se disponível,
+				// caso contrário, volta para o valor padrão vazio.
+				ownerId: session?.user?.id || '',
+			});
+		}
+	}, [isDialogOpen, reset, session?.user?.id]);
+
+	// Opcional: useEffect para setar o ownerId se a sessão carregar depois da montagem do form
+	useEffect(() => {
+		if (sessionStatus === 'authenticated' && ownerId && control._formValues.ownerId === '') {
+			// Apenas define se o ownerId no formulário ainda estiver vazio
+			setValue('ownerId', ownerId);
+		}
+	}, [sessionStatus, ownerId, setValue, control]);
 
 	const onSubmit = async (data: ProjectFormData) => {
 		setIsLoading(true)
@@ -69,15 +101,15 @@ const AddProjects = () => {
 			status: data.status,
 			clientId: data.clientId || undefined,
 			teamId: data.teamId || undefined,
-			dueDate: data.dueDate,
+			dueDate: data.dueDate ? new Date(data.dueDate) : null,
 			ownerId,
 		}
 		const result = await addProject(formData)
 
 		if (result.success) {
-			closeRef.current?.click()
 			showNotification('Projeto cadastrado com sucesso !', 'success')
 			reset()
+			setIsDialogOpen(false)
 		} else {
 			console.error(result.errors || result.message)
 			showNotification('Erro ao cadastrar projeto !', 'error')
@@ -88,31 +120,23 @@ const AddProjects = () => {
 		console.log('Erros de validação:', errors)
 	}, [errors])
 
-	// Adiciona um estado de loading e erro para os clientes
-	if (isLoadingClients) {
-		return <p className='text-center py-4'>Carregando clientes...</p>
-	}
-
-	if (isErrorClients) {
-		return (
-			<p className='text-danger text-center py-4'>
-				Erro ao carregar lista de clientes.
-			</p>
-		)
-	}
 
 	return (
-		<ModalRoot>
-			<ModalTrigger sizes='xs'>
-				Adicionar <FaPlus />
-			</ModalTrigger>
-			<ModalOverlay variant='dark' />
-			<ModalContent className='max-w-4xl'>
-				{isLoading && <ModalLoading />}
-				<ModalHeader>
-					<ModalTitle>Cadastrar Projeto</ModalTitle>
-					<ModalClose icon sizes='icon' ref={closeRef} />
-				</ModalHeader>
+		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+			<DialogTrigger asChild>
+				<Button>
+					Adicionar <FaPlus className='ml-2' /> {/* Ícone com margem */}
+				</Button>
+			</DialogTrigger>
+
+			<DialogContent className='sm:max-w-4xl'>
+				<DialogHeader>
+					<DialogTitle>Cadastrar Projeto</DialogTitle>
+					<DialogDescription className='sr-only'>
+						Preencha os campos para cadastrar um novo projeto.
+					</DialogDescription>
+					<DialogClose ref={closeRef} />
+				</DialogHeader>
 
 				<form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
 					<div className='p-2 flex flex-col gap-4 max-h-[512px] overflow-y-auto scrollbar-custom'>
@@ -125,7 +149,7 @@ const AddProjects = () => {
 								{...register('name')}
 							/>
 							{errors.name && (
-								<span className='text-danger text-sm'>
+								<span className='text-destructive text-sm'>
 									{errors.name.message}
 								</span>
 							)}
@@ -140,14 +164,16 @@ const AddProjects = () => {
 								render={({ field }) => (
 									<RichTextEditor
 										content={field.value}
-										onChange={field.onChange}
+										onChange={(newContent) => {
+											field.onChange(newContent || '');
+										}}
 										placeholder='Descreva seu projeto em detalhes...'
 										maxCharacters={10000}
 									/>
 								)}
 							/>
 							{errors.description && (
-								<span className='text-danger text-sm'>
+								<span className='text-destructive text-sm'>
 									{errors.description.message}
 								</span>
 							)}
@@ -179,7 +205,7 @@ const AddProjects = () => {
 									)}
 								/>
 								{errors.clientId && (
-									<span className='text-danger text-sm'>
+									<span className='text-destructive text-sm'>
 										{errors.clientId.message}
 									</span>
 								)}
@@ -210,7 +236,7 @@ const AddProjects = () => {
 									)}
 								/>
 								{errors.teamId && (
-									<span className='text-danger text-sm'>
+									<span className='text-destructive text-sm'>
 										{errors.teamId.message}
 									</span>
 								)}
@@ -230,7 +256,7 @@ const AddProjects = () => {
 											value={field.value}
 										>
 											<SelectTrigger className='w-full'>
-												<SelectValue placeholder='Selecione o status' />
+												<SelectValue />
 											</SelectTrigger>
 											<SelectContent>
 												<SelectItem value='in_progress'>
@@ -246,7 +272,7 @@ const AddProjects = () => {
 									)}
 								/>
 								{errors.status && (
-									<span className='text-danger text-sm'>
+									<span className='text-destructive text-sm'>
 										{errors.status.message}
 									</span>
 								)}
@@ -258,40 +284,33 @@ const AddProjects = () => {
 									control={control}
 									name='dueDate'
 									render={({ field }) => {
-										const value = field.value
-											? { startDate: field.value, endDate: field.value }
-											: { startDate: null, endDate: null }
 
 										return (
 											<DatePicker
-												date={value}
-												onChange={(newDate) =>
-													field.onChange(newDate.startDate)
-												}
-												range
-												sizes='full'
-												className='h-10'
-												variants='accent'
+												mode='single'
+												value={field.value || undefined}
+												onChange={(newDate) => field.onChange(newDate)}
 											/>
-										)
+										);
 									}}
 								/>
 								{errors.dueDate && (
-									<p className='text-danger text-sm'>
+									<p className='text-destructive text-sm'>
 										{errors.dueDate.message}
 									</p>
 								)}
 							</div>
 						</div>
 					</div>
-					<ModalFooter className='p-2 pb-4 pt-2 flex justify-end'>
-						<Button variants='primary' sizes='full' type='submit'>
-							Cadastrar
+					<DialogFooter className='p-2 pb-4 pt-2 flex justify-end'>
+						<Button variant='default' size='default' type='submit'>
+							{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+							{isLoading ? 'Cadastrando...' : 'Cadastrar'}
 						</Button>
-					</ModalFooter>
+					</DialogFooter>
 				</form>
-			</ModalContent>
-		</ModalRoot>
+			</DialogContent>
+		</Dialog>
 	)
 }
 

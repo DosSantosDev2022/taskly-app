@@ -1,3 +1,4 @@
+'use client'
 import type React from 'react'
 import { useCallback, useEffect } from 'react'
 import { useEditor, EditorContent, Editor, Extension } from '@tiptap/react'
@@ -131,8 +132,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 				<>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() => editor.chain().focus().toggleBold().run()}
 						disabled={!editor.can().chain().focus().toggleBold().run()}
 						className={`${editor.isActive('bold') ? 'bg-primary text-primary-foreground' : ''}`}
@@ -142,8 +143,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() => editor.chain().focus().toggleItalic().run()}
 						disabled={!editor.can().chain().focus().toggleItalic().run()}
 						className={`${editor.isActive('italic') ? 'bg-primary text-primary-foreground' : ''}`}
@@ -153,8 +154,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() => editor.chain().focus().toggleStrike().run()}
 						disabled={!editor.can().chain().focus().toggleStrike().run()}
 						className={`p-2 rounded-md text-sm font-medium ${editor.isActive('strike') ? 'bg-primary text-primary-foreground' : ''}`}
@@ -164,8 +165,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() => editor.chain().focus().toggleUnderline().run()}
 						disabled={
 							!editor.can().chain().focus().toggleUnderline().run()
@@ -180,8 +181,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 				<>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() =>
 							editor.chain().focus().toggleHeading({ level: 1 }).run()
 						}
@@ -192,8 +193,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() =>
 							editor.chain().focus().toggleHeading({ level: 2 }).run()
 						}
@@ -204,8 +205,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() =>
 							editor.chain().focus().toggleHeading({ level: 3 }).run()
 						}
@@ -216,8 +217,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() =>
 							editor.chain().focus().toggleHeading({ level: 4 }).run()
 						}
@@ -228,8 +229,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() =>
 							editor.chain().focus().toggleHeading({ level: 5 }).run()
 						}
@@ -240,8 +241,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() =>
 							editor.chain().focus().toggleHeading({ level: 6 }).run()
 						}
@@ -256,8 +257,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 				<>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() =>
 							editor.chain().focus().setTextAlign('left').run()
 						}
@@ -268,8 +269,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() =>
 							editor.chain().focus().setTextAlign('center').run()
 						}
@@ -280,8 +281,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() =>
 							editor.chain().focus().setTextAlign('right').run()
 						}
@@ -292,8 +293,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() =>
 							editor.chain().focus().setTextAlign('justify').run()
 						}
@@ -308,8 +309,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 				<>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() => editor.chain().focus().toggleBulletList().run()}
 						className={`p-2 rounded-md text-sm font-medium ${editor.isActive('bulletList') ? 'bg-primary text-primary-foreground' : ''}`}
 						title='Lista de Marcadores'
@@ -318,8 +319,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 					</Button>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={() =>
 							editor.chain().focus().toggleOrderedList().run()
 						}
@@ -335,8 +336,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 				<>
 					<Button
 						type='button'
-						variants='ghost'
-						sizes='icon'
+						variant='ghost'
+						size='icon'
 						onClick={setLink}
 						className={`p-2 rounded-md text-sm font-medium ${editor.isActive('link') ? 'bg-primary text-primary-foreground' : ''}`}
 						title='Inserir Link'
@@ -412,4 +413,4 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 	)
 }
 
-export default RichTextEditor
+export { RichTextEditor }

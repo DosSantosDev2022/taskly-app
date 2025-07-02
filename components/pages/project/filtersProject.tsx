@@ -1,13 +1,8 @@
 'use client'
-import { IndicatorBadge } from '@/components/global/indicatorBadge'
-import {
-	PopoverContent,
-	PopoverRoot,
-	PopoverTrigger,
-} from '@/components/global/popover'
-import { Button, Input } from '@/components/ui'
-import { DatePicker } from '@/components/ui/datePicker'
-import { Tooltip } from '@/components/ui/tooltip'
+import { Indicator } from '@/components/global/indicator'
+import { Badge, Button, Input, Popover, PopoverContent, PopoverTrigger } from '@/components/ui'
+import { DatePicker } from '@/components/ui'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
 	DATE_FORMAT,
 	useHandleDateChange,
@@ -23,6 +18,7 @@ import { LuSearch } from 'react-icons/lu'
 import { SiCcleaner } from 'react-icons/si'
 
 const FiltersProject = () => {
+	const [statusIsOpen, setStatusIsOpen] = useState(false)
 	const searchParams = useSearchParams()
 	const [isOpen, setIsOpen] = useState(false)
 	const router = useRouter()
@@ -73,40 +69,39 @@ const FiltersProject = () => {
 		<div className='flex items-center space-x-2'>
 			{/* Filter Search */}
 			<Input
-				className='w-56 h-8'
+				className='w-56'
 				placeholder='Buscar...'
-				icon={<LuSearch />}
 				value={searchTerm}
 				onChange={(e) => handleSearchChange(e.target.value)}
 			/>
 			{/* <FilterDate /> */}
 			<DatePicker
-				variants='secondary'
-				sizes='full'
-				date={date}
+				mode='range'
+				value={date}
 				onChange={handleDateChange}
-				range
+				placeholder="Selecione"
 			/>
-			{/* Filter Status */}
-			<PopoverRoot isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)}>
-				<PopoverTrigger>
-					<Button sizes='icon' variants='secondary'>
-						<Tooltip content='Status'>
-							{selectedStatuses.length > 0 && (
-								<IndicatorBadge color='secondary' />
-							)}
-							<FaFilter size={14} />
-						</Tooltip>
-					</Button>
-				</PopoverTrigger>
+			{/* Popover para Filtro de Status */}
+			<TooltipProvider>
+				<Popover open={statusIsOpen} onOpenChange={setStatusIsOpen}>
+					{selectedStatuses.length > 0 && <Indicator color='secondary' />}
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<PopoverTrigger asChild>
+								<Button variant="ghost" size="icon">
+									<FaFilter />
+									<span className="sr-only">Filtrar por status</span> {/* Acessibilidade */}
+								</Button>
+							</PopoverTrigger>
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>Filtrar por Status</p> {/* Texto mais descritivo */}
+						</TooltipContent>
+					</Tooltip>
 
-				<PopoverContent alignment='bottom' className='p-4 w-56 mt-1'>
-					<div>
+					<PopoverContent className='p-4 w-32 mt-1' align='end' sideOffset={5} collisionPadding={{ right: 16, bottom: 16 }}>
 						{availabStatuses.map((status) => (
-							<div
-								key={status}
-								className='flex items-center mb-2 space-x-3'
-							>
+							<div key={status} className='flex items-center mb-2 space-x-3'>
 								<label className='flex items-center cursor-pointer relative'>
 									<input
 										type='checkbox'
@@ -118,21 +113,30 @@ const FiltersProject = () => {
 									<FaCheck className='absolute w-3 h-3 text-primary-foreground opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none' />
 								</label>
 								<label
-									className='text-muted-foreground text-sm'
 									htmlFor={status}
+									className='text-muted-foreground text-sm'
 								>
 									{translateStatus(status)}
 								</label>
 							</div>
 						))}
-					</div>
-				</PopoverContent>
-			</PopoverRoot>
-			<Tooltip position='top-end' content='Limpar filtros'>
-				<Button sizes='icon' variants='secondary' onClick={clearFilters}>
-					<SiCcleaner />
-				</Button>
-			</Tooltip>
+					</PopoverContent>
+				</Popover>
+			</TooltipProvider>
+			{/* Botão para Limpar Filtros (com Tooltip) */}
+			<TooltipProvider>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button variant="ghost" size="icon" onClick={clearFilters}> {/* Use Button aqui também */}
+							<SiCcleaner />
+							<span className="sr-only">Limpar todos os filtros</span> {/* Acessibilidade */}
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>
+						<p>Limpar filtros</p>
+					</TooltipContent>
+				</Tooltip>
+			</TooltipProvider>
 		</div>
 	)
 }

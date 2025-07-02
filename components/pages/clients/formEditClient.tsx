@@ -6,7 +6,6 @@ import {
 	Button,
 	Input,
 	Label,
-	ModalLoading,
 	Select,
 	SelectContent,
 	SelectItem,
@@ -15,13 +14,13 @@ import {
 } from '@/components/ui'
 import { useStatesECities } from '@/hooks/useStatesECities'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { Client } from '@prisma/client'
+import type { ClientWithRelations } from '@/@types/prismaSchema'
 import { Controller, useForm } from 'react-hook-form'
 import { updateClient } from '@/actions/client/updateClient'
 import { useNotification } from '@/context/notificationContext'
 
 interface FormEditClientProps {
-	client: Client
+	client: ClientWithRelations
 	handleEditClient: () => void
 }
 
@@ -160,7 +159,7 @@ const FormEditClient = ({
 										}}
 										value={field.value}
 									>
-										<SelectTrigger className='w-full h-12'>
+										<SelectTrigger className='w-full'>
 											<SelectValue placeholder='Selecione o estado' />
 										</SelectTrigger>
 										<SelectContent>
@@ -191,7 +190,7 @@ const FormEditClient = ({
 										value={field.value}
 										disabled={!stateSelected}
 									>
-										<SelectTrigger className='w-full h-12'>
+										<SelectTrigger className='w-full'>
 											<SelectValue
 												placeholder={
 													isLoadingCities
@@ -237,7 +236,7 @@ const FormEditClient = ({
 							name='status'
 							render={({ field }) => (
 								<Select onValueChange={field.onChange} value={field.value}>
-									<SelectTrigger className='w-full h-12'>
+									<SelectTrigger className='w-full'>
 										<SelectValue placeholder='Selecione o status' />
 									</SelectTrigger>
 									<SelectContent>
@@ -252,17 +251,17 @@ const FormEditClient = ({
 				<div className='flex items-center justify-end w-full gap-2'>
 					<Button
 						type='submit'
-						sizes='xs'
-						variants={`${isPending ? 'disabled' : 'primary'}`}
+						size='sm'
+						variant={`${isPending ? 'ghost' : 'outline'}`}
 						className='mt-4'
 						disabled={isPending}
 					>
 						{isPending ? 'Salvando...' : 'Salvar'}
 					</Button>
 					<Button
-						sizes='xs'
+						size='sm'
 						onClick={handleEditClient}
-						variants='danger'
+						variant='destructive'
 						className='mt-4'
 					>
 						Cancelar

@@ -7,7 +7,7 @@ type DetailRowProps = {
 const DetailRow = ({ label, value }: DetailRowProps) => (
 	<div>
 		<strong className='font-bold'>{label}</strong>{' '}
-		<span className='text-foreground whitespace-break-spaces'>
+		<span className='text-foreground whitespace-break-spaces font-thin'>
 			{value}
 		</span>
 	</div>

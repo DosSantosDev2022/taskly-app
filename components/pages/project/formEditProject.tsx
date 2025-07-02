@@ -10,20 +10,20 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-	TextArea,
+	Textarea,
+	DatePicker,
+	RichTextEditor
 } from '@/components/ui'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { type ProjectFormData, projectSchema } from '@/@types/zodSchemas'
 import { updateProject } from '@/actions/project/updateProject'
 import { useNotification } from '@/context/notificationContext'
-import { DatePicker } from '@/components/ui/datePicker'
-import type { Project } from '@/@types/prismaSchema'
-import RichTextEditor from '@/components/ui/richTextEditor'
+import type { ProjectWithRelations } from '@/@types/prismaSchema'
 import { useClientsQuery } from '@/hooks/useClientsQuery'
 
 interface FormEditProjectProps {
-	project: Project
+	project: ProjectWithRelations
 	handleEditProject: () => void
 	handleProjectUpdated: () => void
 }
@@ -71,7 +71,7 @@ const FormEditProject = ({
 				ownerId: project.ownerId,
 				clientId: project.clientId || '',
 				teamId: project.teamId || '',
-				dueDate: project.dueDate || null,
+				dueDate: project.dueDate ?? undefined
 			})
 		}
 	}, [project, reset])
@@ -81,11 +81,11 @@ const FormEditProject = ({
 			const result = await updateProject(project.id, formValues)
 
 			if (result.success) {
-				showNotification('Projeto atualizado com sucesso!', 'success')
+				showNotification('Projeto atualizado com sucesso!', 'success', 'Tudo Certo!')
 				handleEditProject()
 				handleProjectUpdated()
 			} else {
-				showNotification('Erro ao atualizar projeto!', 'error')
+				showNotification('Erro ao atualizar projeto!', 'error', 'Falha!')
 			}
 		})
 	}
@@ -184,11 +184,9 @@ const FormEditProject = ({
 
 							return (
 								<DatePicker
-									date={value}
-									onChange={(newDate) => field.onChange(newDate.startDate)}
-									range
-									sizes='full'
-									className='h-10'
+									value={value}
+									onChange={(newDate) => field.onChange(newDate)}
+									mode='range'
 								/>
 							)
 						}}
@@ -261,17 +259,17 @@ const FormEditProject = ({
 			<div className='flex items-center justify-end w-full gap-2'>
 				<Button
 					type='submit'
-					sizes='xs'
-					variants={`${isPending ? 'disabled' : 'primary'}`}
+					size='sm'
+					variant={`${isPending ? 'link' : 'default'}`}
 					className='mt-4'
 					disabled={isPending}
 				>
 					{isPending ? 'Salvando...' : 'Salvar'}
 				</Button>
 				<Button
-					sizes='xs'
+					size='sm'
 					onClick={handleEditProject}
-					variants='danger'
+					variant='destructive'
 					className='mt-4'
 				>
 					Cancelar

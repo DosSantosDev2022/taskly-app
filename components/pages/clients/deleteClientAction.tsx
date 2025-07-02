@@ -1,19 +1,20 @@
 'use client'
 import {
   Button,
-  ModalClose,
-  ModalContent,
-  ModalDescription,
-  ModalHeader,
-  ModalOverlay,
-  ModalRoot,
-  ModalTrigger,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui'
 import { MdDelete } from 'react-icons/md'
 import { DeleteClient } from '@/actions/client/deleteClient'
 import { useNotification } from '@/context/notificationContext'
 import { useState } from 'react'
-
+import { LuX } from 'react-icons/lu'
 
 const DeleteClientAction = ({ clientId }: { clientId: string }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -24,35 +25,38 @@ const DeleteClientAction = ({ clientId }: { clientId: string }) => {
 
     if (res.success) {
       showNotification('Cliente deletado com sucesso !', 'success')
-      setIsOpen(false)
+      setIsOpen(false) // Fecha o Dialog após o sucesso
     } else {
       showNotification('Erro ao deletar cliente !', 'error')
     }
   }
-  return (
-    <ModalRoot open={isOpen} onOpenChange={setIsOpen}>
-      <ModalTrigger sizes='icon' variants='link'>
-        <MdDelete
-          className='hover:scale-95 duration-300 transition-all'
-          size={20}
-        />
-      </ModalTrigger>
-      <ModalOverlay variant='dark' />
 
-      <ModalContent className='w-[460px]'>
-        <ModalDescription className='text-lg'>
-          Tem certeza que desja excluír este cliente ?
-        </ModalDescription>
-        <div className='flex items-center w-full justify-start gap-2'>
-          <Button sizes='xs' onClick={handleDeleteClient}>
-            Sim
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger className='p-1 hover:bg-accent cursor-pointer'>
+        <span>Excluír</span>
+      </DialogTrigger>
+      <DialogContent className='p-6'>
+        <DialogHeader>
+          <DialogTitle>Confirmação de Exclusão</DialogTitle>
+          <DialogDescription className='text-lg'>
+            Tem certeza que deseja excluir este cliente?.
+          </DialogDescription>
+          <DialogClose />
+        </DialogHeader>
+
+        <DialogFooter className='flex items-center justify-end gap-2 mt-4'>
+          <DialogClose asChild>
+            <Button size='sm' variant='ghost'>
+              Cancelar
+            </Button>
+          </DialogClose>
+          <Button size='sm' variant='destructive' onClick={handleDeleteClient}>
+            Sim, excluir
           </Button>
-          <ModalClose sizes='xs' variants='danger'>
-            Cancelar
-          </ModalClose>
-        </div>
-      </ModalContent>
-    </ModalRoot>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

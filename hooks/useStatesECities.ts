@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 type State = {
   id: number
@@ -19,6 +19,11 @@ export function useStatesECities() {
   const [stateSelected, setStateSelected] = useState<string>('')
   const [isLoadingCities, setIsLoadingCities] = useState<boolean>(false)
 
+    const resetStatesAndCities = useCallback(() => {
+    setStateSelected('') // Limpa o estado selecionado
+    setCities([]) // Limpa a lista de cidades
+  }, []) // Dependências vazias, pois não depende de nenhum estado que mude
+
   useEffect(() => {
     fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados')
       .then((res) => res.json())
@@ -31,6 +36,7 @@ export function useStatesECities() {
   }, [])
 
   useEffect(() => {
+    // Limpa as cidades se nenhum estado estiver selecionado
     if (!stateSelected) {
       setCities([])
       return
@@ -55,6 +61,7 @@ export function useStatesECities() {
     cities,
     stateSelected,
     setStateSelected,
-    isLoadingCities
+    isLoadingCities,
+    resetStatesAndCities 
   }
 }

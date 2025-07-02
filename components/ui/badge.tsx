@@ -1,47 +1,46 @@
-import React, { type ComponentProps } from 'react'
-import { twMerge } from 'tailwind-merge'
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
 
-export interface BadgeProps extends ComponentProps<'span'> {
-	variant?:
-		| 'primary'
-		| 'secondary'
-		| 'accent'
-		| 'muted'
-		| 'danger'
-		| 'warning'
-		| 'success'
-	children?: string
-}
+import { cn } from "@/lib/utils"
 
-const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
-	({ className, variant = 'accent', children, ...props }, ref) => {
-		const variantClasses = {
-			primary: 'bg-primary text-primary-foreground',
-			secondary: 'bg-secondary text-secondary-foreground',
-			accent: 'bg-accent text-accent-foreground',
-			muted: 'bg-muted text-muted-foreground',
-			danger: 'bg-danger/70 text-danger-foreground',
-			warning: 'bg-warning/50 text-warning-foreground',
-			success: 'bg-success/70 text-success-foreground',
-		}
-
-		return (
-			<span
-				className={twMerge(
-					'inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
-					'transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-					variantClasses[variant],
-					className,
-				)}
-				{...props}
-				ref={ref}
-			>
-				{children}
-			</span>
-		)
-	},
+const badgeVariants = cva(
+	"inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
+	{
+		variants: {
+			variant: {
+				default:
+					"border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+				secondary:
+					"border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+				destructive:
+					"border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+				outline:
+					"text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+			},
+		},
+		defaultVariants: {
+			variant: "default",
+		},
+	}
 )
 
-Badge.displayName = 'Badge'
+function Badge({
+	className,
+	variant,
+	asChild = false,
+	...props
+}: React.ComponentProps<"span"> &
+	VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
+	const Comp = asChild ? Slot : "span"
 
-export { Badge }
+	return (
+		<Comp
+			data-slot="badge"
+			className={cn(badgeVariants({ variant }), className)}
+			{...props}
+		/>
+	)
+}
+
+export { Badge, badgeVariants }

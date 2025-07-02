@@ -1,21 +1,17 @@
 'use client'
 import { BiTask } from 'react-icons/bi'
 import { useState } from 'react'
-import { GrView } from 'react-icons/gr'
 import { formatDate } from '@/utils/formatDate'
 import { DetailRow } from '@/components/pages/clients/detailRow'
 import {
 	Badge,
 	Button,
-	ModalClose,
-	ModalContent,
-	ModalHeader,
-	ModalLoading,
-	ModalOverlay,
-	ModalRoot,
-	ModalTitle,
-	ModalTrigger,
-	TextArea,
+	Dialog,
+	DialogTrigger,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogClose,
 } from '@/components/ui'
 import { FormEditProject } from './formEditProject'
 import { isPastDueDate } from '@/utils/isPastDueDate'
@@ -27,14 +23,14 @@ import { getPriorityInfo } from '@/utils/mapPriorityToBadgeVariant'
 import { getTaskProgress } from '@/utils/getTaskProgress'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { MdEdit } from 'react-icons/md'
-import { useProjectDetails } from '@/hooks/useProjectDetails'
-import type { Project } from '@/@types/prismaSchema'
+import type { ProjectWithRelations } from '@/@types/prismaSchema'
 
 interface ViewDetailsProjectProps {
-	project: Project
+	project: ProjectWithRelations
 }
 
 const ViewDetailsProject = ({ project }: ViewDetailsProjectProps) => {
+	console.log('projeto:', project)
 	const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
 	const [isEditable, setIsEditable] = useState(false)
 	const progress = getTaskProgress(project?.tasks ?? [])
@@ -56,20 +52,18 @@ const ViewDetailsProject = ({ project }: ViewDetailsProjectProps) => {
 
 
 	return (
-		<ModalRoot>
-			<ModalTrigger
-				className='hover:scale-95 duration-300 transition-all'
-				sizes='icon'
-				variants='link'
+		<Dialog>
+			<DialogTrigger
+				className='p-1 hover:bg-accent cursor-pointer'
 			>
-				<GrView size={24} />
-			</ModalTrigger>
-			<ModalOverlay variant='dark' />
-			<ModalContent className='max-w-4xl'>
-				<ModalHeader>
-					<ModalTitle>Detalhes do projeto</ModalTitle>
-					<ModalClose sizes='icon' icon />
-				</ModalHeader>
+				<span>Detalhes</span>
+			</DialogTrigger>
+
+			<DialogContent className='sm:max-w-4xl'>
+				<DialogHeader>
+					<DialogTitle>Detalhes do projeto</DialogTitle>
+					<DialogClose />
+				</DialogHeader>
 
 				{project ? (
 					isEditable ? (
@@ -86,8 +80,8 @@ const ViewDetailsProject = ({ project }: ViewDetailsProjectProps) => {
 									<h2 className='text-lg font-semibold tracking-tight text-foreground sm:text-xl'>
 										Informações
 									</h2>
-									<Button sizes='icon' onClick={handleEditProject}>
-										<MdEdit size={18} />
+									<Button variant={'ghost'} size='icon' onClick={handleEditProject}>
+										<MdEdit />
 									</Button>
 								</div>
 								<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -114,8 +108,8 @@ const ViewDetailsProject = ({ project }: ViewDetailsProjectProps) => {
 												<Badge
 													variant={
 														isPastDueDate(project.dueDate)
-															? 'danger'
-															: 'primary'
+															? 'destructive'
+															: 'outline'
 													}
 												>
 													{isPastDueDate(project.dueDate)
@@ -134,9 +128,9 @@ const ViewDetailsProject = ({ project }: ViewDetailsProjectProps) => {
 								</div>
 
 								<div className='flex flex-col gap-2 whitespace-pre-wrap'>
-									<strong className='font-bold'>Descrição: </strong>
+									<h2 className='font-bold'>Descrição: </h2>
 									<div
-										className='prose prose-sm sm:prose lg:prose-base xl:prose-base max-w-none text-foreground'
+										className='prose prose-sm sm:prose lg:prose-base xl:prose-base max-w-none'
 										// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
 										dangerouslySetInnerHTML={{
 											__html: project.description || '',
@@ -158,7 +152,6 @@ const ViewDetailsProject = ({ project }: ViewDetailsProjectProps) => {
 											projectId={project.id}
 											teamId={project.teamId || ''}
 											onTaskAdded={handleProjectUpdated}
-											triggerSize='icon'
 										/>
 									</div>
 
@@ -213,7 +206,7 @@ const ViewDetailsProject = ({ project }: ViewDetailsProjectProps) => {
 
 									{/* Lista de comentários */}
 									<ul className='space-y-2 max-h-[428px] overflow-y-scroll scrollbar-custom p-1'>
-										{project.comments?.map((comment) => {
+										{project.commentsProject?.map((comment) => {
 											const isExpanded =
 												expandedComments[comment.id] ?? false
 											return (
@@ -232,8 +225,8 @@ const ViewDetailsProject = ({ project }: ViewDetailsProjectProps) => {
 															{/* Botão de expandir/recolher */}
 															{comment.content.length > 100 && (
 																<Button
-																	variants='link'
-																	sizes='icon'
+																	variant='link'
+																	size='icon'
 																	onClick={() => toggleExpand(comment.id)}
 																>
 																	{isExpanded ? (
@@ -279,8 +272,8 @@ const ViewDetailsProject = ({ project }: ViewDetailsProjectProps) => {
 				) : (
 					<p>Projeto não encontrado.</p>
 				)}
-			</ModalContent>
-		</ModalRoot>
+			</DialogContent>
+		</Dialog>
 	)
 }
 

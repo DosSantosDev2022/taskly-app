@@ -2,15 +2,15 @@
 import { type TaskFormData, taskSchema } from '@/@types/zodSchemas'
 import { addTask } from '@/actions/task/addTask'
 import {
-	TextArea,
 	Button,
-	ModalRoot,
-	ModalTrigger,
-	ModalContent,
-	ModalHeader,
-	ModalTitle,
-	ModalClose,
-	ModalOverlay,
+	Dialog,
+	DialogTrigger,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogDescription,
+	DialogFooter,
+	DialogClose,
 	Label,
 	Input,
 	Select,
@@ -18,20 +18,20 @@ import {
 	SelectValue,
 	SelectContent,
 	SelectItem,
+	DatePicker,
+	Textarea
 } from '@/components/ui'
-import { DatePicker } from '@/components/ui/datePicker'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState, useTransition } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { FaPlus } from 'react-icons/fa'
 
 interface AddTasksProps {
-	projectId: string
-	ownerId: string
-	teamId: string
+	projectId?: string
+	ownerId?: string
+	teamId?: string
 	onTaskAdded?: () => void
 	triggerLabel?: string
-	triggerSize?: 'icon' | 'xs' | 'sm' | 'lg' | 'full'
 }
 
 const AddTasks = ({
@@ -40,7 +40,6 @@ const AddTasks = ({
 	teamId,
 	onTaskAdded,
 	triggerLabel,
-	triggerSize,
 }: AddTasksProps) => {
 	const [open, setOpen] = useState(false)
 	const [isPending, startTransition] = useTransition()
@@ -66,22 +65,24 @@ const AddTasks = ({
 				setOpen(false)
 			} catch (error) {
 				console.error('Erro ao adicionar nova tarefa', error)
+
 			}
 		})
 	}
 
 	return (
-		<ModalRoot open={open} onOpenChange={setOpen}>
-			<ModalTrigger sizes={triggerSize}>
-				{triggerLabel}
-				<FaPlus size={16} />
-			</ModalTrigger>
-			<ModalOverlay variant='darkBlur' />
-			<ModalContent className='w-xl'>
-				<ModalHeader>
-					<ModalTitle>Adicione uma nova tarefa</ModalTitle>
-					<ModalClose sizes='icon' icon />
-				</ModalHeader>
+		<Dialog open={open} onOpenChange={setOpen}>
+			<DialogTrigger asChild>
+				<Button variant={'ghost'} size='icon'>
+					<FaPlus />
+				</Button>
+			</DialogTrigger>
+
+			<DialogContent >
+				<DialogHeader>
+					<DialogTitle>Adicione uma nova tarefa</DialogTitle>
+					<DialogClose />
+				</DialogHeader>
 				<form onSubmit={handleSubmit(onSubmit)} className='space-y-2'>
 					<input
 						type='hidden'
@@ -96,7 +97,7 @@ const AddTasks = ({
 					</div>
 					<div className='flex flex-col space-y-2'>
 						<Label>Descrição</Label>
-						<TextArea
+						<Textarea
 							placeholder='Descreva a sua tarefa...'
 							{...register('description')}
 						/>
@@ -161,20 +162,13 @@ const AddTasks = ({
 								control={control}
 								name='dueDate'
 								render={({ field }) => {
-									const value = field.value
-										? { startDate: field.value, endDate: field.value }
-										: { startDate: null, endDate: null }
-
 									return (
 										<DatePicker
-											date={value}
-											onChange={(newDate) =>
-												field.onChange(newDate.startDate)
-											}
-											range
-											variants='secondary'
-											sizes='full'
-											className='h-10'
+											mode='single'
+											value={field.value || undefined}
+											onChange={(newDate) => field.onChange(newDate)}
+											placeholder="Selecione"
+											className="w-full"
 										/>
 									)
 								}}
@@ -187,12 +181,14 @@ const AddTasks = ({
 						</div>
 					</div>
 
-					<Button type='submit' sizes='full'>
-						{isPending ? 'Adicionando...' : 'Adicionar tarefa'}
-					</Button>
+					<div className='flex justify-end mt-4'>
+						<Button type='submit' size='default'>
+							{isPending ? 'Adicionando...' : 'Adicionar tarefa'}
+						</Button>
+					</div>
 				</form>
-			</ModalContent>
-		</ModalRoot>
+			</DialogContent>
+		</Dialog>
 	)
 }
 

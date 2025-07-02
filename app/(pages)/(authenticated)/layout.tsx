@@ -3,6 +3,7 @@ import AuthProvider from '@/providers/auth'
 import { AppSidebar } from '@/components/global/SideBarApp'
 import { Header } from '@/components/global/header/Header'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { SidebarProvider } from '@/components/ui/sidebar'
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -25,15 +26,17 @@ export default function PagesLayout({
 	return (
 		<AuthProvider>
 			<QueryClientProvider client={queryClient}>
-				<div className='flex h-screen w-full flex-row overflow-hidden'>
-					<AppSidebar />
-					<div className='flex flex-1 flex-col'>
-						<Header />
-						<main className='min-h-0 flex-grow overflow-hidden p-4'>
-							{children}
-						</main>
+				<SidebarProvider>
+					<div className='flex h-screen w-full flex-row overflow-hidden'>
+						<AppSidebar />
+						<div className='flex flex-1 flex-col'>
+							<Header />
+							<main className='min-h-0 flex-grow overflow-hidden p-4'>
+								{children}
+							</main>
+						</div>
 					</div>
-				</div>
+				</SidebarProvider>
 			</QueryClientProvider>
 		</AuthProvider>
 	)

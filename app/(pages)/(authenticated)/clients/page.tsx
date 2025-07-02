@@ -2,6 +2,10 @@ import { Pagination } from '@/components/global/pagination'
 import { AddClients, FiltersClients, ViewDetailsClient, DeleteClientAction } from '@/components/pages/clients'
 import {
 	Badge,
+	Button,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
 	Table,
 	TableBody,
 	TableCell,
@@ -12,6 +16,8 @@ import {
 import { FaUser } from 'react-icons/fa'
 import { fetchClients } from '@/actions/client/fetchClients'
 import type { Client } from '@/@types/prismaSchema'
+import { MdBorderHorizontal } from 'react-icons/md'
+import { MoreHorizontal } from 'lucide-react'
 
 type ClientsSearchParams = {
 	searchParams: Promise<{
@@ -98,14 +104,25 @@ export default async function Clients({
 										{client.status === 'active' ? (
 											<Badge>Ativo</Badge>
 										) : (
-											<Badge variant='warning'>Inativo</Badge>
+											<Badge variant='secondary'>Inativo</Badge>
 										)}
 									</TableCell>
 									<TableCell className='w-10'>
-										<div className='flex'>
-											<ViewDetailsClient client={client} />
-											<DeleteClientAction clientId={client.id} />
-										</div>
+										<Popover>
+											<PopoverTrigger asChild>
+												<Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+													<span className="sr-only">Abrir menu de ações</span>
+													<MoreHorizontal className="h-4 w-4" />
+												</Button>
+											</PopoverTrigger>
+											{/* O PopoverContent conterá as ações de visualizar e deletar */}
+											<PopoverContent className="w-40 p-1" align="end" sideOffset={5} collisionPadding={{ right: 16, bottom: 16 }}>
+												<div className="flex flex-col space-y-1">
+													<ViewDetailsClient client={client} />
+													<DeleteClientAction clientId={client.id} />
+												</div>
+											</PopoverContent>
+										</Popover>
 									</TableCell>
 								</TableRow>
 							))

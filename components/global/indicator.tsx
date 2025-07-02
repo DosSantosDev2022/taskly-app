@@ -38,7 +38,7 @@ interface IndicatorBadgeProps
 	positionClassName?: string
 }
 
-const IndicatorBadge = React.forwardRef<
+const Indicator = React.forwardRef<
 	HTMLDivElement,
 	IndicatorBadgeProps
 >(
@@ -67,6 +67,6 @@ const IndicatorBadge = React.forwardRef<
 	},
 )
 
-IndicatorBadge.displayName = 'IndicatorBadge'
+Indicator.displayName = 'Indicator'
 
-export { IndicatorBadge }
+export { Indicator }

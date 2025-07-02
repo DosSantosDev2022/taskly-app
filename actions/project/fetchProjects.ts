@@ -1,22 +1,21 @@
-'use server'; // <-- ESSENCIAL: Declara que este arquivo é uma Server Action
+'use server';
+import {db} from '@/lib/prisma'; 
+import type { ProjectWithRelations } from '@/@types/prismaSchema';
+import { Prisma, ProjectStatus } from '@prisma/client';
 
-import {db} from '@/lib/prisma'; // Importe sua instância do Prisma
-import type { Project } from '@/@types/prismaSchema'; // Seu tipo Project
-
-// Defina o tipo para os parâmetros da query de paginação
-// Remova baseUrl, cache, revalidate, pois são para fetch HTTP
 export type FetchProjectsParams = {
   page?: number;
   pageSize?: number;
-  // Adicione outros filtros que você usa na sua paginação
   search?: string;
   status?: string;
-  // etc.
+  startDate?: Date;
+  endDate?: Date;
+  ownerId?: string;
 };
 
 // Defina o tipo de retorno da Server Action
 export type FetchProjectsResult = {
-  projects: Project[];
+  projects: ProjectWithRelations[];
   total: number; // Total de projetos (para paginação)
 };
 
@@ -25,25 +24,56 @@ export async function fetchProjects({
   pageSize = 10, // Padrão para 10 itens por página
   search,
   status,
-  // ... outros filtros
+  startDate,
+  endDate,
+  ownerId, // Adicione o ownerId para filtrar por proprietário
 }: FetchProjectsParams = {}): Promise<FetchProjectsResult> { // Tipagem do retorno
 
   try {
     const skip = (page - 1) * pageSize;
     const take = pageSize;
 
-    // Construa o objeto 'where' com base nos filtros
-    const where: any = {}; // Use 'any' temporariamente ou defina um tipo mais específico para 'where'
+     // Use Prisma.ProjectWhereInput para tipagem segura
+    const where: Prisma.ProjectWhereInput = {
+      ownerId: ownerId, // Filtra projetos pertencentes ao ownerId fornecido
+    };
+
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
       ];
     }
+     // Filtro por status
     if (status) {
-      where.status = status; // Assumindo que ProjectStatus é um enum ou string
+    const desiredStatuses = status.split(',').map(s => s.trim());
+    const validStatuses: ProjectStatus[] = [];
+
+    for (const s of desiredStatuses) {
+      // Verifica se a string existe como uma chave no enum ProjectStatus
+      if (Object.values(ProjectStatus).includes(s as ProjectStatus)) {
+        validStatuses.push(s as ProjectStatus);
+      } else {
+        console.warn(`Status inválido '${s}' ignorado.`);
+      }
     }
-    // Adicione mais filtros conforme necessário
+
+    if (validStatuses.length > 0) {
+      where.status = { in: validStatuses };
+    }
+  }
+
+    // FILTRO POR `dueDate`
+    if (startDate || endDate) {
+      where.dueDate = {}; // Inicializa o objeto dueDate para filtros gte/lte
+
+      if (startDate) {
+        (where.dueDate as Prisma.DateTimeFilter).gte = startDate;
+      }
+      if (endDate) {
+        (where.dueDate as Prisma.DateTimeFilter).lte = endDate;
+      }
+    }
 
     // Buscar os projetos com paginação e filtros
     const projects = await db.project.findMany({
@@ -54,15 +84,15 @@ export async function fetchProjects({
         createdAt: 'desc', // Exemplo de ordenação
       },
       include: {
-        // Inclua as relações que seu frontend precisa para a tabela
-        // Exemplo: client, owner, team
         client: true,
         owner: true,
         team: true,
-        comments: true,
+         commentsProject: { 
+          include: {
+            user: true,
+          },
+        },
         tasks: true,
-        // Não inclua tudo aqui se a tabela não precisar; inclua apenas o necessário para performance.
-        // Se a tabela só mostra nome e status, não precisa de tasks, comments, etc.
       },
     });
 
@@ -72,7 +102,7 @@ export async function fetchProjects({
     });
 
     return {
-      projects: projects as Project[],
+      projects: projects as ProjectWithRelations[],
       total,
     };
   } catch (error) {

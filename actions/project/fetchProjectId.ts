@@ -14,7 +14,7 @@ export async function fetchProjectId(projectId: string) {
       sharedWith: true,
       tasks: { // Adicione os includes de tasks aqui para bater com seu tipo Project
           include: {
-            comments: true,
+            commentsTask: true,
             tags: true,
             subTasks: true,
             owner: true,
@@ -23,7 +23,7 @@ export async function fetchProjectId(projectId: string) {
             team: true
           }
         },
-      comments: {
+      commentsProject: {
         include: {
           user: true,
           Project: true

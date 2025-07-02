@@ -1,62 +1,93 @@
-'use client'
+// context/notificationContext.tsx
+'use client';
 
-import { createContext, useContext, useState, type ReactNode } from 'react'
-import { Notification } from '@/components/global/Notification'
+import React, {
+	createContext,
+	useContext,
+	useState,
+	useCallback,
+	ReactNode,
+} from 'react';
+import { NotificationProps } from '@/components/global'; // Importe o tipo de props
 
+// Estendemos as props do Notification para incluir um ID gerado
+interface NotificationItem extends Omit<NotificationProps, 'onClose'> {
+	id: string;
+}
+
+// Tipos para o contexto
 interface NotificationContextType {
 	showNotification: (
 		message: string,
-		type: 'success' | 'error' | 'alert',
+		type: NotificationProps['type'],
+		title?: string,
 		duration?: number,
-	) => void
+	) => void;
+	notifications: NotificationItem[];
+	removeNotification: (id: string) => void;
 }
 
-export const NotificationContext = createContext<
-	NotificationContextType | undefined
->(undefined)
+const NotificationContext = createContext<NotificationContextType | undefined>(
+	undefined,
+);
 
-export const useNotification = () => {
-	const context = useContext(NotificationContext)
-	if (!context) {
-		throw new Error(
-			'useNotification must be used within a NotificationProvider',
-		)
-	}
-	return context
+interface NotificationProviderProps {
+	children: ReactNode;
 }
 
 export const NotificationProvider = ({
 	children,
-}: { children: ReactNode }) => {
-	const [notification, setNotification] = useState<{
-		message: string
-		type: 'success' | 'error' | 'alert'
-		duration: number
-	} | null>(null)
+}: NotificationProviderProps) => {
+	const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
-	const showNotification = (
-		message: string,
-		type: 'success' | 'error' | 'alert',
-		duration = 5000,
-	) => {
-		setNotification({ message, type, duration })
-	}
+	// Adiciona uma nova notificação
+	const showNotification = useCallback(
+		(
+			message: string,
+			type: NotificationProps['type'],
+			title?: string,
+			duration?: number,
+		) => {
+			const id = Date.now().toString() + Math.random().toString(36).substring(2, 9); // ID único
+			const newNotification: NotificationItem = {
+				id,
+				message,
+				title,
+				type,
+				duration,
+			};
+			// Adiciona a nova notificação ao topo da lista
+			setNotifications((prevNotifications) => [
+				newNotification,
+				...prevNotifications,
+			]);
+		},
+		[],
+	);
 
-	const handleClose = () => {
-		setNotification(null)
-	}
+	// Remove uma notificação pelo ID
+	const removeNotification = useCallback((id: string) => {
+		setNotifications((prevNotifications) =>
+			prevNotifications.filter((notif) => notif.id !== id),
+		);
+	}, []);
 
 	return (
-		<NotificationContext.Provider value={{ showNotification }}>
+		<NotificationContext.Provider
+			value={{ showNotification, notifications, removeNotification }}
+		>
 			{children}
-			{notification && (
-				<Notification
-					message={notification.message}
-					type={notification.type}
-					duration={notification.duration}
-					onClose={handleClose}
-				/>
-			)}
 		</NotificationContext.Provider>
-	)
-}
+	);
+};
+
+// Hook customizado para usar o contexto de notificação
+export const useNotification = () => {
+	const context = useContext(NotificationContext);
+	if (context === undefined) {
+		throw new Error(
+			'useNotification must be used within a NotificationProvider',
+		);
+	}
+	return context;
+};

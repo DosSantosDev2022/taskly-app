@@ -3,12 +3,11 @@
 import { DeleteProject } from '@/actions/project/deleteProject'
 import {
   Button,
-  ModalClose,
-  ModalContent,
-  ModalDescription,
-  ModalOverlay,
-  ModalRoot,
-  ModalTrigger,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogDescription,
+  DialogClose,
 } from '@/components/ui'
 import { useNotification } from '@/context/notificationContext'
 import { useState } from 'react'
@@ -32,29 +31,28 @@ const DeleteProjectAction = ({ projectId }: { projectId: string }) => {
 
 
   return (
-    <ModalRoot open={isOpen} onOpenChange={setIsOpen}>
-      <ModalTrigger sizes='icon' variants='link'>
-        <MdDelete
-          className='hover:scale-95 duration-300 transition-all'
-          size={20}
-        />
-      </ModalTrigger>
-      <ModalOverlay variant='dark' />
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger className='p-1 hover:bg-accent cursor-pointer'>
+        <span>Excluír</span>
+      </DialogTrigger>
 
-      <ModalContent className='w-xl'>
-        <ModalDescription className='text-lg'>
+
+      <DialogContent className='w-xl'>
+        <DialogDescription className='text-lg'>
           Tem certeza que desja excluír este projeto ?
-        </ModalDescription>
+        </DialogDescription>
         <div className='flex items-center w-full justify-start gap-2'>
-          <Button sizes='xs' onClick={handleDeleteProject}>
+          <Button size='default' onClick={handleDeleteProject}>
             Sim
           </Button>
-          <ModalClose sizes='xs' variants='danger'>
-            Cancelar
-          </ModalClose>
+          <DialogClose asChild>
+            <Button variant='outline' size='default'>
+              Cancelar
+            </Button>
+          </DialogClose>
         </div>
-      </ModalContent>
-    </ModalRoot>
+      </DialogContent>
+    </Dialog>
   )
 }
 

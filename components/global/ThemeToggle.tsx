@@ -37,9 +37,9 @@ const ThemeToggle = () => {
 		localStorage.setItem('theme', newValue ? 'dark' : 'light')
 	}
 	return (
-		<div className='flex items-center justify-between px-2 py-1.5'>
+		<div className='flex items-center justify-between w-full'>
 			<span className='ml-1.5 text-sm font-semibold text-foreground'>
-				Theme Mode
+				Tema
 			</span>
 			<label className='inline-flex items-center cursor-pointer relative'>
 				<input

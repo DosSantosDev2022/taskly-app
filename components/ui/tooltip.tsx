@@ -1,67 +1,61 @@
-'use client'
+"use client"
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import * as React from "react"
+import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
-interface TooltipProps extends React.HTMLAttributes<HTMLDivElement> {
-	content?: string
-	position?:
-		| 'top-start'
-		| 'top-center'
-		| 'top-end'
-		| 'bottom-start'
-		| 'bottom-center'
-		| 'bottom-end'
-		| 'left-start'
-		| 'left-center'
-		| 'left-end'
-		| 'right-start'
-		| 'right-center'
-		| 'right-end'
+import { cn } from "@/lib/utils"
+
+function TooltipProvider({
+  delayDuration = 0,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
+  return (
+    <TooltipPrimitive.Provider
+      data-slot="tooltip-provider"
+      delayDuration={delayDuration}
+      {...props}
+    />
+  )
 }
 
-const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
-	(
-		{ content, position = 'top-center', className, children, ...props },
-		ref,
-	) => {
-		const positionClasses = {
-			'top-start': 'bottom-full mb-2 left-0',
-			'top-center': 'bottom-full mb-2 left-1/2 -translate-x-1/2',
-			'top-end': 'bottom-full mb-2 right-0',
+function Tooltip({
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+  return (
+    <TooltipProvider>
+      <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+    </TooltipProvider>
+  )
+}
 
-			'bottom-start': 'top-full mt-2 left-0',
-			'bottom-center': 'top-full mt-2 left-1/2 -translate-x-1/2',
-			'bottom-end': 'top-full mt-2 right-0',
+function TooltipTrigger({
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
+}
 
-			'left-start': 'right-full mr-2 top-0',
-			'left-center': 'right-full mr-2 top-1/2 -translate-y-1/2',
-			'left-end': 'right-full mr-2 bottom-0',
+function TooltipContent({
+  className,
+  sideOffset = 0,
+  children,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+  return (
+    <TooltipPrimitive.Portal>
+      <TooltipPrimitive.Content
+        data-slot="tooltip-content"
+        sideOffset={sideOffset}
+        className={cn(
+          "bg-primary text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance",
+          className
+        )}
+        {...props}
+      >
+        {children}
+        <TooltipPrimitive.Arrow className="bg-primary fill-primary z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]" />
+      </TooltipPrimitive.Content>
+    </TooltipPrimitive.Portal>
+  )
+}
 
-			'right-start': 'left-full ml-2 top-0',
-			'right-center': 'left-full ml-2 top-1/2 -translate-y-1/2',
-			'right-end': 'left-full ml-2 bottom-0',
-		}
-		return (
-			<div className='relative group'>
-				{children}
-				<div
-					ref={ref}
-					{...props}
-					className={twMerge(
-						'absolute z-50 whitespace-nowrap rounded-md bg-secondary left- px-2 py-1.5 text-sm text-secondary-foreground shadow-md',
-						'opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-all duration-200',
-						positionClasses[position],
-						className,
-					)}
-				>
-					{content}
-				</div>
-			</div>
-		)
-	},
-)
-
-Tooltip.displayName = 'Tooltip'
-
-export { Tooltip }
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }

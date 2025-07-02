@@ -1,47 +1,49 @@
 'use client'
 
 import { useState } from 'react'
-import { GrView } from 'react-icons/gr'
-import type { Client } from '@/@types/prismaSchema'
+import type { ClientWithRelations } from '@/@types/prismaSchema'
 import { formatDate } from '@/utils/formatDate'
 import { DetailRow } from '@/components/pages/clients/detailRow'
 import {
 	Badge,
 	Button,
-	ModalClose,
-	ModalContent,
-	ModalHeader,
-	ModalLoading,
-	ModalOverlay,
-	ModalRoot,
-	ModalTitle,
-	ModalTrigger,
+	Dialog,
+	DialogTrigger,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogClose,
+	DialogDescription
 } from '@/components/ui'
 import { FormEditClient } from './formEditClient'
 import { MdEdit } from 'react-icons/md'
 
 interface ViewDetailsClientProps {
-	client: Client
+	client: ClientWithRelations
 }
+
 
 const ViewDetailsClient = ({ client }: ViewDetailsClientProps) => {
 	const [isEditable, setIsEditable] = useState(false)
+	const [isDialogOpen, setIsDialogOpen] = useState(false) // Estado para controlar o Dialog
 
 	const handleEditClient = () => setIsEditable((prev) => !prev)
 
 	const statusClient = client?.status === 'active' ? 'Ativo' : 'Inativo'
 
 	return (
-		<ModalRoot>
-			<ModalTrigger className='text-sm h-8' sizes='icon' variants='link'>
-				<GrView size={20} className='text-muted-foreground' />
-			</ModalTrigger>
-			<ModalOverlay variant='dark' />
-			<ModalContent className='max-w-2xl p-4'>
-				<ModalHeader>
-					<ModalTitle>Detalhes do Cliente</ModalTitle>
-					<ModalClose sizes='icon' icon />
-				</ModalHeader>
+		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+			<DialogTrigger className='p-1 hover:bg-accent cursor-pointer'>
+				<span>Detalhes</span>
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Detalhes do Cliente</DialogTitle>
+					<DialogDescription className='sr-only'>
+						Visualização dos detalhes e opção de edição do cliente.
+					</DialogDescription>
+					<DialogClose />
+				</DialogHeader>
 
 				{client ? (
 					isEditable ? (
@@ -57,11 +59,12 @@ const ViewDetailsClient = ({ client }: ViewDetailsClientProps) => {
 										Bio
 									</h2>
 									<Button
-										variants='secondary'
-										sizes='icon'
+										variant='ghost'
+										size='icon'
 										onClick={handleEditClient}
 									>
-										<MdEdit size={20} />
+										<MdEdit />
+										<span className='sr-only'>Editar cliente</span>
 									</Button>
 								</div>
 
@@ -109,8 +112,8 @@ const ViewDetailsClient = ({ client }: ViewDetailsClientProps) => {
 				) : (
 					<p className='text-destructive'>Cliente não encontrado.</p>
 				)}
-			</ModalContent>
-		</ModalRoot>
+			</DialogContent>
+		</Dialog>
 	)
 }
 

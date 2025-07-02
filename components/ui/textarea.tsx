@@ -1,32 +1,18 @@
-import type React from 'react'
-import { forwardRef } from 'react'
-import { twMerge } from 'tailwind-merge'
+import * as React from "react"
 
-const TextArea = forwardRef<
-	HTMLTextAreaElement,
-	React.ComponentPropsWithRef<'textarea'> & {
-		variants?: 'success' | 'error' | 'default'
-	}
->(({ className, variants = 'default', ...props }, ref) => {
-	const variantClasses = {
-		default: 'focus-within:ring-2 focus-within:ring-ring',
-		success: 'focus-within:ring-2 focus-within:ring-success',
-		error: 'focus-within:ring-2 focus-within:ring-danger',
-	}
+import { cn } from "@/lib/utils"
+
+function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
 	return (
 		<textarea
-			{...props}
-			ref={ref}
-			className={twMerge(
-				'w-full rounded border border-border px-3 py-4 font-light',
-				'bg-input text-muted-foreground placeholder:text-muted-foreground',
-				'transition-all duration-300 outline-none',
-				variantClasses[variants],
-				className,
+			data-slot="textarea"
+			className={cn(
+				"border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+				className
 			)}
+			{...props}
 		/>
 	)
-})
-TextArea.displayName = 'textArea'
+}
 
-export { TextArea }
+export { Textarea }

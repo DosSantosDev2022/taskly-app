@@ -7,7 +7,11 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-	Badge
+	Badge,
+	Popover,
+	PopoverTrigger,
+	Button,
+	PopoverContent
 } from '@/components/ui'
 import { fetchProjects } from '@/actions/project/fetchProjects'
 import { formatDate } from '@/utils/formatDate'
@@ -15,6 +19,7 @@ import { FaFile } from 'react-icons/fa'
 import { isPastDueDate } from '@/utils/isPastDueDate'
 import { translateStatus } from '@/utils/translateStatus'
 import type { Project } from '@/@types/prismaSchema'
+import { MoreHorizontal } from 'lucide-react'
 
 
 type ProjectProps = {
@@ -46,11 +51,12 @@ export default async function Projects({ searchParams }: ProjectProps) {
 		pageSize: limit,
 		search,
 		status,
+		startDate: start ? new Date(start) : undefined,
+		endDate: end ? new Date(end) : undefined,
 	})
 
 	const headers = [
 		'Nome',
-		'Descrição',
 		'Cliente',
 		'Proprietário',
 		'Time',
@@ -93,13 +99,7 @@ export default async function Projects({ searchParams }: ProjectProps) {
 						{projects.length > 0 ? (
 							projects.map((project: Project) => (
 								<TableRow key={project.id}>
-									<TableCell className='w-32'>{project.name}</TableCell>
-									<TableCell
-										// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-										dangerouslySetInnerHTML={{
-											__html: project.description || '',
-										}}
-									/>
+									<TableCell>{project.name}</TableCell>
 									<TableCell className='w-32'>
 										{project.client?.name}
 									</TableCell>
@@ -120,8 +120,8 @@ export default async function Projects({ searchParams }: ProjectProps) {
 											<Badge
 												variant={
 													isPastDueDate(project.dueDate)
-														? 'danger'
-														: 'primary'
+														? 'destructive'
+														: 'default'
 												}
 											>
 												{isPastDueDate(project.dueDate)
@@ -136,10 +136,21 @@ export default async function Projects({ searchParams }: ProjectProps) {
 										{translateStatus(project.status)}
 									</TableCell>
 									<TableCell className='w-10'>
-										<div className='flex'>
-											<ViewDetailsProject project={project} />
-											<DeleteProjectAction projectId={project.id} />
-										</div>
+										<Popover>
+											<PopoverTrigger asChild>
+												<Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+													<span className="sr-only">Abrir menu de ações</span>
+													<MoreHorizontal className="h-4 w-4" />
+												</Button>
+											</PopoverTrigger>
+											{/* O PopoverContent conterá as ações de visualizar e deletar */}
+											<PopoverContent className="w-40 p-1" align="end" sideOffset={5} collisionPadding={{ right: 16, bottom: 16 }}>
+												<div className="flex flex-col space-y-1">
+													<ViewDetailsProject project={project} />
+													<DeleteProjectAction projectId={project.id} />
+												</div>
+											</PopoverContent>
+										</Popover>
 									</TableCell>
 								</TableRow>
 							))
