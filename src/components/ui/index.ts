@@ -1,0 +1,1 @@
+/* Centralizar exportações */
