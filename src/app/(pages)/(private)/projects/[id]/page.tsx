@@ -1,6 +1,7 @@
 "use client";
 // biome-ignore assist/source/organizeImports: <explanation>
 import {
+	Badge,
 	Button,
 	Card,
 	CardContent,
@@ -16,6 +17,7 @@ import { X } from "lucide-react";
 import { AddComment, AddTask } from "@/components/pages";
 import type { Task, Comment } from "@/@types";
 import Image from "next/image";
+import { format } from "date-fns";
 
 interface ProjectDetailsPageProps {
 	params: {
@@ -47,9 +49,31 @@ export default function ProjectDetailsPage({
 						<CardTitle className="text-4xl">{project.name}</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<p className="text-lg text-muted-foreground">
-							{project.type} - {project.subtype}
-						</p>
+						<div className="flex items-center gap-2">
+							{/* tipo */}
+							<p className="text-lg text-muted-foreground">
+								{project.type} - {project.subtype}
+							</p>
+							{/* data de criação */}
+							<span className="font-medium text-muted-foreground">
+								<span className="font-bold text-foreground mr-1">
+									Data de criação:
+								</span>{" "}
+								{format(project.creationDate, "dd/MM/yyyy")}
+							</span>
+							{/* data de prazo */}
+							<span className="font-medium text-muted-foreground">
+								<span className="font-bold text-foreground mr-1">
+									Data de prazo:
+								</span>{" "}
+								{format(project.deadlineDate, "dd/MM/yyyy")}
+							</span>
+							{/* status */}
+							<>
+								<span className="font-bold text-foreground mr-1">Status: </span>
+								<Badge>{project.status}</Badge>
+							</>
+						</div>
 						<div className="prose dark:prose-invert mt-4">
 							<p>{project.description}</p>
 						</div>

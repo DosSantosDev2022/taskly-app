@@ -7,6 +7,7 @@ export * from "./button";
 export * from "./calendar";
 export * from "./card";
 export * from "./checkbox";
+export * from "./command";
 export * from "./dialog";
 export * from "./form";
 export * from "./input";

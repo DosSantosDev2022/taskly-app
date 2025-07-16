@@ -3,74 +3,97 @@
 // 1. Nossos dados simulados (mock)
 const mockProjects = [
 	{
-		id: 1,
-		name: "Desenvolvimento de E-commerce",
+		id: 11,
+		name: "Plataforma de Cursos Online",
 		description:
-			"Um projeto completo para criação de uma loja virtual robusta...",
-		type: "Web",
-		subtype: "E-commerce",
-	},
-	{
-		id: 2,
-		name: "Aplicativo de Gestão de Tarefas",
-		description: "Criação de um aplicativo móvel para iOS e Android...",
-		type: "Mobile",
-		subtype: "Produtividade",
-	},
-	{
-		id: 3,
-		name: "Landing Page para Startup",
-		description: "Design e desenvolvimento de uma landing page otimizada...",
-		type: "Web",
-		subtype: "Marketing",
-	},
-	{
-		id: 4,
-		name: "Sistema de Blog com CMS",
-		description:
-			"Plataforma de blog customizada com um sistema de gerenciamento...",
-		type: "Web",
-		subtype: "Conteúdo",
+			"Desenvolvimento de uma plataforma EAD completa com upload de vídeos, quizzes interativos, fórum de discussões e emissão de certificados digitais para os alunos.",
+		type: "web",
+		subtype: "EdTech",
+		creationDate: new Date("2025-05-10T10:00:00Z"), // Data de Criação
+		deadlineDate: new Date("2025-10-30T23:59:59Z"), // Data de Prazo
+		status: "in_progress", // "pending", "in_progress", "completed"
+		images: [
+			"https://placehold.co/800x600/31343C/FFFFFF/png?text=Tela+Inicial",
+			"https://placehold.co/800x600/5A67D8/FFFFFF/png?text=Player+de+Video",
+		],
+		clientId: "2", // ID correspondente a "Innovate Solutions"
 		tasks: [
 			{
-				id: 101,
-				title: "Configurar ambiente de desenvolvimento",
+				id: 301,
+				title: "Modelar banco de dados",
 				status: "Concluída",
-				details: "Instalar Node.js, pnpm, e configurar o repositório Git.",
+				details: "Definir tabelas de usuários, cursos e matrículas.",
 			},
 			{
-				id: 102,
-				title: "Criar componentes da UI",
+				id: 302,
+				title: "Criar tela de login",
 				status: "Em Andamento",
-				details:
-					"Desenvolver os componentes de Card, Button, e Header com shadcn/ui.",
-			},
-			{
-				id: 103,
-				title: "Implementar autenticação de usuário",
-				status: "Pendente",
-				details:
-					"Criar rotas de login, registro e recuperação de senha com NextAuth.",
+				details: "Implementar o fluxo de autenticação.",
 			},
 		],
 		comments: [
 			{
-				id: 201,
-				title: "Revisão de Design",
+				id: 401,
+				title: "Sugestão de cor",
 				content:
-					'O design da página de produto precisa de mais contraste no botão "Comprar".',
-			},
-			{
-				id: 202,
-				title: "Sugestão de Funcionalidade",
-				content:
-					'Poderíamos adicionar uma seção de "Produtos Recomendados" baseada no histórico de navegação.',
+					"A paleta de cores primária poderia ser mais vibrante para atrair o público jovem.",
 			},
 		],
-		images: ["/preview.jpg", "/preview.jpg", "/preview.jpg", "/preview.jpg"],
 	},
-
-	// ... adicione quantos projetos quiser
+	{
+		id: 12,
+		name: "App de Agendamento para Barbearias",
+		description:
+			"Aplicativo móvel para iOS e Android que permite aos clientes agendar horários com seus barbeiros preferidos, escolher serviços e realizar o pagamento de forma antecipada.",
+		type: "mobile",
+		subtype: "Serviços / Lifestyle",
+		creationDate: new Date("2025-06-20T09:00:00Z"),
+		deadlineDate: new Date("2025-11-25T23:59:59Z"),
+		status: "pending",
+		images: [
+			"https://placehold.co/800x600/9F7AEA/FFFFFF/png?text=App+Preview+1",
+			"https://placehold.co/800x600/4FD1C5/FFFFFF/png?text=App+Preview+2",
+		],
+		clientId: "3", // ID correspondente a "Creative Minds"
+		tasks: [],
+		comments: [],
+	},
+	{
+		id: 13,
+		name: "Dashboard de Análise de Vendas",
+		description:
+			"Sistema web interno para a equipe de vendas visualizar métricas em tempo real. Inclui gráficos dinâmicos de faturamento, análise de produtos mais vendidos e performance por vendedor.",
+		type: "web",
+		subtype: "Business Intelligence",
+		creationDate: new Date("2025-02-15T14:00:00Z"),
+		deadlineDate: new Date("2025-07-10T23:59:59Z"), // Prazo no passado
+		status: "completed",
+		images: [
+			"https://placehold.co/800x600/F6AD55/FFFFFF/png?text=Dashboard+Principal",
+		],
+		clientId: "1", // ID correspondente a "Tech Corp"
+		tasks: [
+			{
+				id: 501,
+				title: "Integrar com API de vendas",
+				status: "Concluída",
+				details: "Conectar ao endpoint principal de vendas.",
+			},
+			{
+				id: 502,
+				title: "Desenvolver gráficos",
+				status: "Concluída",
+				details: "Usar Chart.js para criar os dashboards.",
+			},
+			{
+				id: 503,
+				title: "Publicar em produção",
+				status: "Concluída",
+				details: "Fazer o deploy final na Vercel.",
+			},
+		],
+		comments: [],
+	},
 ];
 
 // 2. Função para buscar TODOS os projetos

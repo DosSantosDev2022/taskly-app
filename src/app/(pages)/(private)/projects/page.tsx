@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { ProjectCard } from "@/components/pages";
 import {
+	Button,
 	Select,
 	SelectContent,
 	SelectItem,
@@ -15,9 +17,12 @@ export default function ProjectsPage() {
 			<div className="grid grid-cols-1 md:grid-cols-12 gap-8">
 				{/* Coluna Principal: Lista de Projetos */}
 				<div className="md:col-span-8">
-					<h2 className="text-2xl font-bold tracking-tight mb-6">
-						Meus projetos
-					</h2>
+					<div className="flex items-center justify-between w-full  mb-6">
+						<h2 className="text-2xl font-bold tracking-tight">Meus projetos</h2>
+						<Button asChild>
+							<Link href={"/projects/add"}>Adicionar novo projeto</Link>
+						</Button>
+					</div>
 
 					{/* Grid para os cards de projetos */}
 					{/* Este grid é responsivo DENTRO da coluna principal */}
