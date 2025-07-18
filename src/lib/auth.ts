@@ -65,15 +65,13 @@ export const authOptions: AuthOptions = {
 		async jwt({ token, user }) {
 			if (user) {
 				token.id = user.id;
-				// token.surname = user.surname ?? null // Adapte conforme o seu modelo
 			} else if (token?.email) {
 				const dbUser = await db.user.findUnique({
 					where: { email: token.email as string },
-					select: { id: true /* surname: true */ }, // Adapte os campos
+					select: { id: true },
 				});
 				if (dbUser) {
 					token.id = dbUser.id;
-					// token.surname = dbUser.surname
 				}
 			}
 			return token;
@@ -81,7 +79,6 @@ export const authOptions: AuthOptions = {
 		async session({ session, token }) {
 			if (session.user && token) {
 				session.user.id = token.id as string;
-				// session.user.surname = token.surname as string // Adapte conforme o seu modelo
 			}
 			return session;
 		},

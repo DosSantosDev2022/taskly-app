@@ -3,11 +3,11 @@ export type Task = {
 	id: number;
 	title: string;
 	status: "Concluída" | "Em Andamento" | "Pendente";
-	details: string;
+	description: string;
 };
 
 export type Comment = {
 	id: number;
-	title: string;
+	/* title: string; */
 	content: string;
 }; /* Centralizar exportações */

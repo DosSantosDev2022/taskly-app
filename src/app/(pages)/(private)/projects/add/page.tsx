@@ -1,13 +1,7 @@
-// Em: src/app/projects/new/page.tsx
-
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -20,7 +14,6 @@ import {
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -41,52 +34,58 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/utils";
+import { formSchema } from "@/@types/forms/projectSchema";
+import { createProject } from "@/actions/project/addProject";
+import { useTransition } from "react";
+import type z from "zod";
 
 // Dados simulados para o seletor de clientes
 const mockClients = [
-	{ id: "1", name: "Tech Corp" },
-	{ id: "2", name: "Innovate Solutions" },
-	{ id: "3", name: "Creative Minds" },
-	{ id: "4", name: "Data Systems" },
+	{ id: "a9f04538-f934-4e4f-8d7d-fa85fd1eb741", name: "Tech Solutions Ltda." },
+	{ id: "029efec5-e893-4c23-9b9b-ae22033a83d9", name: "Inovação Digital S.A." },
+	{ id: "f26da8dd-397f-413e-b9ed-d647b050d190", name: "Global Ventures" },
 ];
 
-// Esquema de validação com Zod atualizado com todos os campos
-const formSchema = z.object({
-	name: z
-		.string()
-		.min(2, "O nome do projeto deve ter pelo menos 2 caracteres."),
-	description: z
-		.string()
-		.max(500, "A descrição não pode ter mais de 500 caracteres.")
-		.optional(),
-	type: z.enum(["web", "mobile", "desktop"], {
-		error: "Selecione um tipo.",
-	}),
-	subtype: z.string().min(1, "O subtipo é obrigatório."),
-	creationDate: z.date(),
-	deadlineDate: z.date({ error: "A data de prazo é obrigatória." }),
-	status: z.enum(["pending", "in_progress", "completed"], {
-		error: "Selecione um status.",
-	}),
-	images: z.any().optional(), // Validação de arquivos é complexa, faremos no servidor
-	clientId: z.string({ error: "Selecione um cliente." }),
-});
-
 export default function AddNewProjectPage() {
+	const [isPending, startTransition] = useTransition();
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: "",
 			description: "",
-			subtype: "",
-			creationDate: new Date(), // Data de criação já vem com o dia atual
-			status: "pending",
+			type: "WEB",
+			status: "PENDING",
+			clientId: undefined,
+			deadlineDate: undefined,
 		},
 	});
 
-	function onSubmit(values: z.infer<typeof formSchema>) {
-		console.log("Dados do formulário:", values);
-		// TODO: Chamar Server Action com 'values'
+	async function onSubmit(values: z.infer<typeof formSchema>) {
+		const formData = new FormData();
+
+		formData.append("name", values.name);
+		formData.append("description", values.description || "");
+		formData.append("type", values.type);
+		formData.append("status", values.status);
+		if (values.deadlineDate) {
+			formData.append("deadlineDate", values.deadlineDate.toISOString());
+		}
+		if (values.clientId) {
+			formData.append("clientId", values.clientId);
+		}
+
+		startTransition(async () => {
+			try {
+				await createProject(formData);
+				// Redirecionar ou revalidar a página após a criação do projeto
+				console.log(formData);
+				form.reset();
+			} catch (error) {
+				console.error("Erro ao enviar formulário:", error);
+			}
+		});
 	}
 
 	return (
@@ -115,14 +114,26 @@ export default function AddNewProjectPage() {
 						)}
 					/>
 					<FormField
-						name="subtype"
+						name="type"
 						control={form.control}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Subtipo</FormLabel>
-								<FormControl>
-									<Input placeholder="Ex: Fintech" {...field} />
-								</FormControl>
+								<FormLabel>Tipo de projeto</FormLabel>
+								<Select
+									onValueChange={field.onChange}
+									defaultValue={field.value}
+								>
+									<FormControl>
+										<SelectTrigger className="w-full">
+											<SelectValue placeholder="Selecione o tipo de projeto" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										<SelectItem value="WEB">Web</SelectItem>
+										<SelectItem value="MOBILE">Mobile</SelectItem>
+										<SelectItem value="SISTEMA">Sistema</SelectItem>
+									</SelectContent>
+								</Select>
 								<FormMessage />
 							</FormItem>
 						)}
@@ -130,7 +141,7 @@ export default function AddNewProjectPage() {
 
 					{/* Datas (Criação e Prazo) */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-						<FormField
+						{/* <FormField
 							name="creationDate"
 							control={form.control}
 							render={({ field }) => (
@@ -148,7 +159,7 @@ export default function AddNewProjectPage() {
 												>
 													<CalendarIcon className="mr-2 h-4 w-4" />
 													{field.value ? (
-														format(field.value, "PPP")
+														formatDate(field.value)
 													) : (
 														<span>Escolha uma data</span>
 													)}
@@ -168,7 +179,7 @@ export default function AddNewProjectPage() {
 									<FormMessage />
 								</FormItem>
 							)}
-						/>
+						/> */}
 						<FormField
 							name="deadlineDate"
 							control={form.control}
@@ -187,7 +198,7 @@ export default function AddNewProjectPage() {
 												>
 													<CalendarIcon className="mr-2 h-4 w-4" />
 													{field.value ? (
-														format(field.value, "PPP")
+														formatDate(field.value)
 													) : (
 														<span>Escolha uma data</span>
 													)}
@@ -221,14 +232,14 @@ export default function AddNewProjectPage() {
 									defaultValue={field.value}
 								>
 									<FormControl>
-										<SelectTrigger>
+										<SelectTrigger className="w-full">
 											<SelectValue placeholder="Selecione o status atual" />
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
-										<SelectItem value="pending">Pendente</SelectItem>
-										<SelectItem value="in_progress">Em Andamento</SelectItem>
-										<SelectItem value="completed">Concluído</SelectItem>
+										<SelectItem value="PENDING">Pendente</SelectItem>
+										<SelectItem value="IN_PROGRESS">Em Andamento</SelectItem>
+										<SelectItem value="COMPLETED">Concluído</SelectItem>
 									</SelectContent>
 								</Select>
 								<FormMessage />
@@ -264,7 +275,7 @@ export default function AddNewProjectPage() {
 											</Button>
 										</FormControl>
 									</PopoverTrigger>
-									<PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+									<PopoverContent className="w-xl p-0">
 										<Command>
 											<CommandInput placeholder="Buscar cliente..." />
 											<CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
@@ -315,7 +326,7 @@ export default function AddNewProjectPage() {
 							</FormItem>
 						)}
 					/>
-					<FormField
+					{/* <FormField
 						name="images"
 						control={form.control}
 						render={({ field: { onChange, value, ...rest } }) => (
@@ -336,7 +347,7 @@ export default function AddNewProjectPage() {
 								<FormMessage />
 							</FormItem>
 						)}
-					/>
+					/> */}
 
 					<Button type="submit" className="w-full md:w-auto">
 						Criar Projeto

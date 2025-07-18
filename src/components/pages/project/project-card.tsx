@@ -9,16 +9,9 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui";
+import type { Project } from "@prisma/client";
 import { FolderKanban } from "lucide-react";
 import Link from "next/link";
-
-// Tipando as props para melhor manutenibilidade
-type Project = {
-	id: number;
-	name: string;
-	description: string;
-	type: string;
-};
 
 export const ProjectCard = ({ project }: { project: Project }) => {
 	return (

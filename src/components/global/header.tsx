@@ -9,6 +9,7 @@ import {
 	NavigationMenuList,
 	navigationMenuTriggerStyle,
 } from "@/components/ui";
+import { UserAvatar } from "./userAvatar";
 
 export function Header() {
 	return (
@@ -70,13 +71,16 @@ export function Header() {
 				</nav>
 
 				{/* Seção de Busca */}
-				<div className="relative w-full max-w-xs">
-					<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-					<Input
-						type="search"
-						placeholder="Buscar..."
-						className="w-full pl-10"
-					/>
+				<div className="flex items-center gap-4">
+					<div className="relative w-full max-w-xs">
+						<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+						<Input
+							type="search"
+							placeholder="Buscar..."
+							className="w-full pl-10"
+						/>
+					</div>
+					<UserAvatar />
 				</div>
 			</div>
 		</header>

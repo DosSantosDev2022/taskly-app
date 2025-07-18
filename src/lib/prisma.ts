@@ -1,11 +1,26 @@
+// src/lib/prisma.ts
+
 import { PrismaClient } from "@prisma/client";
 
-const globalForPrisma = global as unknown as {
-	prisma: PrismaClient | undefined;
-};
+declare global {
+	var prisma: PrismaClient | undefined;
+}
 
-const db = globalForPrisma.prisma ?? new PrismaClient();
+// Cria uma nova instância do PrismaClient se não existir uma global
+// Caso contrário, reutiliza a instância existente
+export const db =
+	global.prisma ||
+	new PrismaClient({
+		log:
+			process.env.NODE_ENV === "development"
+				? ["query", "error", "warn"]
+				: ["error"],
+	});
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+// Em ambiente de desenvolvimento, anexa a instância ao objeto global
+// Isso garante que no hot reloading, a mesma instância seja usada
+if (process.env.NODE_ENV !== "production") {
+	global.prisma = db;
+}
 
-export default db;
+export default db; // Exporta a instância para ser usada em auth.ts e em outras actions/APIs
