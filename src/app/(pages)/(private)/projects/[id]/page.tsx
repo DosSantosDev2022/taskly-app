@@ -4,6 +4,7 @@ import {
 	CardContent,
 	CardHeader,
 	CardTitle,
+	Progress,
 } from "@/components/ui";
 
 import { notFound } from "next/navigation";
@@ -11,6 +12,7 @@ import { Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { getProjectById } from "@/services/project"; // Server Action
 import { WrapperLists, DetailsTasksAndComments } from "@/components/pages";
+import { getTaskProgress } from "@/utils";
 
 interface ProjectDetailsPageProps {
 	params: {
@@ -27,6 +29,8 @@ export default async function ProjectDetailsPage({
 		notFound();
 	}
 
+	const projectProgress = getTaskProgress(project.tasks);
+
 	return (
 		<div className="container mx-auto pt-24 p-4 mt-20 grid grid-cols-1 lg:grid-cols-12 gap-6">
 			{/* Coluna 1 (da esquerda): Detalhes estáticos do projeto */}
@@ -39,6 +43,15 @@ export default async function ProjectDetailsPage({
 							<p className="text-lg text-muted-foreground">
 								{project.type} - {project.type}
 							</p>
+						</div>
+						{/* progressBar */}
+						<div className="mt-2">
+							<span className="font-bold text-foreground mr-1">Progresso</span>
+							<Progress
+								className="h-5"
+								value={projectProgress}
+								showValue={true}
+							/>
 						</div>
 					</CardHeader>
 					<CardContent>

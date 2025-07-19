@@ -8,6 +8,7 @@ import type {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { AddTask, AddComment } from "@/components/pages";
 import { useProjectDetailsStore } from "@/store";
+import { getStatusLabel, getStatusStyles } from "@/utils";
 
 interface WrapperListsProps {
 	projectId: string;
@@ -18,11 +19,11 @@ interface WrapperListsProps {
 const formatStatus = (status: PrismaTask["status"]) => {
 	switch (status) {
 		case "PENDING":
-			return "Pendente";
+			return "PENDENTE";
 		case "IN_PROGRESS":
-			return "Em Andamento";
+			return "EM_ANDAMENTO";
 		case "COMPLETED":
-			return "Concluída";
+			return "CONCLUÍDA";
 		default:
 			return status;
 	}
@@ -65,8 +66,13 @@ export function WrapperLists({
 									onClick={() => selectTask(task)} // Chama a ação do store
 								>
 									<span className="font-medium">{task.title}</span>
-									<span className="text-sm text-muted-foreground">
-										{formatStatus(task.status)}
+									<span
+										className={`
+										inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+										${getStatusStyles(formatStatus(task.status))}
+										`}
+									>
+										{getStatusLabel(formatStatus(task.status))}
 									</span>
 								</div>
 							))

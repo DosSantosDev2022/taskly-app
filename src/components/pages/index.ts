@@ -7,5 +7,4 @@ export * from "./project/project-card";
 export * from "./project/imagePreviewGallery";
 export * from "./project/detailsTasksAndComments";
 export * from "./project/projectCommentList";
-export * from "./project/projectTaskList";
 export * from "./project/wrapperLists";
