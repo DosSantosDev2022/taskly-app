@@ -10,6 +10,7 @@ import { AddTask, AddComment } from "@/components/pages";
 import { useProjectDetailsStore } from "@/store";
 
 interface WrapperListsProps {
+	projectId: string;
 	tasks: PrismaTask[];
 	comments: PrismaComment[];
 }
@@ -27,7 +28,11 @@ const formatStatus = (status: PrismaTask["status"]) => {
 	}
 };
 
-export function WrapperLists({ tasks, comments }: WrapperListsProps) {
+export function WrapperLists({
+	tasks,
+	comments,
+	projectId,
+}: WrapperListsProps) {
 	// Use a função do store para selecionar a tarefa/comentário
 	const selectTask = useProjectDetailsStore((state) => state.selectTask);
 	const selectComment = useProjectDetailsStore((state) => state.selectComment);
@@ -47,11 +52,11 @@ export function WrapperLists({ tasks, comments }: WrapperListsProps) {
 				<CardHeader>
 					<div className="flex border border-border rounded-md items-center justify-between p-3">
 						<CardTitle>Tarefas do Projeto</CardTitle>
-						<AddTask />
+						<AddTask projectId={projectId} />
 					</div>
 				</CardHeader>
 				<CardContent>
-					<div className="space-y-2">
+					<div className="space-y-2 max-h-96 overflow-y-auto scrollbar-custom p-1">
 						{tasks && tasks.length > 0 ? (
 							tasks.map((task) => (
 								<div

@@ -91,7 +91,11 @@ export default async function ProjectDetailsPage({
 					</Card>
 				</div>
 				{/* Seção lista de tasks e comments */}
-				<WrapperLists comments={project.comments} tasks={project.tasks} />
+				<WrapperLists
+					projectId={project.id}
+					comments={project.comments}
+					tasks={project.tasks}
+				/>
 			</div>
 
 			<div className="lg:col-span-5 space-y-6">
