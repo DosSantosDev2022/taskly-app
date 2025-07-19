@@ -13,7 +13,7 @@ const updateTaskStatusSchema = z.object({
 	projectId: z.string().min(1, "ID do projeto é obrigatório para revalidação."),
 });
 
-export async function updateTaskStatus(formData: FormData) {
+export async function toggleTaskStatus(formData: FormData) {
 	const taskId = formData.get("taskId") as string;
 	const currentStatus = formData.get("currentStatus") as TaskStatus;
 	const projectId = formData.get("projectId") as string;
