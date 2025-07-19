@@ -1,5 +1,6 @@
 import {
 	Badge,
+	Button,
 	Card,
 	CardContent,
 	CardHeader,
@@ -8,11 +9,20 @@ import {
 } from "@/components/ui";
 
 import { notFound } from "next/navigation";
-import { Calendar } from "lucide-react";
+import { Calendar, SquarePen } from "lucide-react";
 import { format } from "date-fns";
 import { getProjectById } from "@/services/project"; // Server Action
-import { WrapperLists, DetailsTasksAndComments } from "@/components/pages";
-import { getTaskProgress } from "@/utils";
+import {
+	WrapperLists,
+	DetailsTasksAndComments,
+	StatusButtonProject,
+} from "@/components/pages";
+import {
+	getStatusLabelProject,
+	getStatusProjectStyles,
+	getTaskProgress,
+} from "@/utils";
+import Link from "next/link";
 
 interface ProjectDetailsPageProps {
 	params: {
@@ -30,6 +40,7 @@ export default async function ProjectDetailsPage({
 	}
 
 	const projectProgress = getTaskProgress(project.tasks);
+	const status = getStatusLabelProject(project.status);
 
 	return (
 		<div className="container mx-auto pt-24 p-4 mt-20 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -37,7 +48,14 @@ export default async function ProjectDetailsPage({
 			<div className="lg:col-span-7 space-y-4 self-start">
 				<Card>
 					<CardHeader>
-						<CardTitle className="text-4xl">{project.name}</CardTitle>
+						<div className="flex items-center justify-between">
+							<CardTitle className="text-3xl">{project.name}</CardTitle>
+							<Button variant={"ghost"} asChild>
+								<Link href={`/projects/edit/${project.id}`}>
+									<SquarePen />
+								</Link>
+							</Button>
+						</div>
 						<div className="flex items-center gap-2">
 							<span className="font-bold text-foreground mr-1">Tipo:</span>
 							<p className="text-lg text-muted-foreground">
@@ -76,7 +94,10 @@ export default async function ProjectDetailsPage({
 								<span className="font-bold text-foreground text-xs mr-1">
 									Status:
 								</span>
-								<Badge variant={"secondary"}>{project.status}</Badge>
+								<StatusButtonProject
+									projectId={project.id}
+									currentStatus={project.status}
+								/>
 							</div>
 						</div>
 						<div className="prose dark:prose-invert mt-4">

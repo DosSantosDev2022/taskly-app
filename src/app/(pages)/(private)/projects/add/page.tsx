@@ -39,6 +39,7 @@ import { formSchema } from "@/@types/forms/projectSchema";
 import { createProject } from "@/actions/project/addProject";
 import { useTransition } from "react";
 import type z from "zod";
+import { toast } from "react-toastify";
 
 // Dados simulados para o seletor de clientes
 const mockClients = [
@@ -79,10 +80,10 @@ export default function AddNewProjectPage() {
 		startTransition(async () => {
 			try {
 				await createProject(formData);
-				// Redirecionar ou revalidar a página após a criação do projeto
-				console.log(formData);
+				toast.success("Novo projeto adicionado com sucesso!");
 				form.reset();
 			} catch (error) {
+				toast.error("Erro ao adicionar novo projeto");
 				console.error("Erro ao enviar formulário:", error);
 			}
 		});
