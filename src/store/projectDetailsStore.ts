@@ -42,6 +42,7 @@ export type SelectedItem = {
 	description?: string | null; // Para tasks
 	projectId?: string;
 	content?: string; // Para comments
+	createdAt?: string;
 };
 
 interface ProjectDetailsState {
@@ -92,6 +93,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>(
 					type: "comment",
 					id: comment.id,
 					content: comment.content,
+					createdAt: comment.createdAt.toISOString(),
 				},
 				selectedComment: {
 					type: "comment",

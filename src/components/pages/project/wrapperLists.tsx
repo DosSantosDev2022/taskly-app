@@ -89,7 +89,7 @@ export function WrapperLists({
 				<CardHeader>
 					<div className="flex border border-border rounded-md items-center justify-between p-3">
 						<CardTitle>Comentários do Projeto</CardTitle>
-						<AddComment />
+						<AddComment projectId={projectId} />
 					</div>
 				</CardHeader>
 				<CardContent>
@@ -101,8 +101,7 @@ export function WrapperLists({
 									className="flex justify-between items-center p-3 border rounded-md cursor-pointer hover:bg-muted"
 									onClick={() => selectComment(comment)} // Chama a ação do store
 								>
-									<span className="font-medium">{comment.id}</span>
-									<p className="text-sm text-muted-foreground">
+									<p className="text-sm text-muted-foreground line-clamp-3">
 										{comment.content}
 									</p>
 								</div>

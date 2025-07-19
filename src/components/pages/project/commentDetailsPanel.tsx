@@ -13,17 +13,14 @@ import {
 	TooltipContent,
 	Tooltip,
 } from "@/components/ui";
+import { formatDate } from "@/utils";
+import type { Comment } from "@prisma/client";
 import { Trash, X } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
 
-interface CommentDetail {
-	id: string;
-	content: string;
-}
-
 interface CommentDetailsPanelProps {
-	comment: CommentDetail;
+	comment: Comment;
 	onClose: () => void;
 	onCommentDeleted: () => void;
 }
@@ -102,7 +99,13 @@ export function CommentDetailsPanel({
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<div>
-					<p className="font-bold mb-1">Conteúdo:</p>
+					<span className="font-bold mb-1">
+						Comentado em:
+						<span className="ml-1 text-sm font-normal text-muted-foreground">{`${formatDate(comment.createdAt)}`}</span>
+					</span>
+				</div>
+				<div>
+					<span className="font-bold mb-1">Conteúdo:</span>
 					<p className="text-muted-foreground">{comment.content}</p>
 				</div>
 			</CardContent>
