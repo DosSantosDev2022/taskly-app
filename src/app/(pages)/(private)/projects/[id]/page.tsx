@@ -1,5 +1,4 @@
 import {
-	Badge,
 	Button,
 	Card,
 	CardContent,
@@ -17,11 +16,7 @@ import {
 	DetailsTasksAndComments,
 	StatusButtonProject,
 } from "@/components/pages";
-import {
-	getStatusLabelProject,
-	getStatusProjectStyles,
-	getTaskProgress,
-} from "@/utils";
+import { getTaskProgress } from "@/utils";
 import Link from "next/link";
 
 interface ProjectDetailsPageProps {
@@ -40,7 +35,6 @@ export default async function ProjectDetailsPage({
 	}
 
 	const projectProgress = getTaskProgress(project.tasks);
-	const status = getStatusLabelProject(project.status);
 
 	return (
 		<div className="container mx-auto pt-24 p-4 mt-20 grid grid-cols-1 lg:grid-cols-12 gap-6">

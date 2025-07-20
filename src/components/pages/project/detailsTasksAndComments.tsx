@@ -29,6 +29,7 @@ export function DetailsTasksAndComments() {
 					comment={selectedItem as any}
 					onClose={clearSelection}
 					onCommentDeleted={clearSelection}
+					onCommentEdited={clearSelection}
 				/>
 			)}
 

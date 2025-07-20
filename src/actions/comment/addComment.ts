@@ -12,7 +12,7 @@ const commentSchema = z.object({
 	content: z
 		.string()
 		.min(1, "O comentário não pode ser vazio.")
-		.max(500, "Comentário muito longo."),
+		.max(5000, "Comentário muito longo."),
 	projectId: z.string().min(1, "ID do projeto é obrigatório."),
 });
 

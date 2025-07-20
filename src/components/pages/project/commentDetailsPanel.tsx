@@ -15,23 +15,27 @@ import {
 } from "@/components/ui";
 import { formatDate } from "@/utils";
 import type { Comment } from "@prisma/client";
-import { Trash, X } from "lucide-react";
+import { Edit, Trash, X } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
+import { EditCommentForm } from "./editCommentForm";
 
 interface CommentDetailsPanelProps {
 	comment: Comment;
 	onClose: () => void;
 	onCommentDeleted: () => void;
+	onCommentEdited: () => void;
 }
 
 export function CommentDetailsPanel({
 	comment,
 	onClose,
 	onCommentDeleted,
+	onCommentEdited,
 }: CommentDetailsPanelProps) {
 	const [isDeleting, startDeleteTransition] = useTransition();
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+	const [showEditModal, setShowEditModal] = useState(false);
 
 	// Lógica para deletar o comentário
 	const handleInitiateDelete = () => {
@@ -64,11 +68,38 @@ export function CommentDetailsPanel({
 		setShowConfirmDialog(false);
 	};
 
+	const handleOpenEditModal = () => {
+		setShowEditModal(true);
+	};
+
+	const handleCloseEditModal = () => {
+		setShowEditModal(false);
+	};
+
+	const handleCommentEdited = () => {
+		onCommentEdited();
+		handleCloseEditModal();
+	};
+
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center justify-between">
 				<CardTitle className="w-full">Detalhes do Comentário</CardTitle>
 				<div className="flex items-center justify-end gap-2 w-full p-1">
+					{/* Botão editar */}
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								className="rounded-full w-7 h-7 p-1 hover:scale-95"
+								onClick={handleOpenEditModal}
+								variant={"secondary"} // Ou outra variante que você prefira
+							>
+								<Edit className="h-4 w-4" /> {/* Ícone de edição */}
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>Editar</TooltipContent>
+					</Tooltip>
+					{/* botão excluir */}
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Button
@@ -82,6 +113,7 @@ export function CommentDetailsPanel({
 						</TooltipTrigger>
 						<TooltipContent>Deletar</TooltipContent>
 					</Tooltip>
+					{/* botão fechar */}
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Button
@@ -118,6 +150,15 @@ export function CommentDetailsPanel({
 				description="Tem certeza que deseja deletar este comentário? Esta ação não pode ser desfeita e o comentário será removida permanentemente."
 				confirmText="Sim, Deletar"
 			/>
+
+			{showEditModal && (
+				<EditCommentForm
+					comment={comment}
+					isOpen={showEditModal}
+					onClose={handleCloseEditModal}
+					onCommentEdited={onCommentEdited}
+				/>
+			)}
 		</Card>
 	);
 }
