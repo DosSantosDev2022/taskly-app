@@ -1,9 +1,16 @@
-// src/store/projectDetailsStore.ts
 import { create } from "zustand";
-import type { Task, Comment } from "@prisma/client"; // Importe os tipos do Prisma
+import type { Task, Comment } from "@prisma/client";
 
-// Helper para formatar o status da tarefa (já existente, mantido para consistência)
-const formatStatus = (status: Task["status"]) => {
+// --- Helpers ---
+/**
+ * @function formatStatus
+ * @description Converte o status da tarefa do formato Prisma ENUM para um formato amigável para exibição na UI.
+ * @param {Task["status"]} status - O status da tarefa vindo do Prisma.
+ * @returns {string} O status formatado (e.g., "Pendente", "Em Andamento").
+ */
+const formatStatus = (
+	status: Task["status"],
+): "Pendente" | "Em Andamento" | "Concluída" => {
 	switch (status) {
 		case "PENDING":
 			return "Pendente";
@@ -12,113 +19,166 @@ const formatStatus = (status: Task["status"]) => {
 		case "COMPLETED":
 			return "Concluída";
 		default:
-			return status; // Retorna o status original se for desconhecido
+			// Fallback para status inesperados, mantendo a consistência do tipo.
+			return status as "Pendente" | "Em Andamento" | "Concluída";
 	}
 };
 
-// Tipos para o estado do store
-// Garanta que o projectId está incluído se for uma tarefa
-export type SelectedItem = {
-	type: "task" | "comment";
+// --- Tipagens do Estado ---
+/**
+ * @interface TaskDetail
+ * @description Define a estrutura detalhada de uma tarefa para o estado do store.
+ */
+export interface TaskDetail {
+	type: "task";
 	id: string;
-	title?: string; // Para tasks
-	status?: string; // Para tasks (será o status FORMATADO)
-	description?: string | null; // Para tasks
-	projectId?: string;
-	content?: string; // Para comments
-	createdAt?: string;
-};
+	title: string;
+	status: "Pendente" | "Em Andamento" | "Concluída"; // Status já formatado
+	description: string | null;
+	projectId: string;
+}
 
+/**
+ * @interface CommentDetail
+ * @description Define a estrutura detalhada de um comentário para o estado do store.
+ */
+export interface CommentDetail {
+	type: "comment";
+	id: string;
+	projectId: string;
+	createdAt: Date;
+	updatedAt: Date;
+	userId: string;
+	content: string;
+}
+
+/**
+ * @type SelectedItem
+ * @description Tipo union para representar o item atualmente selecionado (tarefa ou comentário).
+ */
+export type SelectedItem = TaskDetail | CommentDetail;
+
+/**
+ * @interface ProjectDetailsState
+ * @description Define a estrutura completa do estado e das ações do store.
+ */
 interface ProjectDetailsState {
+	// O item selecionado no painel de detalhes (tarefa ou comentário)
 	selectedItem: SelectedItem | null;
-	selectedTask: SelectedItem | null;
-	selectedComment: SelectedItem | null;
 
+	// --- Ações do Store ---
+	/**
+	 * @method setSelectedItem
+	 * @description Define o item atualmente selecionado no store.
+	 * @param {SelectedItem | null} item - O item a ser selecionado, ou null para limpar.
+	 */
 	setSelectedItem: (item: SelectedItem | null) => void;
+
+	/**
+	 * @method selectTask
+	 * @description Define uma tarefa como o item selecionado, formatando seus dados.
+	 * @param {Task} task - O objeto da tarefa vindo do Prisma.
+	 */
 	selectTask: (task: Task) => void;
+
+	/**
+	 * @method selectComment
+	 * @description Define um comentário como o item selecionado, formatando seus dados.
+	 * @param {Comment} comment - O objeto do comentário vindo do Prisma.
+	 */
 	selectComment: (comment: Comment) => void;
+
+	/**
+	 * @method clearSelection
+	 * @description Limpa qualquer item selecionado.
+	 */
 	clearSelection: () => void;
-	// --- NOVA AÇÃO ---
+
+	/**
+	 * @method updateSelectedTaskStatus
+	 * @description Atualiza o status da tarefa selecionada.
+	 * @param {Task["status"]} newPrismaStatus - O novo status da tarefa no formato Prisma ENUM.
+	 */
 	updateSelectedTaskStatus: (newPrismaStatus: Task["status"]) => void;
+
+	/**
+	 * @method updateSelectedTaskDetails
+	 * @description Atualiza o título e a descrição da tarefa selecionada.
+	 * @param {Object} updatedTask - Objeto com o novo título e descrição.
+	 * @param {string} updatedTask.title - Novo título da tarefa.
+	 * @param {string | null} updatedTask.description - Nova descrição da tarefa.
+	 */
 	updateSelectedTaskDetails: (updatedTask: {
 		title: string;
 		description: string | null;
 	}) => void;
+
+	/**
+	 * @method updateSelectedCommentContent
+	 * @description Atualiza o conteúdo do comentário selecionado.
+	 * @param {Object} updatedContent - Objeto com o novo conteúdo.
+	 * @param {string} updatedContent.content - Novo conteúdo do comentário.
+	 */
 	updateSelectedCommentContent: (updatedContent: { content: string }) => void;
 }
 
+// --- Criação do Store Zustand ---
 export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
+	// --- Estado Inicial ---
 	selectedItem: null,
-	selectedTask: null, // Pode ser removido se não for usado diretamente, simplificando
-	selectedComment: null, // Pode ser removido se não for usado diretamente, simplificando
 
+	// --- Implementação das Ações ---
 	setSelectedItem: (item) => set({ selectedItem: item }),
 
 	selectTask: (task) =>
 		set({
+			// Define o item principal selecionado como uma tarefa
 			selectedItem: {
 				type: "task",
 				id: task.id,
 				title: task.title,
-				status: formatStatus(task.status),
+				status: formatStatus(task.status), // Formata o status para a UI
 				description: task.description,
 				projectId: task.projectId,
 			},
-			selectedTask: {
-				type: "task",
-				id: task.id,
-				title: task.title,
-				status: formatStatus(task.status),
-				description: task.description,
-				projectId: task.projectId,
-			},
-			selectedComment: null,
 		}),
 
 	selectComment: (comment) =>
 		set({
+			// Define o item principal selecionado como um comentário
 			selectedItem: {
 				type: "comment",
 				id: comment.id,
-				content: comment.content,
-				createdAt: comment.createdAt.toISOString(),
-			},
-			selectedComment: {
-				type: "comment",
-				id: comment.id,
+				projectId: comment.projectId,
+				createdAt: comment.createdAt, // Mantém como Date para corresponder ao tipo
+				updatedAt: comment.updatedAt,
+				userId: comment.userId,
 				content: comment.content,
 			},
-			selectedTask: null,
 		}),
 
-	clearSelection: () =>
-		set({ selectedItem: null, selectedTask: null, selectedComment: null }),
+	clearSelection: () => set({ selectedItem: null }),
 
 	updateSelectedTaskStatus: (newPrismaStatus) => {
 		set((state) => {
-			// Verifica se há um selectedItem e se ele é uma task
-			if (state.selectedItem && state.selectedItem.type === "task") {
-				// Converte o novo status do Prisma para o formato que o UI espera
-				const newFormattedStatus = formatStatus(newPrismaStatus);
+			// Verifica se o item selecionado é uma tarefa antes de atualizar
+			if (state.selectedItem?.type === "task") {
+				const newFormattedStatus = formatStatus(newPrismaStatus); // Formata o novo status
 
 				return {
 					selectedItem: {
 						...state.selectedItem,
-						status: newFormattedStatus, // Atualiza o status formatado
+						status: newFormattedStatus, // Atualiza o status no item principal
 					},
-					selectedTask: state.selectedTask
-						? {
-								...state.selectedTask,
-								status: newFormattedStatus,
-							}
-						: null,
 				};
 			}
-			return state;
+			return state; // Retorna o estado inalterado se não for uma tarefa
 		});
 	},
+
 	updateSelectedTaskDetails: (updatedDetails) =>
 		set((state) => {
+			// Verifica se o item selecionado é uma tarefa antes de atualizar
 			if (state.selectedItem?.type === "task") {
 				return {
 					selectedItem: {
@@ -126,33 +186,22 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
 						title: updatedDetails.title,
 						description: updatedDetails.description,
 					},
-					selectedTask: state.selectedTask
-						? {
-								...state.selectedTask,
-								title: updatedDetails.title,
-								description: updatedDetails.description,
-							}
-						: null,
 				};
 			}
-			return state;
+			return state; // Retorna o estado inalterado se não for uma tarefa
 		}),
+
 	updateSelectedCommentContent: (updatedContent) =>
 		set((state) => {
+			// Verifica se o item selecionado é um comentário antes de atualizar
 			if (state.selectedItem?.type === "comment") {
 				return {
 					selectedItem: {
 						...state.selectedItem,
-						content: updatedContent.content,
+						content: updatedContent.content, // Atualiza o conteúdo no item principal
 					},
-					selectedComment: state.selectedComment
-						? {
-								...state.selectedComment,
-								content: updatedContent.content,
-							}
-						: null,
 				};
 			}
-			return state;
+			return state; // Retorna o estado inalterado se não for um comentário
 		}),
 }));

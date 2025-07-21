@@ -1,7 +1,6 @@
-// src/actions/comment/editComment.ts
 "use server";
 
-import { db } from "@/lib/prisma"; // Assumindo que você tem o Prisma Client configurado aqui
+import { db } from "@/lib/prisma";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 

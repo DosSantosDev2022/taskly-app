@@ -40,70 +40,140 @@ import { formatDate } from "@/utils";
 import { formSchema } from "@/@types/forms/projectSchema";
 import { useTransition } from "react";
 import type z from "zod";
-import { updateProject } from "@/actions/project/updateProject"; // Importa a Server Action de update
+import { updateProject } from "@/actions/project/updateProject";
 import { toast } from "react-toastify";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
+// --- Tipagem de Dados ---
+/**
+ * @interface Client
+ * @description Define a estrutura básica de um objeto de cliente.
+ */
 interface Client {
 	id: string;
 	name: string;
 }
 
+/**
+ * @interface EditProjectFormProps
+ * @description Propriedades esperadas pelo componente EditProjectForm.
+ */
 interface EditProjectFormProps {
-	projectId: string;
-	defaultValues: z.infer<typeof formSchema>;
-	clients: Client[];
+	projectId: string; // ID do projeto a ser editado
+	defaultValues: z.infer<typeof formSchema>; // Valores iniciais do formulário, inferidos do schema Zod
+	clients: Client[]; // Lista de clientes disponíveis para seleção no combobox
 }
 
+/**
+ * @component EditProjectForm
+ * @description Formulário para edição de detalhes de um projeto existente.
+ * Integra React Hook Form com Zod para validação, Shadcn UI para componentes visuais,
+ * e Server Actions para persistência de dados.
+ */
 export function EditProjectForm({
 	projectId,
 	defaultValues,
 	clients,
 }: EditProjectFormProps) {
-	const [isPending, startTransition] = useTransition();
+	// --- Estados Locais e Hooks ---
+	const [isPending, startTransition] = useTransition(); // Gerencia o estado de "pending" da Server Action
 	const router = useRouter();
+
+	// --- Configuração do React Hook Form ---
 	const form = useForm<z.infer<typeof formSchema>>({
-		resolver: zodResolver(formSchema),
-		defaultValues: defaultValues,
+		resolver: zodResolver(formSchema), // Integração com Zod para validação do formulário
+		defaultValues: {
+			...defaultValues, // Popula o formulário com os valores padrão fornecidos
+			// Garante que a data seja um objeto Date se for uma string, pois o formSchema pode retornar string
+			deadlineDate: defaultValues.deadlineDate
+				? new Date(defaultValues.deadlineDate)
+				: undefined,
+		},
+		mode: "onBlur", // Valida os campos ao perderem o foco para melhor UX
 	});
 
+	// --- Handlers de Eventos ---
+
+	/**
+	 * @function onSubmit
+	 * @description Lida com a submissão do formulário de edição de projeto.
+	 * Converte os valores para FormData e chama a Server Action `updateProject`.
+	 * @param {z.infer<typeof formSchema>} values - Os valores validados do formulário.
+	 */
 	async function onSubmit(values: z.infer<typeof formSchema>) {
+		// Cria um objeto FormData para enviar os dados à Server Action
 		const formData = new FormData();
 
+		// Adiciona os valores do formulário ao FormData
 		formData.append("name", values.name);
+		// Garante que a descrição seja uma string vazia se for null/undefined para FormData
 		formData.append("description", values.description || "");
 		formData.append("type", values.type);
 		formData.append("status", values.status);
+
+		// Converte a data de prazo para ISO string se existir
 		if (values.deadlineDate) {
 			formData.append("deadlineDate", values.deadlineDate.toISOString());
 		}
+		// Adiciona o ID do cliente se existir
 		if (values.clientId) {
 			formData.append("clientId", values.clientId);
 		}
 
+		// Inicia a transição de UI para o estado de "pending"
 		startTransition(async () => {
 			try {
-				// Passa o projectId e o prevState (null, já que não estamos usando useFormState aqui)
-				await updateProject(projectId, null, formData);
-				toast.success("Projeto atualizado com sucesso!", {
-					autoClose: 3000,
-					theme: "dark",
-				});
-				router.push(`/projects/${projectId}`);
+				// Chama a Server Action, passando o projectId e o FormData.
+				const result = await updateProject(projectId, formData);
+
+				if (result?.success) {
+					// Verifica se 'result' existe e tem 'success'
+					toast.success("Projeto atualizado com sucesso!", {
+						autoClose: 3000,
+						theme: "dark",
+					});
+					router.push(`/projects/${projectId}`); // Redireciona para a página de detalhes do projeto
+				} else {
+					// Se a Server Action retornar um erro ou result.success for falso
+					toast.error(result?.message || "Erro ao editar projeto!", {
+						// Exibe a mensagem de erro da action ou uma genérica
+						autoClose: 3000,
+						theme: "dark",
+					});
+					// Se a Server Action retornar erros de validação, aplique-os ao formulário
+					if (result?.errors) {
+						for (const key in result.errors) {
+							if (Object.hasOwn(result.errors, key)) {
+								form.setError(key as keyof z.infer<typeof formSchema>, {
+									type: "server",
+									message:
+										result.errors[key as keyof typeof result.errors]?.[0] ||
+										String(result.errors[key as keyof typeof result.errors]),
+								});
+							}
+						}
+					}
+					console.error(
+						"Erro ao enviar formulário:",
+						result?.errors || "Erro desconhecido.",
+					);
+				}
 			} catch (error) {
-				toast.error("erro ao editar projeto!", {
+				// Captura erros inesperados que não vêm da Server Action diretamente
+				toast.error("Ocorreu um erro inesperado ao atualizar o projeto.", {
 					autoClose: 3000,
 					theme: "dark",
 				});
-				console.error("Erro ao enviar formulário:", error);
+				console.error("Erro inesperado ao enviar formulário:", error);
 			}
 		});
 	}
 
+	// --- Renderização do Componente ---
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-				{/* Nome do Projeto */}
+				{/* Campo: Nome do Projeto */}
 				<FormField
 					name="name"
 					control={form.control}
@@ -111,22 +181,48 @@ export function EditProjectForm({
 						<FormItem>
 							<FormLabel>Nome</FormLabel>
 							<FormControl>
-								<Input placeholder="Ex: App de Finanças" {...field} />
+								<Input
+									placeholder="Ex: App de Finanças"
+									{...field}
+									disabled={isPending} // Desabilita enquanto a requisição está pendente
+									aria-invalid={form.formState.errors.name ? "true" : "false"}
+									aria-describedby="name-error"
+								/>
 							</FormControl>
+							{form.formState.errors.name && (
+								<p
+									id="name-error"
+									role="alert"
+									className="text-red-500 text-sm"
+								>
+									{form.formState.errors.name.message}
+								</p>
+							)}
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
-				{/* Tipo de Projeto */}
+
+				{/* Campo: Tipo de Projeto (Select) */}
 				<FormField
 					name="type"
 					control={form.control}
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Tipo de projeto</FormLabel>
-							<Select onValueChange={field.onChange} defaultValue={field.value}>
+							<Select
+								onValueChange={(value) =>
+									field.onChange(value as "WEB" | "MOBILE" | "SISTEMA")
+								}
+								defaultValue={field.value}
+								value={field.value} // Controla o valor para que o React Hook Form saiba o estado atual
+								disabled={isPending}
+							>
 								<FormControl>
-									<SelectTrigger className="w-full">
+									<SelectTrigger
+										className="w-full"
+										aria-label="Selecione o tipo de projeto"
+									>
 										<SelectValue placeholder="Selecione o tipo de projeto" />
 									</SelectTrigger>
 								</FormControl>
@@ -136,12 +232,17 @@ export function EditProjectForm({
 									<SelectItem value="SISTEMA">Sistema</SelectItem>
 								</SelectContent>
 							</Select>
+							{form.formState.errors.type && (
+								<p role="alert" className="text-red-500 text-sm">
+									{form.formState.errors.type.message}
+								</p>
+							)}
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
 
-				{/* Data de Prazo */}
+				{/* Campo: Data de Prazo (Calendar/Popover) */}
 				<FormField
 					name="deadlineDate"
 					control={form.control}
@@ -154,9 +255,11 @@ export function EditProjectForm({
 										<Button
 											variant={"outline"}
 											className={cn(
-												"pl-3 text-left font-normal",
+												"w-full pl-3 text-left font-normal",
 												!field.value && "text-muted-foreground",
 											)}
+											disabled={isPending}
+											aria-label="Selecionar data de prazo"
 										>
 											<CalendarIcon className="mr-2 h-4 w-4" />
 											{field.value ? (
@@ -176,21 +279,38 @@ export function EditProjectForm({
 									/>
 								</PopoverContent>
 							</Popover>
+							{form.formState.errors.deadlineDate && (
+								<p role="alert" className="text-red-500 text-sm">
+									{form.formState.errors.deadlineDate.message}
+								</p>
+							)}
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
 
-				{/* Status do Projeto */}
+				{/* Campo: Status do Projeto (Select) */}
 				<FormField
 					name="status"
 					control={form.control}
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Status do Projeto</FormLabel>
-							<Select onValueChange={field.onChange} defaultValue={field.value}>
+							<Select
+								onValueChange={(value) =>
+									field.onChange(
+										value as "PENDING" | "IN_PROGRESS" | "COMPLETED",
+									)
+								}
+								defaultValue={field.value}
+								value={field.value} // Controla o valor
+								disabled={isPending}
+							>
 								<FormControl>
-									<SelectTrigger className="w-full">
+									<SelectTrigger
+										className="w-full"
+										aria-label="Selecione o status do projeto"
+									>
 										<SelectValue placeholder="Selecione o status atual" />
 									</SelectTrigger>
 								</FormControl>
@@ -200,11 +320,17 @@ export function EditProjectForm({
 									<SelectItem value="COMPLETED">Concluído</SelectItem>
 								</SelectContent>
 							</Select>
+							{form.formState.errors.status && (
+								<p role="alert" className="text-red-500 text-sm">
+									{form.formState.errors.status.message}
+								</p>
+							)}
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
-				{/* Cliente (Combobox) */}
+
+				{/* Campo: Cliente (Combobox) */}
 				<FormField
 					name="clientId"
 					control={form.control}
@@ -214,14 +340,14 @@ export function EditProjectForm({
 							<Popover>
 								<PopoverTrigger asChild>
 									<FormControl>
-										{/** biome-ignore lint/a11y/useSemanticElements: <explanation> */}
 										<Button
 											variant="outline"
-											role="combobox"
 											className={cn(
 												"w-full justify-between",
 												!field.value && "text-muted-foreground",
 											)}
+											disabled={isPending}
+											aria-label="Selecione um cliente"
 										>
 											<span className="truncate">
 												{field.value
@@ -232,21 +358,27 @@ export function EditProjectForm({
 										</Button>
 									</FormControl>
 								</PopoverTrigger>
-								<PopoverContent className="w-xl p-0">
+								<PopoverContent className="w-full p-0">
+									{" "}
+									{/* Ajustado para w-full */}
 									<Command>
 										<CommandInput placeholder="Buscar cliente..." />
 										<CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
 										<CommandGroup>
 											{clients.map((client) => (
 												<CommandItem
-													value={client.name}
+													value={client.name} // Use client.name para a busca no CommandInput
 													key={client.id}
 													onSelect={() => {
+														// Alterna a seleção do cliente: se já selecionado, deseleciona
 														form.setValue(
 															"clientId",
 															client.id === field.value ? undefined : client.id,
-														); // Toggle selection
+															{ shouldValidate: true, shouldDirty: true }, // Valida e marca como "dirty"
+														);
+														form.trigger("clientId"); // Gatilho de validação manual para combobox
 													}}
+													aria-selected={client.id === field.value} // Acessibilidade: indica seleção
 												>
 													<Check
 														className={cn(
@@ -263,12 +395,17 @@ export function EditProjectForm({
 									</Command>
 								</PopoverContent>
 							</Popover>
+							{form.formState.errors.clientId && (
+								<p role="alert" className="text-red-500 text-sm">
+									{form.formState.errors.clientId.message}
+								</p>
+							)}
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
 
-				{/* Descrição */}
+				{/* Campo: Descrição do Projeto */}
 				<FormField
 					name="description"
 					control={form.control}
@@ -279,13 +416,29 @@ export function EditProjectForm({
 								<Textarea
 									placeholder="Descreva o objetivo do projeto..."
 									{...field}
+									disabled={isPending}
+									aria-invalid={
+										form.formState.errors.description ? "true" : "false"
+									}
+									aria-describedby="description-error"
+									rows={6} // Aumenta o número de linhas padrão
 								/>
 							</FormControl>
+							{form.formState.errors.description && (
+								<p
+									id="description-error"
+									role="alert"
+									className="text-red-500 text-sm"
+								>
+									{form.formState.errors.description.message}
+								</p>
+							)}
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
 
+				{/* Botão de Submissão do Formulário */}
 				<Button type="submit" className="w-full md:w-auto" disabled={isPending}>
 					{isPending ? "Atualizando..." : "Atualizar Projeto"}
 				</Button>

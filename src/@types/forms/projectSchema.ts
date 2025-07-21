@@ -1,4 +1,7 @@
-import z from "zod";
+// src/schemas/projectSchemas.ts (ou o arquivo onde este código está)
+import { z } from "zod";
+// IMPORTANTE: Importar ProjectStatus do Prisma Client
+import { ProjectStatus } from "@prisma/client";
 
 // Esquema de validação com Zod atualizado com todos os campos
 export const formSchema = z.object({
@@ -17,4 +20,14 @@ export const formSchema = z.object({
 	}),
 	images: z.any().optional(), // Validação de arquivos é complexa, faremos no servidor
 	clientId: z.string({ error: "Selecione um cliente." }).optional(),
+});
+
+export const toggleProjectStatusSchema = z.object({
+	projectId: z
+		.string()
+		.trim()
+		.min(1, { message: "ID do projeto é obrigatório." }),
+	currentStatus: z.nativeEnum(ProjectStatus, {
+		message: "Status do projeto inválido. Selecione um status válido.",
+	}),
 });
