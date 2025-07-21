@@ -24,7 +24,7 @@ interface CommentDetailsPanelProps {
 	comment: Comment;
 	onClose: () => void;
 	onCommentDeleted: () => void;
-	onCommentEdited: () => void;
+	onCommentEdited: (updatedContent: { content: string }) => void;
 }
 
 export function CommentDetailsPanel({
@@ -53,7 +53,6 @@ export function CommentDetailsPanel({
 					autoClose: 3000,
 					theme: "dark",
 				});
-				handleCommentEdited();
 				onCommentDeleted();
 			} else {
 				console.error("Erro ao deletar comentário:", result.errors);
@@ -77,8 +76,8 @@ export function CommentDetailsPanel({
 		setShowEditModal(false);
 	};
 
-	const handleCommentEdited = () => {
-		onCommentEdited();
+	const handleCommentContentUpdated = (updatedContent: { content: string }) => {
+		onCommentEdited(updatedContent);
 		handleCloseEditModal();
 	};
 
@@ -156,8 +155,8 @@ export function CommentDetailsPanel({
 				<EditCommentForm
 					comment={comment}
 					isOpen={showEditModal}
-					onClose={handleCloseEditModal}
-					onCommentEdited={onCommentEdited}
+					/* onClose={handleCloseEditModal} */
+					onCommentEdited={handleCommentContentUpdated}
 				/>
 			)}
 		</Card>

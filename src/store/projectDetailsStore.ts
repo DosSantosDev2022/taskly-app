@@ -44,6 +44,7 @@ interface ProjectDetailsState {
 		title: string;
 		description: string | null;
 	}) => void;
+	updateSelectedCommentContent: (updatedContent: { content: string }) => void;
 }
 
 export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
@@ -134,6 +135,24 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
 						: null,
 				};
 			}
-			return {};
+			return state;
+		}),
+	updateSelectedCommentContent: (updatedContent) =>
+		set((state) => {
+			if (state.selectedItem?.type === "comment") {
+				return {
+					selectedItem: {
+						...state.selectedItem,
+						content: updatedContent.content,
+					},
+					selectedComment: state.selectedComment
+						? {
+								...state.selectedComment,
+								content: updatedContent.content,
+							}
+						: null,
+				};
+			}
+			return state;
 		}),
 }));

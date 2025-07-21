@@ -6,6 +6,7 @@ import { CommentDetailsPanel } from "./commentDetailsPanel";
 
 export function DetailsTasksAndComments() {
 	const selectedItem = useProjectDetailsStore((state) => state.selectedItem);
+
 	const clearSelection = useProjectDetailsStore(
 		(state) => state.clearSelection,
 	);
@@ -17,12 +18,21 @@ export function DetailsTasksAndComments() {
 		(state) => state.updateSelectedTaskDetails,
 	);
 
+	const updateSelectedCommentContent = useProjectDetailsStore(
+		(state) => state.updateSelectedCommentContent,
+	);
+
 	const handleTaskUpdated = (updatedTaskDetails: {
 		title: string;
 		description: string | null;
 	}) => {
 		// Chama a ação do Zustand para atualizar os detalhes da tarefa selecionada
 		updateSelectedTaskDetails(updatedTaskDetails);
+	};
+
+	// Função para lidar com a atualização de conteúdo do comentário
+	const handleCommentContentUpdated = (updatedContent: { content: string }) => {
+		updateSelectedCommentContent(updatedContent);
 	};
 
 	return (
@@ -42,7 +52,7 @@ export function DetailsTasksAndComments() {
 					comment={selectedItem as any}
 					onClose={clearSelection}
 					onCommentDeleted={clearSelection}
-					onCommentEdited={clearSelection}
+					onCommentEdited={handleCommentContentUpdated}
 				/>
 			)}
 

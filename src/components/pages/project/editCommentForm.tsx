@@ -19,7 +19,6 @@ import {
 } from "@/components/ui"; // Assumindo que você tem esses componentes UI
 import { editComment } from "@/actions/comment/editComment"; // Você precisará criar esta action
 import type { Comment } from "@prisma/client";
-import { useRouter } from "next/navigation";
 
 // --- Definição do Schema de Validação com Zod ---
 const editCommentSchema = z.object({
@@ -34,8 +33,8 @@ type EditCommentFormValues = z.infer<typeof editCommentSchema>;
 interface EditCommentFormProps {
 	comment: Comment;
 	isOpen: boolean;
-	onClose: () => void;
-	onCommentEdited: () => void;
+	onClose?: () => void;
+	onCommentEdited: (updatedContent: { content: string }) => void;
 }
 
 export function EditCommentForm({
@@ -45,7 +44,7 @@ export function EditCommentForm({
 	onCommentEdited,
 }: EditCommentFormProps) {
 	const [isPending, startTransition] = useTransition();
-	const router = useRouter();
+
 	const {
 		register,
 		handleSubmit,
@@ -58,13 +57,6 @@ export function EditCommentForm({
 		},
 	});
 
-	// Resetar o formulário quando o modal for aberto ou o comentário mudar
-	// Usar useEffect para sincronizar defaultValues com o 'comment' prop
-	// No entanto, para 'defaultValues' em useForm, o ideal é que seja inicializado uma vez
-	// Se 'comment.content' puder mudar enquanto o modal está fechado e você precisa refletir isso
-	// quando ele abre novamente, chame 'reset' no `onClose` ou `isOpen` change.
-	// Por simplicidade aqui, ele já vem com o valor inicial do comentário.
-
 	const onSubmit = async (data: EditCommentFormValues) => {
 		startTransition(async () => {
 			const result = await editComment(comment.id, data.content);
@@ -74,9 +66,7 @@ export function EditCommentForm({
 					autoClose: 3000,
 					theme: "dark",
 				});
-				onCommentEdited();
-				router.refresh();
-				onClose();
+				onCommentEdited({ content: data.content });
 			} else {
 				console.error("Erro ao editar comentário:", result.errors);
 				toast.error(result.message || "Erro ao editar comentário!", {
@@ -87,11 +77,6 @@ export function EditCommentForm({
 		});
 	};
 
-	// Garante que o formulário seja resetado com o conteúdo atual do comentário
-	// toda vez que o modal for aberto com um novo comentário ou reaberto.
-	// Isso é crucial para que o campo de texto sempre exiba o último conteúdo.
-	// Usamos um truque aqui: chamar reset quando o 'isOpen' muda e é verdadeiro,
-	// passando o conteúdo mais recente do comentário.
 	useEffect(() => {
 		if (isOpen) {
 			reset({ content: comment.content });
