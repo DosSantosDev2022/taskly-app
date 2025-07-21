@@ -53,7 +53,8 @@ export function CommentDetailsPanel({
 					autoClose: 3000,
 					theme: "dark",
 				});
-				onCommentDeleted(); // Notifica o componente pai para limpar a seleção
+				handleCommentEdited();
+				onCommentDeleted();
 			} else {
 				console.error("Erro ao deletar comentário:", result.errors);
 				toast.error(result.message || "Erro ao deletar tarefa!", {

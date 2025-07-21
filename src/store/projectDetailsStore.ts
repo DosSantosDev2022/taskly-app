@@ -16,22 +16,6 @@ const formatStatus = (status: Task["status"]) => {
 	}
 };
 
-// Helper para converter o status formatado de volta para o formato Prisma (NOVO)
-const unformatStatus = (
-	formattedStatus: string,
-): Task["status"] | undefined => {
-	switch (formattedStatus) {
-		case "Pendente":
-			return "PENDING";
-		case "Em Andamento":
-			return "IN_PROGRESS";
-		case "Concluída":
-			return "COMPLETED";
-		default:
-			return undefined; // Retorna undefined ou joga um erro para status desconhecido
-	}
-};
-
 // Tipos para o estado do store
 // Garanta que o projectId está incluído se for uma tarefa
 export type SelectedItem = {
@@ -56,78 +40,100 @@ interface ProjectDetailsState {
 	clearSelection: () => void;
 	// --- NOVA AÇÃO ---
 	updateSelectedTaskStatus: (newPrismaStatus: Task["status"]) => void;
+	updateSelectedTaskDetails: (updatedTask: {
+		title: string;
+		description: string | null;
+	}) => void;
 }
 
-export const useProjectDetailsStore = create<ProjectDetailsState>(
-	(set, get) => ({
-		selectedItem: null,
-		selectedTask: null, // Pode ser removido se não for usado diretamente, simplificando
-		selectedComment: null, // Pode ser removido se não for usado diretamente, simplificando
+export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
+	selectedItem: null,
+	selectedTask: null, // Pode ser removido se não for usado diretamente, simplificando
+	selectedComment: null, // Pode ser removido se não for usado diretamente, simplificando
 
-		setSelectedItem: (item) => set({ selectedItem: item }),
+	setSelectedItem: (item) => set({ selectedItem: item }),
 
-		selectTask: (task) =>
-			set({
-				selectedItem: {
-					type: "task",
-					id: task.id,
-					title: task.title,
-					status: formatStatus(task.status),
-					description: task.description,
-					projectId: task.projectId,
-				},
-				selectedTask: {
-					type: "task",
-					id: task.id,
-					title: task.title,
-					status: formatStatus(task.status),
-					description: task.description,
-					projectId: task.projectId,
-				},
-				selectedComment: null,
-			}),
+	selectTask: (task) =>
+		set({
+			selectedItem: {
+				type: "task",
+				id: task.id,
+				title: task.title,
+				status: formatStatus(task.status),
+				description: task.description,
+				projectId: task.projectId,
+			},
+			selectedTask: {
+				type: "task",
+				id: task.id,
+				title: task.title,
+				status: formatStatus(task.status),
+				description: task.description,
+				projectId: task.projectId,
+			},
+			selectedComment: null,
+		}),
 
-		selectComment: (comment) =>
-			set({
-				selectedItem: {
-					type: "comment",
-					id: comment.id,
-					content: comment.content,
-					createdAt: comment.createdAt.toISOString(),
-				},
-				selectedComment: {
-					type: "comment",
-					id: comment.id,
-					content: comment.content,
-				},
-				selectedTask: null,
-			}),
+	selectComment: (comment) =>
+		set({
+			selectedItem: {
+				type: "comment",
+				id: comment.id,
+				content: comment.content,
+				createdAt: comment.createdAt.toISOString(),
+			},
+			selectedComment: {
+				type: "comment",
+				id: comment.id,
+				content: comment.content,
+			},
+			selectedTask: null,
+		}),
 
-		clearSelection: () =>
-			set({ selectedItem: null, selectedTask: null, selectedComment: null }),
+	clearSelection: () =>
+		set({ selectedItem: null, selectedTask: null, selectedComment: null }),
 
-		updateSelectedTaskStatus: (newPrismaStatus) => {
-			set((state) => {
-				// Verifica se há um selectedItem e se ele é uma task
-				if (state.selectedItem && state.selectedItem.type === "task") {
-					// Converte o novo status do Prisma para o formato que o UI espera
-					const newFormattedStatus = formatStatus(newPrismaStatus);
+	updateSelectedTaskStatus: (newPrismaStatus) => {
+		set((state) => {
+			// Verifica se há um selectedItem e se ele é uma task
+			if (state.selectedItem && state.selectedItem.type === "task") {
+				// Converte o novo status do Prisma para o formato que o UI espera
+				const newFormattedStatus = formatStatus(newPrismaStatus);
 
-					return {
-						selectedItem: {
-							...state.selectedItem,
-							status: newFormattedStatus, // Atualiza o status formatado
-						},
-						selectedTask: state.selectedTask
-							? {
-									...state.selectedTask,
-									status: newFormattedStatus,
-								}
-							: null,
-					};
-				}
-				return state;
-			});
-		},
-	}),
-);
+				return {
+					selectedItem: {
+						...state.selectedItem,
+						status: newFormattedStatus, // Atualiza o status formatado
+					},
+					selectedTask: state.selectedTask
+						? {
+								...state.selectedTask,
+								status: newFormattedStatus,
+							}
+						: null,
+				};
+			}
+			return state;
+		});
+	},
+	updateSelectedTaskDetails: (updatedDetails) =>
+		set((state) => {
+			if (state.selectedItem?.type === "task") {
+				return {
+					selectedItem: {
+						...state.selectedItem,
+						title: updatedDetails.title,
+						description: updatedDetails.description,
+					},
+					selectedTask: state.selectedTask
+						? {
+								...state.selectedTask,
+								title: updatedDetails.title,
+								description: updatedDetails.description,
+							}
+						: null,
+				};
+			}
+			return {};
+		}),
+}));

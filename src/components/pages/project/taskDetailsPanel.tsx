@@ -11,7 +11,7 @@ import {
 	TooltipTrigger,
 	TooltipContent,
 } from "@/components/ui";
-import { Trash, ClipboardList } from "lucide-react";
+import { Trash, ClipboardList, Edit } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
 import { X } from "lucide-react";
@@ -19,6 +19,7 @@ import { ConfirmationDialog } from "@/components/global";
 import { getStatusLabel, getStatusStyles } from "@/utils"; // Supondo que essas utils já lidam com o ProjectStatus
 import { toggleTaskStatus } from "@/actions/task/toggleTaskStatus"; // Sua Server Action para status da tarefa
 import type { ProjectStatus } from "@prisma/client";
+import { EditTaskModal } from "./editTask";
 
 // Definindo os tipos para a tarefa, conforme o que vem do seu store
 interface TaskDetail {
@@ -35,6 +36,10 @@ interface TaskDetailsPanelProps {
 	onClose: () => void;
 	onTaskDeleted: () => void; // Callback para notificar o pai que a tarefa foi deletada
 	onUpdateStatus: (newPrismaStatus: ProjectStatus) => void;
+	onTaskUpdated: (updatedTaskDetails: {
+		title: string;
+		description: string | null;
+	}) => void;
 }
 
 export function TaskDetailsPanel({
@@ -42,10 +47,12 @@ export function TaskDetailsPanel({
 	onClose,
 	onTaskDeleted,
 	onUpdateStatus,
+	onTaskUpdated,
 }: TaskDetailsPanelProps) {
 	const [isDeleting, startDeleteTransition] = useTransition();
 	const [isUpdatingStatus, startStatusUpdateTransition] = useTransition();
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+	const [showEditModal, setShowEditModal] = useState(false);
 
 	// Lógica para alternar o status da tarefa
 	const handleStatusClick = () => {
@@ -133,11 +140,41 @@ export function TaskDetailsPanel({
 		setShowConfirmDialog(false);
 	};
 
+	const handleOpenEditModal = () => {
+		setShowEditModal(true);
+	};
+
+	const handleCloseEditModal = () => {
+		setShowEditModal(false);
+	};
+
+	const handleTaskEdited = (updatedDetails: {
+		title: string;
+		description: string | null;
+	}) => {
+		onTaskUpdated(updatedDetails);
+		handleCloseEditModal();
+	};
+
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center justify-between">
 				<CardTitle className="w-full">Detalhes da Tarefa</CardTitle>
 				<div className="flex items-center justify-end gap-2 w-full p-1">
+					{/* Botão editar */}
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								className="rounded-full w-7 h-7 p-1 hover:scale-95"
+								onClick={handleOpenEditModal}
+								variant={"secondary"} // Ou outra variante que você prefira
+							>
+								<Edit className="h-4 w-4" /> {/* Ícone de edição */}
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>Editar</TooltipContent>
+					</Tooltip>
+					{/* Botão de excluír task */}
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Button
@@ -151,6 +188,7 @@ export function TaskDetailsPanel({
 						</TooltipTrigger>
 						<TooltipContent>Deletar</TooltipContent>
 					</Tooltip>
+					{/* botão de fechar */}
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Button
@@ -205,6 +243,16 @@ export function TaskDetailsPanel({
 				confirmText="Sim, Deletar"
 				cancelText="Não, Cancelar"
 			/>
+
+			{/* Modal de Edição */}
+			{showEditModal && (
+				<EditTaskModal
+					isOpen={showEditModal}
+					onClose={handleCloseEditModal}
+					task={task} // Passa os dados da tarefa para o modal
+					onTaskUpdated={handleTaskEdited} // Callback para quando a tarefa for atualizada
+				/>
+			)}
 		</Card>
 	);
 }

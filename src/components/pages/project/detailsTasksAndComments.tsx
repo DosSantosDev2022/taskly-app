@@ -13,6 +13,18 @@ export function DetailsTasksAndComments() {
 		(state) => state.updateSelectedTaskStatus,
 	);
 
+	const updateSelectedTaskDetails = useProjectDetailsStore(
+		(state) => state.updateSelectedTaskDetails,
+	);
+
+	const handleTaskUpdated = (updatedTaskDetails: {
+		title: string;
+		description: string | null;
+	}) => {
+		// Chama a ação do Zustand para atualizar os detalhes da tarefa selecionada
+		updateSelectedTaskDetails(updatedTaskDetails);
+	};
+
 	return (
 		<div className="sticky top-24 space-y-6 border p-4 rounded-lg bg-card text-card-foreground shadow-sm">
 			{selectedItem?.type === "task" && (
@@ -21,6 +33,7 @@ export function DetailsTasksAndComments() {
 					onClose={clearSelection}
 					onTaskDeleted={clearSelection} // Limpa a seleção após deletar
 					onUpdateStatus={updateSelectedTaskStatus}
+					onTaskUpdated={handleTaskUpdated}
 				/>
 			)}
 
