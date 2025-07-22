@@ -11,3 +11,6 @@ export * from "./project/detailsTasksAndComments";
 export * from "./project/wrapperLists";
 export * from "./project/forms/editProjectForm";
 export * from "./project/statusButtonProject";
+
+export * from "./clients/forms/addClientForm";
+export * from "./clients/clientTable";

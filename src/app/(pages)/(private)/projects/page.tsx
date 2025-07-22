@@ -12,6 +12,7 @@ import { getProjects } from "@/services/project";
 
 export default async function ProjectsPage() {
 	const projects = await getProjects();
+
 	return (
 		<div className="container mx-auto mt-20 p-4">
 			<div className="grid grid-cols-1 md:grid-cols-12 gap-8">

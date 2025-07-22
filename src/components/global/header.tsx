@@ -47,6 +47,16 @@ export function Header() {
 								</NavigationMenuLink>
 							</NavigationMenuItem>
 
+							{/* Item de Navegação: Clientes */}
+							<NavigationMenuItem>
+								<NavigationMenuLink
+									href="/clients"
+									className={navigationMenuTriggerStyle()}
+								>
+									Clientes
+								</NavigationMenuLink>
+							</NavigationMenuItem>
+
 							{/* Item de Navegação: Briefings */}
 							<NavigationMenuItem>
 								<NavigationMenuLink
