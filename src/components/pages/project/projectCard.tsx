@@ -1,5 +1,3 @@
-// src/components/ProjectCard.tsx (exemplo)
-// biome-ignore assist/source/organizeImports: <explanation>
 import {
 	Button,
 	Card,
@@ -34,12 +32,8 @@ export const ProjectCard = ({ project }: { project: Project }) => {
 				</p>
 			</CardContent>
 			<CardFooter>
-				{/*
-          BEST PRACTICE: Use 'asChild' para que o Button renderize como o seu filho (o Link),
-          mas mantendo todo o estilo do botão. Isso é ótimo para acessibilidade e SEO.
-        */}
 				<Button asChild className="w-full">
-					<Link href={`/projects/${project.id}`}>Ver mais</Link>
+					<Link href={`/projects/project/${project.id}`}>Ver mais</Link>
 				</Button>
 			</CardFooter>
 		</Card>

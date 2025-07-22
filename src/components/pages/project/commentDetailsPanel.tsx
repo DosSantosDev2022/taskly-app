@@ -17,7 +17,7 @@ import type { Comment } from "@prisma/client";
 import { Edit, Trash, X } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
-import { EditCommentForm } from "./editCommentForm";
+import { EditCommentForm } from "@/components/pages";
 
 // --- Tipagem das Props ---
 /**

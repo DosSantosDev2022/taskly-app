@@ -38,7 +38,7 @@ export async function getProjects() {
 			},
 		});
 
-		console.log("Projetos buscados do DB:", projects);
+		/* console.log("Projetos buscados do DB:", projects); */
 		return projects;
 	} catch (error) {
 		console.error("Erro ao buscar projetos:", error);
@@ -93,7 +93,7 @@ export async function getProjectById(id: string) {
 			return null; // Retorna null se o projeto não for encontrado ou não pertencer ao usuário
 		}
 
-		console.log(`Projeto com ID ${id} buscado do DB:`, project);
+		/* console.log(`Projeto com ID ${id} buscado do DB:`, project); */
 		return project;
 	} catch (error) {
 		console.error(`Erro ao buscar projeto com ID ${id}:`, error);

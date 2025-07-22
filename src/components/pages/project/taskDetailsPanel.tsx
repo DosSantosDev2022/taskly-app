@@ -18,7 +18,7 @@ import { getStatusLabel, getStatusStyles } from "@/utils";
 import { toggleTaskStatus } from "@/actions/task/toggleTaskStatus";
 import { deleteTask } from "@/actions/task/deleteTask";
 import type { ProjectStatus as PrismaProjectStatus } from "@prisma/client";
-import { EditTaskModal } from "./editTask";
+import { EditTaskModal } from "@/components/pages";
 
 // --- Tipagens ---
 /**

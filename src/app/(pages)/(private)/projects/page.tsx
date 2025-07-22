@@ -20,7 +20,9 @@ export default async function ProjectsPage() {
 					<div className="flex items-center justify-between w-full  mb-6">
 						<h2 className="text-2xl font-bold tracking-tight">Meus projetos</h2>
 						<Button asChild>
-							<Link href={"/projects/add"}>Adicionar novo projeto</Link>
+							<Link href={"/projects/project/creation"}>
+								Adicionar novo projeto
+							</Link>
 						</Button>
 					</div>
 
