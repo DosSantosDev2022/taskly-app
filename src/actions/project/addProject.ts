@@ -1,21 +1,42 @@
-// src/actions/project.ts
 "use server";
+
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import db from "@/lib/prisma";
-// MUDANÇA AQUI: Importar o schema do local correto
-import { formSchema } from "@/@types/forms/projectSchema"; // <--- Corrigido o caminho de importação
+import { formSchema } from "@/@types/forms/projectSchema";
 import type { ProjectType, ProjectStatus } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
-export async function createProject(formData: FormData) {
+/**
+ * @interface OurActionResponse
+ * @description Define a estrutura de resposta padrão para as Server Actions.
+ * @property {boolean} success - Indica se a operação foi bem-sucedida.
+ * @property {string} [message] - Mensagem descritiva do resultado da operação (sucesso ou erro geral).
+ * @property {Record<string, string>} [errors] - Objeto contendo mensagens de erro por campo para validação.
+ */
+interface OurActionResponse {
+	success: boolean;
+	message?: string;
+	errors?: Record<string, string>;
+}
+
+// A função agora retorna Promise<OurActionResponse>
+export async function createProject(
+	formData: FormData,
+): Promise<OurActionResponse> {
+	// Log para depuração
+	console.log("Server Action: createProject iniciada.");
+
 	const session = await getServerSession(authOptions);
 
 	if (!session?.user?.id) {
-		throw new Error("Usuário não autenticado.");
+		console.error("Server Action: Usuário não autenticado.");
+		// Em vez de throw new Error, retorne um objeto de erro
+		return { success: false, message: "Usuário não autenticado." };
 	}
 	const userId = session.user.id;
+	console.log("Server Action: Usuário autenticado, ID:", userId);
 
 	const name = formData.get("name") as string;
 	const description = formData.get("description") as string;
@@ -24,11 +45,28 @@ export async function createProject(formData: FormData) {
 	const deadlineDateString = formData.get("deadlineDate") as string | null;
 	const clientId = formData.get("clientId") as string | null;
 
-	const parsedType = type.toUpperCase() as ProjectType;
-	const parsedStatus = status.toUpperCase() as ProjectStatus;
+	// Garanta que os valores do enum correspondam ao Prisma (maiúsculas)
+	const parsedType = type?.toUpperCase() as ProjectType;
+	const parsedStatus = status?.toUpperCase() as ProjectStatus;
 
-	const deadlineDate = deadlineDateString ? new Date(deadlineDateString) : null;
+	// Zod, por padrão, espera `undefined` para campos opcionais que não foram fornecidos,
+	// e não `null`. Ajuste aqui para compatibilidade.
+	const deadlineDate = deadlineDateString
+		? new Date(deadlineDateString)
+		: undefined;
+	const parsedClientId = clientId || undefined; // Converte string vazia ou null para undefined
 
+	// Log dos dados recebidos antes da validação Zod
+	console.log("Server Action: Dados recebidos para validação:", {
+		name,
+		description,
+		type: parsedType,
+		status: parsedStatus,
+		deadlineDate,
+		clientId: parsedClientId,
+	});
+
+	// Bloco try-catch para capturar erros durante a validação e interação com o DB
 	try {
 		const validatedFields = formSchema.safeParse({
 			name,
@@ -36,15 +74,28 @@ export async function createProject(formData: FormData) {
 			type: parsedType,
 			status: parsedStatus,
 			deadlineDate: deadlineDate,
-			clientId: clientId || null,
+			clientId: parsedClientId, // Usar parsedClientId aqui
 		});
 
 		if (!validatedFields.success) {
-			console.error(
-				"Validação falhou:",
-				validatedFields.error.flatten().fieldErrors,
-			);
-			throw new Error("Dados inválidos para o projeto.");
+			const fieldErrors = validatedFields.error.flatten().fieldErrors;
+			const formattedErrors: Record<string, string> = {};
+
+			// Mapeia os erros para um formato simples
+			Object.keys(fieldErrors).forEach((key) => {
+				const errorMessages = fieldErrors[key as keyof typeof fieldErrors];
+				if (errorMessages && errorMessages.length > 0) {
+					formattedErrors[key] = errorMessages[0];
+				}
+			});
+
+			console.error("Server Action: Validação Zod falhou:", formattedErrors);
+			// Retorne o objeto de erro com os campos específicos
+			return {
+				success: false,
+				message: "Dados do formulário inválidos. Verifique os campos.",
+				errors: formattedErrors,
+			};
 		}
 
 		const {
@@ -56,7 +107,9 @@ export async function createProject(formData: FormData) {
 			clientId: validatedClientId,
 		} = validatedFields.data;
 
-		console.log("Dados que serão enviados ao Prisma para criar o projeto:");
+		console.log(
+			"Server Action: Dados que serão enviados ao Prisma para criar o projeto:",
+		);
 		console.log({
 			name: validatedName,
 			description: validatedDescription,
@@ -79,11 +132,46 @@ export async function createProject(formData: FormData) {
 			},
 		});
 
+		console.log(
+			"Server Action: Projeto criado com sucesso! Revalidando paths...",
+		);
 		revalidatePath("/projects");
 		revalidatePath("/dashboard");
-		redirect("/projects"); // Adicionado um redirecionamento após o sucesso
-	} catch (error) {
-		console.error("Erro ao criar projeto:", error);
-		throw new Error("Falha ao criar o projeto.");
+
+		return { success: true, message: "Projeto criado com sucesso!" };
+	} catch (error: unknown) {
+		// Capture o tipo 'unknown' para tratamento seguro
+		console.error("Server Action: Erro ao criar projeto:", error);
+
+		// Tratamento de erros específicos do Prisma
+		if (error instanceof PrismaClientKnownRequestError) {
+			if (error.code === "P2003") {
+				// Foreign key constraint failed (e.g., clientId does not exist)
+				return {
+					success: false,
+					message: "O cliente selecionado não existe ou é inválido.",
+					errors: { clientId: "Cliente inválido." },
+				};
+			}
+			// Adicione outros códigos de erro Prisma conforme a necessidade (ex: P2002 para unique constraint)
+			return {
+				success: false,
+				message: `Erro no banco de dados: ${error.message}`,
+			};
+		}
+
+		// Erros genéricos ou de tipo 'Error'
+		if (error instanceof Error) {
+			return {
+				success: false,
+				message: error.message || "Falha ao criar o projeto.",
+			};
+		}
+
+		// Para erros totalmente inesperados
+		return {
+			success: false,
+			message: "Ocorreu um erro inesperado ao criar o projeto.",
+		};
 	}
 }
