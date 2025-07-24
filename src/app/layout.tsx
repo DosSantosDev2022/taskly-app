@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "../styles/globals.css";
-import { Header } from "@/components/global";
 import AuthProvider from "@/providers/authProvider";
 import { ToastContainer } from "react-toastify";
 
@@ -26,7 +25,6 @@ export default function RootLayout({
 				className={`${poppins.className} bg-background text-foreground dark scrollbar-custom antialiased`}
 			>
 				<AuthProvider>
-					<Header />
 					{children}
 					<ToastContainer />
 				</AuthProvider>

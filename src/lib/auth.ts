@@ -86,8 +86,10 @@ export const authOptions: AuthOptions = {
 	secret: process.env.NEXTAUTH_SECRET,
 	session: {
 		strategy: "jwt",
+		maxAge: 30 * 24 * 60 * 60, // 30 dias em segundos (30 dias * 24 horas * 60 minutos * 60 segundos)
+		updateAge: 24 * 60 * 60, // A sessão será atualizada se o usuário estiver ativo a cada 24 horas
 	},
-	// pages: {
-	//   signIn: '/auth/signin', // Exemplo de página de login customizada
-	// },
+	pages: {
+		signIn: "/auth/login", // página de login customizada
+	},
 };

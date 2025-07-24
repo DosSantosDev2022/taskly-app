@@ -14,3 +14,6 @@ export * from "./project/statusButtonProject";
 
 export * from "./clients/forms/addClientForm";
 export * from "./clients/clientTable";
+
+export * from "./auth/formLogin";
+export * from "./auth/formRegister";

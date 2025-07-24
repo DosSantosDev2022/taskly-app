@@ -67,7 +67,7 @@ const UserAvatar = () => {
 						<Button
 							variant="ghost"
 							className="w-full justify-start text-left"
-							onClick={() => signOut({ callbackUrl: "/" })}
+							onClick={() => signOut({ callbackUrl: "/login" })}
 						>
 							Sair
 						</Button>

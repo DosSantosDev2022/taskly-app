@@ -1,9 +1,9 @@
 // src/app/login/page.tsx
-import { FormLogin } from "@/components/pages";
+import { FormRegister } from "@/components/pages";
 import { ClipboardList } from "lucide-react";
-import Image from "next/image"; // Importar o componente Image do Next.js para otimização de imagens
+import Image from "next/image";
 
-export default function LoginPage() {
+export default function RegisterPage() {
 	return (
 		<div className="grid min-h-screen md:grid-cols-2">
 			{/* Lado esquerdo: Conteúdo visual e textual */}
@@ -28,12 +28,13 @@ export default function LoginPage() {
 						{/* Substitua pelo nome da sua plataforma */}
 					</div>
 					<h1 className="mb-2 text-4xl font-extrabold tracking-tight lg:text-5xl">
-						Bem-vindo de volta !
+						Faça seu cadastro agora !
 					</h1>
 					<p className="text-xl leading-relaxed text-zinc-300">
-						Acesse seus projetos e gerencie suas tarefas de forma eficiente.
+						E tenha acesse a uma plataforma incrível para gerenciar seus
+						projetos.
 					</p>
-					<p className="mt-4 text-sm text-zinc-400">
+					<p className="mt-4 text-sm text-muted-foreground">
 						Descubra um novo nível de produtividade.
 					</p>
 				</div>
@@ -41,7 +42,7 @@ export default function LoginPage() {
 
 			{/* Lado direito: Formulário de Login */}
 			<div className="flex items-center justify-center p-4">
-				<FormLogin />
+				<FormRegister />
 			</div>
 		</div>
 	);
