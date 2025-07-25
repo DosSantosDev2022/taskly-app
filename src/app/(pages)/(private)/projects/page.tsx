@@ -1,17 +1,41 @@
 import Link from "next/link";
-import { ProjectCard } from "@/components/pages";
-import {
-	Button,
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui";
+import { ProjectCard, ProjectFilters } from "@/components/pages";
+import { Button } from "@/components/ui";
 import { getProjects } from "@/services/project";
+import { Plus } from "lucide-react";
+import type { ProjectStatusType } from "@/utils";
+import type { ProjectType } from "@prisma/client";
+import { PaginationComponent } from "@/components/global";
 
-export default async function ProjectsPage() {
-	const projects = await getProjects();
+// Define os tipos para os parâmetros de busca esperados
+interface ProjectsPageProps {
+	searchParams: {
+		type?: ProjectType;
+		status?: ProjectStatusType;
+		page?: string;
+		pageSize?: string;
+	};
+}
+
+export default async function ProjectsPage({
+	searchParams,
+}: ProjectsPageProps) {
+	// Extrai os parâmetros de busca da URL
+	const { type, status } = searchParams;
+
+	const currentPage = Number(searchParams?.page) || 1;
+	const pageSize = Number(searchParams?.pageSize) || 5;
+	/* 	const searchQuery = searchParams?.query || ""; */
+
+	const { projects, totalProjects } = await getProjects({
+		type,
+		status,
+		page: currentPage,
+		pageSize,
+	});
+
+	// Calcula o número total de páginas
+	const totalPages = Math.ceil(totalProjects / pageSize);
 
 	return (
 		<div className="container mx-auto mt-20 p-4">
@@ -20,62 +44,40 @@ export default async function ProjectsPage() {
 				<div className="md:col-span-8">
 					<div className="flex items-center justify-between w-full  mb-6">
 						<h2 className="text-2xl font-bold tracking-tight">Meus projetos</h2>
-						<Button asChild>
+						<Button variant={"secondary"} asChild>
 							<Link href={"/projects/project/creation"}>
-								Adicionar novo projeto
+								Novo projeto
+								<Plus />
 							</Link>
 						</Button>
 					</div>
 
 					{/* Grid para os cards de projetos */}
-					{/* Este grid é responsivo DENTRO da coluna principal */}
-					<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+					<div className="grid grid-cols-1  gap-6">
 						{/* Usamos .map() para percorrer os dados e criar um card para cada projeto */}
 						{projects.map((project) => (
 							<ProjectCard key={project.id} project={project} />
 						))}
+
+						{/* Componente de Paginação */}
+						{totalProjects > pageSize && ( // Só mostra a paginação se houver mais clientes que o tamanho da página
+							<div className="flex items-center justify-between mt-4">
+								<span className="text-sm text-muted-foreground">
+									Total de projetos: {totalProjects}
+								</span>
+								<PaginationComponent
+									currentPage={currentPage}
+									totalPages={totalPages}
+									pageSize={pageSize}
+								/>
+							</div>
+						)}
 					</div>
 				</div>
 
 				{/* Coluna Lateral: Filtros */}
-				<div className="md:col-span-4">
-					<div className="sticky top-20 p-4 border rounded-lg bg-card">
-						<h3 className="text-lg font-semibold mb-4">Navegue por tipo</h3>
-
-						<div className="space-y-4">
-							{/* Filtro por Tipo de Projeto */}
-							<div>
-								<span className="text-sm font-medium">Tipo de projeto</span>
-								<Select>
-									<SelectTrigger>
-										<SelectValue placeholder="Selecione um tipo" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="web">Web</SelectItem>
-										<SelectItem value="mobile">Mobile</SelectItem>
-										<SelectItem value="desktop">Desktop</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-
-							{/* Filtro por Subtipo */}
-							<div>
-								<span className="text-sm font-medium">Subtipo</span>
-								<Select>
-									<SelectTrigger>
-										<SelectValue placeholder="Selecione um subtipo" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="e-commerce">E-commerce</SelectItem>
-										<SelectItem value="produtividade">Produtividade</SelectItem>
-										<SelectItem value="marketing">Marketing</SelectItem>
-										<SelectItem value="conteudo">Conteúdo</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-						</div>
-					</div>
-				</div>
+				<ProjectFilters />
 			</div>
 		</div>
 	);

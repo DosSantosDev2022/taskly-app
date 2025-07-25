@@ -1,8 +1,17 @@
 import { authOptions } from "@/lib/auth";
 import db from "@/lib/prisma";
+import type { ProjectStatus, ProjectType } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
-export async function getProjects() {
+// Interface para os parâmetros de filtro
+interface GetProjectsFilters {
+	type?: ProjectType; // Assumindo que ProjectType é um Enum no Prisma
+	status?: ProjectStatus; // Assumindo que ProjectStatus é um Enum no Prisma
+	page?: number;
+	pageSize?: number;
+}
+
+export async function getProjects(filters?: GetProjectsFilters) {
 	try {
 		// Opcional: Você pode querer filtrar projetos por usuário logado
 		const session = await getServerSession(authOptions);
@@ -10,15 +19,44 @@ export async function getProjects() {
 		if (!session?.user?.id) {
 			console.warn("Tentativa de buscar projetos sem usuário autenticado.");
 			// Retorne um array vazio ou lance um erro, dependendo da sua regra de negócio
-			return [];
+			return {
+				projects: [],
+				totalProjects: 0,
+				currentPage: filters?.page || 1,
+				pageSize: filters?.pageSize || 10,
+			};
 		}
+
+		// Objeto 'where' para a consulta do Prisma
+		const whereClause: any = {
+			userId: session.user.id,
+		};
+
+		// Aplica o filtro por tipo, se fornecido
+		if (filters?.type) {
+			whereClause.type = filters.type;
+		}
+
+		// Aplica o filtro por status, se fornecido
+		if (filters?.status) {
+			whereClause.status = filters.status;
+		}
+
+		// Parâmetros de paginação
+
+		const page = filters?.page && filters.page > 0 ? filters.page : 1;
+		const pageSize =
+			filters?.pageSize && filters.pageSize > 0 ? filters.pageSize : 10;
+		const skip = (page - 1) * pageSize;
+
+		const totalProjects = await db.project.count({
+			where: whereClause,
+		});
 
 		// Busca todos os projetos no banco de dados.
 		// Incluímos a relação com o usuário e o cliente para exibir seus nomes, se necessário.
 		const projects = await db.project.findMany({
-			where: {
-				userId: session.user.id, // Filtra projetos pelo usuário logado
-			},
+			where: whereClause,
 			include: {
 				user: {
 					select: {
@@ -36,10 +74,17 @@ export async function getProjects() {
 			orderBy: {
 				createdAt: "desc", // Ordena os projetos pelos mais recentes primeiro
 			},
+			skip: skip,
+			take: pageSize,
 		});
 
 		/* console.log("Projetos buscados do DB:", projects); */
-		return projects;
+		return {
+			projects,
+			totalProjects,
+			currentPage: page,
+			pageSize,
+		};
 	} catch (error) {
 		console.error("Erro ao buscar projetos:", error);
 		// Em caso de erro, retorne um array vazio ou lance o erro para ser tratado no frontend

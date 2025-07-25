@@ -10,7 +10,7 @@ export const formSchema = z.object({
 		.min(2, "O nome do projeto deve ter pelo menos 2 caracteres."),
 	description: z
 		.string()
-		.max(500, "A descrição não pode ter mais de 500 caracteres."),
+		.max(5000, "A descrição não pode ter mais de 500 caracteres."),
 	type: z.enum(["WEB", "MOBILE", "SISTEMA"], {
 		error: "Selecione um tipo.",
 	}),

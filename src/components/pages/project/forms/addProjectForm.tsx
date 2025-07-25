@@ -1,7 +1,6 @@
 "use client";
 
 // Secao 1: Importacoes
-// -----------------------------------------------------------------------------
 import { type JSX, useCallback, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,9 +40,9 @@ import { cn } from "@/lib/utils"; // Função utilitária para classes Tailwind
 import { formSchema } from "@/@types/forms/projectSchema"; // Schema de validação Zod
 import { createProject } from "@/actions/project/addProject"; // Server Action
 import type { Client } from "@prisma/client"; // Tipo do Prisma
+import { useRouter } from "next/navigation";
 
 // Secao 2: Constantes e Enums (se aplicavel, extraidos de outros arquivos para reuso)
-// -----------------------------------------------------------------------------
 /**
  * @const PROJECT_TYPES
  * @description Array de objetos que representa os tipos de projeto disponiveis.
@@ -65,7 +64,7 @@ const PROJECT_STATUSES = [
 ] as const; // 'as const' para inferencia de tipo literal
 
 // Secao 3: Tipos e Interfaces
-// -----------------------------------------------------------------------------
+
 /**
  * @interface AddProjectFormProps
  * @description Propriedades para o componente AddProjectForm.
@@ -82,7 +81,6 @@ interface AddProjectFormProps {
 type ProjectFormValues = z.infer<typeof formSchema>;
 
 // Secao 4: Componente Principal
-// -----------------------------------------------------------------------------
 /**
  * @component AddProjectForm
  * @description Um componente de formulário para adicionar novos projetos.
@@ -93,7 +91,7 @@ type ProjectFormValues = z.infer<typeof formSchema>;
  */
 const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 	const [isPending, startTransition] = useTransition();
-
+	const router = useRouter();
 	const form = useForm<ProjectFormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -114,6 +112,8 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 	 * Fornece feedback ao usuário via toasts e reseta o formulário em caso de sucesso.
 	 * @param {ProjectFormValues} values - Os valores validados do formulário.
 	 */
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const onSubmit = useCallback(
 		async (values: ProjectFormValues) => {
 			// Cria um novo FormData para enviar os dados para a Server Action.
@@ -141,6 +141,7 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 							theme: "dark",
 						});
 						form.reset(); // Reseta o formulario para os valores padrao apos o sucesso.
+						router.push("/projects");
 					} else {
 						// Trata erros de validacao retornados pela Server Action.
 						if (result.errors) {

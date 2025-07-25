@@ -1,4 +1,4 @@
-import type { ProjectStatus, Task } from "@prisma/client";
+import { ProjectStatus, type Task } from "@prisma/client";
 
 function normalizeStatusString(statusString: string): string {
 	// Converte para maiúsculas e substitui espaços por underscores
@@ -86,3 +86,9 @@ export function getStatusProjectStyles(status: ProjectStatus): string {
 			return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
 	}
 }
+
+export type ProjectStatusType =
+	(typeof ProjectStatus)[keyof typeof ProjectStatus];
+
+export const projectStatusArray: ProjectStatusType[] =
+	Object.values(ProjectStatus);
