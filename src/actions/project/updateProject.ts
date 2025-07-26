@@ -29,6 +29,7 @@ export async function updateProject(projectId: string, formData: FormData) {
 				? new Date(formData.get("deadlineDate") as string)
 				: undefined,
 			clientId: formData.get("clientId") || undefined, // Garante undefined se vazio
+			price: parseFloat(formData.get("price") as string),
 		});
 
 		// Se a validação falhar, retorna os erros para o cliente
@@ -46,7 +47,7 @@ export async function updateProject(projectId: string, formData: FormData) {
 		}
 
 		// Extrai os dados validados
-		const { name, description, type, status, deadlineDate, clientId } =
+		const { name, description, type, status, deadlineDate, clientId, price } =
 			parsed.data;
 
 		// 2. Atualização do projeto no banco de dados via Prisma
@@ -57,6 +58,7 @@ export async function updateProject(projectId: string, formData: FormData) {
 				description,
 				type,
 				status,
+				price,
 				deadlineDate,
 				clientId,
 				updatedAt: new Date(), // Adiciona um timestamp de atualização

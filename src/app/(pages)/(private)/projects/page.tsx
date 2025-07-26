@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ProjectCard, ProjectFilters } from "@/components/pages";
 import { Button } from "@/components/ui";
-import { getProjects } from "@/services/project";
+import { getProjects } from "@/actions/project/getProject";
 import { Plus } from "lucide-react";
 import type { ProjectStatusType } from "@/utils";
 import type { ProjectType } from "@prisma/client";
@@ -33,6 +33,8 @@ export default async function ProjectsPage({
 		page: currentPage,
 		pageSize,
 	});
+
+	console.log("dados recebidos do getProjects:", projects);
 
 	// Calcula o número total de páginas
 	const totalPages = Math.ceil(totalProjects / pageSize);

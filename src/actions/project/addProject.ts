@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import db from "@/lib/prisma";
-import { formSchema } from "@/@types/forms/projectSchema";
-import type { ProjectType, ProjectStatus } from "@prisma/client";
+import { backendFormSchema } from "@/@types/forms/projectSchema";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
@@ -25,9 +24,6 @@ interface OurActionResponse {
 export async function createProject(
 	formData: FormData,
 ): Promise<OurActionResponse> {
-	// Log para depuração
-	console.log("Server Action: createProject iniciada.");
-
 	const session = await getServerSession(authOptions);
 
 	if (!session?.user?.id) {
@@ -36,7 +32,6 @@ export async function createProject(
 		return { success: false, message: "Usuário não autenticado." };
 	}
 	const userId = session.user.id;
-	console.log("Server Action: Usuário autenticado, ID:", userId);
 
 	const name = formData.get("name") as string;
 	const description = formData.get("description") as string;
@@ -44,10 +39,7 @@ export async function createProject(
 	const status = formData.get("status") as string;
 	const deadlineDateString = formData.get("deadlineDate") as string | null;
 	const clientId = formData.get("clientId") as string | null;
-
-	// Garanta que os valores do enum correspondam ao Prisma (maiúsculas)
-	const parsedType = type?.toUpperCase() as ProjectType;
-	const parsedStatus = status?.toUpperCase() as ProjectStatus;
+	const priceStr = formData.get("price");
 
 	// Zod, por padrão, espera `undefined` para campos opcionais que não foram fornecidos,
 	// e não `null`. Ajuste aqui para compatibilidade.
@@ -56,25 +48,16 @@ export async function createProject(
 		: undefined;
 	const parsedClientId = clientId || undefined; // Converte string vazia ou null para undefined
 
-	// Log dos dados recebidos antes da validação Zod
-	console.log("Server Action: Dados recebidos para validação:", {
-		name,
-		description,
-		type: parsedType,
-		status: parsedStatus,
-		deadlineDate,
-		clientId: parsedClientId,
-	});
-
 	// Bloco try-catch para capturar erros durante a validação e interação com o DB
 	try {
-		const validatedFields = formSchema.safeParse({
+		const validatedFields = backendFormSchema.safeParse({
 			name,
-			description,
-			type: parsedType,
-			status: parsedStatus,
+			description: description || undefined,
+			type,
+			status,
 			deadlineDate: deadlineDate,
 			clientId: parsedClientId, // Usar parsedClientId aqui
+			price: priceStr,
 		});
 
 		if (!validatedFields.success) {
@@ -105,20 +88,8 @@ export async function createProject(
 			status: validatedStatus,
 			deadlineDate: validatedDeadlineDate,
 			clientId: validatedClientId,
+			price: validatedPrice,
 		} = validatedFields.data;
-
-		console.log(
-			"Server Action: Dados que serão enviados ao Prisma para criar o projeto:",
-		);
-		console.log({
-			name: validatedName,
-			description: validatedDescription,
-			type: validatedType,
-			status: validatedStatus,
-			userId: userId,
-			deadlineDate: validatedDeadlineDate,
-			clientId: validatedClientId,
-		});
 
 		await db.project.create({
 			data: {
@@ -129,6 +100,7 @@ export async function createProject(
 				userId: userId,
 				deadlineDate: validatedDeadlineDate,
 				clientId: validatedClientId,
+				price: validatedPrice,
 			},
 		});
 

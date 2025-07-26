@@ -4,37 +4,32 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
+	Button,
+	Calendar,
 	Command,
 	CommandEmpty,
 	CommandGroup,
 	CommandInput,
 	CommandItem,
-} from "@/components/ui/command";
-import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
 	Form,
 	FormControl,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
+	Input,
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+	Textarea,
+} from "@/components/ui";
+
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils";
 import { formSchema } from "@/@types/forms/projectSchema";
@@ -43,16 +38,15 @@ import type z from "zod";
 import { updateProject } from "@/actions/project/updateProject";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import type { Client } from "@prisma/client";
+import { NumericFormat } from "react-number-format";
 
 // --- Tipagem de Dados ---
 /**
  * @interface Client
  * @description Define a estrutura básica de um objeto de cliente.
  */
-interface Client {
-	id: string;
-	name: string;
-}
 
 /**
  * @interface EditProjectFormProps
@@ -61,7 +55,7 @@ interface Client {
 interface EditProjectFormProps {
 	projectId: string; // ID do projeto a ser editado
 	defaultValues: z.infer<typeof formSchema>; // Valores iniciais do formulário, inferidos do schema Zod
-	clients: Client[]; // Lista de clientes disponíveis para seleção no combobox
+	clients?: Client[]; // Lista de clientes disponíveis para seleção no combobox
 }
 
 /**
@@ -110,7 +104,7 @@ export function EditProjectForm({
 		formData.append("description", values.description || "");
 		formData.append("type", values.type);
 		formData.append("status", values.status);
-
+		formData.append("price", values.price.toString());
 		// Converte a data de prazo para ISO string se existir
 		if (values.deadlineDate) {
 			formData.append("deadlineDate", values.deadlineDate.toISOString());
@@ -132,7 +126,7 @@ export function EditProjectForm({
 						autoClose: 3000,
 						theme: "dark",
 					});
-					router.push(`/projects/${projectId}`); // Redireciona para a página de detalhes do projeto
+					router.push(`/projects/project/${projectId}`); // Redireciona para a página de detalhes do projeto
 				} else {
 					// Se a Server Action retornar um erro ou result.success for falso
 					toast.error(result?.message || "Erro ao editar projeto!", {
@@ -330,6 +324,42 @@ export function EditProjectForm({
 					)}
 				/>
 
+				{/* Campo: Preço do projeto */}
+				<FormField
+					name="price"
+					control={form.control}
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Preço do Projeto</FormLabel>
+							<FormControl>
+								<NumericFormat
+									value={field.value}
+									onBlur={field.onBlur}
+									name={field.name}
+									customInput={Input} // Usa seu componente Input da Shadcn/UI
+									thousandSeparator="." // Separador de milhar no Brasil (ponto)
+									decimalSeparator="," // Separador decimal no Brasil (vírgula)
+									prefix="R$ " // Prefixo de moeda
+									decimalScale={2} // Duas casas decimais
+									fixedDecimalScale={true} // Sempre mostra duas casas decimais
+									allowNegative={false} // Não permite números negativos (já validado pelo Zod também)
+									onValueChange={(values) => {
+										const numValue = values.floatValue; // NumericFormat já dá o número puro aqui
+
+										// GARANTINDO que o valor passado para o RHF é um NUMBER.
+										// Se for undefined (campo vazio), passa 0.
+										field.onChange(numValue === undefined ? 0 : numValue);
+									}}
+									placeholder="Ex: R$ 1.250,00"
+									disabled={isPending}
+									aria-label="Preço do projeto"
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
 				{/* Campo: Cliente (Combobox) */}
 				<FormField
 					name="clientId"
@@ -351,7 +381,7 @@ export function EditProjectForm({
 										>
 											<span className="truncate">
 												{field.value
-													? clients.find((c) => c.id === field.value)?.name
+													? clients?.find((c) => c.id === field.value)?.name
 													: "Selecione um cliente"}
 											</span>
 											<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -365,7 +395,7 @@ export function EditProjectForm({
 										<CommandInput placeholder="Buscar cliente..." />
 										<CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
 										<CommandGroup>
-											{clients.map((client) => (
+											{clients?.map((client) => (
 												<CommandItem
 													value={client.name} // Use client.name para a busca no CommandInput
 													key={client.id}
@@ -439,9 +469,19 @@ export function EditProjectForm({
 				/>
 
 				{/* Botão de Submissão do Formulário */}
-				<Button type="submit" className="w-full md:w-auto" disabled={isPending}>
-					{isPending ? "Atualizando..." : "Atualizar Projeto"}
-				</Button>
+				<div className="flex items-center justify-start gap-2">
+					<Button
+						type="submit"
+						variant={"secondary"}
+						className="w-full md:w-auto"
+						disabled={isPending}
+					>
+						{isPending ? "Atualizando..." : "Atualizar Projeto"}
+					</Button>
+					<Button type="button" variant={"secondary"} asChild>
+						<Link href={`/projects/project/${projectId}`}>Voltar</Link>
+					</Button>
+				</div>
 			</form>
 		</Form>
 	);

@@ -9,7 +9,7 @@ import type z from "zod";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "react-toastify";
-
+import { NumericFormat } from "react-number-format";
 import {
 	Button,
 	Calendar,
@@ -53,16 +53,6 @@ const PROJECT_TYPES = [
 	{ value: "SISTEMA", label: "Sistema" },
 ] as const; // 'as const' para inferencia de tipo literal
 
-/**
- * @const PROJECT_STATUSES
- * @description Array de objetos que representa os status de projeto disponiveis.
- */
-const PROJECT_STATUSES = [
-	{ value: "PENDING", label: "Pendente" },
-	{ value: "IN_PROGRESS", label: "Em Andamento" },
-	{ value: "COMPLETED", label: "Concluído" },
-] as const; // 'as const' para inferencia de tipo literal
-
 // Secao 3: Tipos e Interfaces
 
 /**
@@ -92,6 +82,7 @@ type ProjectFormValues = z.infer<typeof formSchema>;
 const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 	const [isPending, startTransition] = useTransition();
 	const router = useRouter();
+
 	const form = useForm<ProjectFormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -101,6 +92,7 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 			status: "PENDING", // Valor padrao para o status do projeto
 			clientId: undefined,
 			deadlineDate: undefined,
+			price: 0,
 		},
 		mode: "onBlur", // Valida no blur para melhor UX
 	});
@@ -122,6 +114,14 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 			formData.append("description", values.description || ""); // Garante string vazia se nulo/indefinido
 			formData.append("type", values.type);
 			formData.append("status", values.status);
+			formData.append(
+				"price",
+				values.price.toLocaleString("en-US", {
+					useGrouping: false, // Não usa separador de milhar
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2,
+				}),
+			);
 			if (values.deadlineDate) {
 				formData.append("deadlineDate", values.deadlineDate.toISOString()); // Converte Data para ISO string
 			}
@@ -175,7 +175,7 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 				}
 			});
 		},
-		[form],
+		[form, router],
 	);
 
 	return (
@@ -211,8 +211,8 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 						)}
 					/>
 
-					{/* Campos: Tipo de Projeto e Data de Prazo */}
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+					{/* Campos: Tipo de Projeto e Data de Prazo e preço */}
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 						{/* Campo: Tipo de Projeto */}
 						<FormField
 							name="type"
@@ -293,40 +293,43 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 								</FormItem>
 							)}
 						/>
-					</div>
 
-					{/* Campo: Status do Projeto */}
-					<FormField
-						name="status"
-						control={form.control}
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Status do Projeto</FormLabel>
-								<Select
-									onValueChange={field.onChange}
-									defaultValue={field.value}
-									disabled={isPending}
-								>
+						{/* Campo: Preço do projeto */}
+						<FormField
+							name="price"
+							control={form.control}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Preço do Projeto</FormLabel>
 									<FormControl>
-										<SelectTrigger
-											className="w-full"
-											aria-label="Selecione o status do projeto"
-										>
-											<SelectValue placeholder="Selecione o status atual" />
-										</SelectTrigger>
+										<NumericFormat
+											value={field.value}
+											onBlur={field.onBlur}
+											name={field.name}
+											customInput={Input} // Usa seu componente Input da Shadcn/UI
+											thousandSeparator="." // Separador de milhar no Brasil (ponto)
+											decimalSeparator="," // Separador decimal no Brasil (vírgula)
+											prefix="R$ " // Prefixo de moeda
+											decimalScale={2} // Duas casas decimais
+											fixedDecimalScale={true} // Sempre mostra duas casas decimais
+											allowNegative={false} // Não permite números negativos (já validado pelo Zod também)
+											onValueChange={(values) => {
+												const numValue = values.floatValue; // NumericFormat já dá o número puro aqui
+
+												// GARANTINDO que o valor passado para o RHF é um NUMBER.
+												// Se for undefined (campo vazio), passa 0.
+												field.onChange(numValue === undefined ? 0 : numValue);
+											}}
+											placeholder="Ex: R$ 1.250,00"
+											disabled={isPending}
+											aria-label="Preço do projeto"
+										/>
 									</FormControl>
-									<SelectContent>
-										{PROJECT_STATUSES.map((status) => (
-											<SelectItem key={status.value} value={status.value}>
-												{status.label}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
 
 					{/* Campo: Cliente (Combobox) */}
 					<FormField

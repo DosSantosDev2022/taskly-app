@@ -7,8 +7,14 @@ import type {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AddTask, AddComment } from "@/components/pages";
 import { useProjectDetailsStore } from "@/store";
-import { getStatusLabel, getStatusStyles } from "@/utils";
-import { Button } from "@/components/ui";
+import {
+	formatDate,
+	formatStatus,
+	getStatusLabel,
+	getStatusStyles,
+} from "@/utils";
+import { Button, Progress } from "@/components/ui";
+import { ClipboardList, Image, MessageCircleMore } from "lucide-react";
 
 // --- Tipagem de Dados ---
 /**
@@ -19,6 +25,7 @@ interface WrapperListsProps {
 	projectId: string; // ID do projeto atual
 	tasks: PrismaTask[]; // Lista de tarefas do Prisma
 	comments: PrismaComment[]; // Lista de comentários do Prisma
+	projectProgress: number;
 }
 
 // --- Funções Utilitárias Locais (se necessário, podem ser movidas para 'utils') ---
@@ -30,21 +37,6 @@ interface WrapperListsProps {
  * @deprecated Considerar mover esta lógica para `getStatusLabel` e `getStatusStyles` diretamente
  * se as funções utilitárias já estiverem lidando com os valores brutos do Prisma.
  */
-// A função formatStatus foi mantida por ser usada no escopo do componente.
-// No entanto, se `getStatusLabel` e `getStatusStyles` já esperam o status bruto do Prisma,
-// esta função se torna redundante e pode ser removida. Vou mantê-la como está, mas com a observação.
-const formatStatus = (status: PrismaTask["status"]): string => {
-	switch (status) {
-		case "PENDING":
-			return "PENDENTE";
-		case "IN_PROGRESS":
-			return "EM_ANDAMENTO";
-		case "COMPLETED":
-			return "CONCLUÍDA";
-		default:
-			return status; // Retorna o próprio status caso não haja mapeamento
-	}
-};
 
 /**
  * @component WrapperLists
@@ -55,6 +47,7 @@ export function WrapperLists({
 	tasks,
 	comments,
 	projectId,
+	projectProgress,
 }: WrapperListsProps) {
 	// --- Estados e Funções do Zustand Store ---
 	// Seleciona as ações `selectTask` e `selectComment` do store Zustand.
@@ -70,7 +63,8 @@ export function WrapperLists({
 			{/* Seção de Imagens do Projeto */}
 			<Card className="rounded-lg shadow-sm">
 				<CardHeader>
-					<CardTitle className="text-xl font-semibold">
+					<CardTitle className="flex items-center gap-1 text-xl font-semibold">
+						<Image />
 						Imagens do Projeto
 					</CardTitle>
 				</CardHeader>
@@ -82,12 +76,28 @@ export function WrapperLists({
 				</CardContent>
 			</Card>
 
+			<Card>
+				{/* Barra de Progresso do Projeto */}
+				<div className="p-4">
+					<span className="font-bold text-foreground mr-2 text-base">
+						Progresso:
+					</span>
+					<Progress
+						className="h-5 bg-gray-200 dark:bg-gray-700 [&>div]:bg-green-500" // Adicionado cores para a barra de progresso
+						value={projectProgress}
+						showValue={true} // Assume que `Progress` suporta esta prop para mostrar o valor em porcentagem
+						aria-label={`Progresso do projeto: ${projectProgress}%`} // Acessibilidade
+					/>
+				</div>
+			</Card>
+
 			{/* Seção de Tarefas do Projeto */}
 			<Card className="rounded-lg shadow-sm">
 				<CardHeader>
 					<div className="flex flex-col sm:flex-row border border-border rounded-md items-center justify-between p-3 gap-2">
-						<CardTitle className="text-xl font-semibold mb-0 sm:mb-0">
-							Tarefas do Projeto
+						<CardTitle className="flex items-center gap-1 text-xl font-semibold mb-0 sm:mb-0">
+							<ClipboardList />
+							Tarefas
 						</CardTitle>
 						<AddTask projectId={projectId} />
 					</div>
@@ -107,7 +117,7 @@ export function WrapperLists({
 									className="w-full flex justify-between items-center p-3 border rounded-md cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1"
 									aria-label={`Editar tarefa: ${task.title}`}
 								>
-									<span className="font-medium text-base truncate pr-2">
+									<span className="font-light text-sm truncate pr-2 text-muted-foreground">
 										{task.title}
 									</span>
 									{/** biome-ignore lint/a11y/useAriaPropsSupportedByRole: <explanation> */}
@@ -135,8 +145,9 @@ export function WrapperLists({
 			<Card className="rounded-lg shadow-sm">
 				<CardHeader>
 					<div className="flex flex-col sm:flex-row border border-border rounded-md items-center justify-between p-3 gap-2">
-						<CardTitle className="text-xl font-semibold mb-0 sm:mb-0">
-							Comentários do Projeto
+						<CardTitle className="flex items-center gap-1 text-xl font-semibold mb-0 sm:mb-0">
+							<MessageCircleMore />
+							Comentários
 						</CardTitle>
 						<AddComment projectId={projectId} />
 					</div>
@@ -153,10 +164,16 @@ export function WrapperLists({
 									key={comment.id}
 									variant={"ghost"}
 									onClick={() => selectComment(comment)}
-									className="w-full flex flex-col items-start p-3 border rounded-md cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1 text-left line-clamp-1"
+									className="w-full h-14 flex flex-col items-center border rounded-md cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1 text-left line-clamp-1"
 									aria-label={`Visualizar comentário: ${comment.content.substring(0, 50)}...`}
 								>
-									<p className="text-sm text-foreground line-clamp-3">
+									<span className="text-xs font-light text-muted-foreground">
+										<span className="text-bold text-foreground">
+											Comentado em:
+										</span>{" "}
+										{formatDate(comment.createdAt)}
+									</span>
+									<p className="text-sm text-muted-foreground truncate line-clamp-2">
 										{comment.content}
 									</p>
 								</Button>

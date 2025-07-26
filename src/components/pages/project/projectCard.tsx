@@ -13,14 +13,14 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui";
+import type { ProjectForClient } from "@/actions/project/getProject";
 import { formatDate } from "@/utils";
-import type { Project } from "@prisma/client";
 import { FolderKanban, Trash, View } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
 
-export const ProjectCard = ({ project }: { project: Project }) => {
+export const ProjectCard = ({ project }: { project: ProjectForClient }) => {
 	const [isDeleting, startDeleteTransition] = useTransition();
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false); // Controla a visibilidade do diálogo de confirmação
 

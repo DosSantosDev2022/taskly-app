@@ -4,12 +4,14 @@ import {
 	CardContent,
 	CardHeader,
 	CardTitle,
-	Progress,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
 } from "@/components/ui/index";
 import { notFound } from "next/navigation";
-import { Calendar, SquarePen } from "lucide-react";
+import { Calendar, CircleDollarSign, FileText, SquarePen } from "lucide-react";
 import { format } from "date-fns";
-import { getProjectById } from "@/services/project";
+import { getProjectById } from "@/actions/project/getProject";
 import {
 	WrapperLists,
 	DetailsTasksAndComments,
@@ -18,6 +20,7 @@ import {
 import { getTaskProgress } from "@/utils";
 import Link from "next/link";
 import { ptBR } from "date-fns/locale";
+import { formatPrice } from "@/utils/formatPrice";
 
 // --- Tipagem das Props da Página ---
 /**
@@ -43,7 +46,6 @@ export default async function ProjectDetailsPage({
 	// 1. Busca dos Dados do Projeto (Server Side)
 	const project = await getProjectById(params.id);
 
-	// Se o projeto não for encontrado, redireciona para a página 404
 	if (!project) {
 		notFound();
 	}
@@ -69,32 +71,27 @@ export default async function ProjectDetailsPage({
 								className="shrink-0" // Evita que o botão encolha em telas pequenas
 								aria-label={`Editar projeto ${project.name}`} // Acessibilidade
 							>
-								<Link href={`/projects/edit/${project.id}`}>
+								<Link href={`/projects/project/edition/${project.id}`}>
 									<SquarePen className="h-5 w-5" />
 								</Link>
 							</Button>
 						</div>
 
 						{/* Tipo do Projeto */}
-						<div className="flex items-center gap-2 mt-2 text-base">
-							<span className="font-bold text-foreground mr-1">Tipo:</span>
-							<p className="text-muted-foreground">
-								{project.type}{" "}
-								{/* Removido o `project.type - project.type` duplicado */}
-							</p>
-						</div>
-
-						{/* Barra de Progresso do Projeto */}
-						<div className="mt-4">
-							<span className="font-bold text-foreground mr-2 text-base">
-								Progresso:
+						<div className="flex flex-col items-start gap-2 mt-2 text-base">
+							<span className="font-bold text-foreground">
+								Cliente:
+								<span className="text-muted-foreground text-sm font-light ml-1">
+									{project.client?.name}
+								</span>
 							</span>
-							<Progress
-								className="h-5 bg-gray-200 dark:bg-gray-700 [&>div]:bg-green-500" // Adicionado cores para a barra de progresso
-								value={projectProgress}
-								showValue={true} // Assume que `Progress` suporta esta prop para mostrar o valor em porcentagem
-								aria-label={`Progresso do projeto: ${projectProgress}%`} // Acessibilidade
-							/>
+
+							<span className="font-bold text-foreground">
+								Tipo:
+								<span className="text-muted-foreground text-sm font-light ml-1">
+									{project.type}
+								</span>
+							</span>
 						</div>
 					</CardHeader>
 					<CardContent>
@@ -143,37 +140,43 @@ export default async function ProjectDetailsPage({
 					</CardContent>
 				</Card>
 
-				{/* Seção de Conteúdos Adicionais (Esqueleto para futuras implementações) */}
-				{/* Seção "Problema" */}
-				<Card className="rounded-lg shadow-sm p-4">
-					<h2 className="font-bold text-xl">Problema</h2>
-					<p className="text-muted-foreground mt-2">
-						Descreva o problema que o projeto busca resolver. (Em
-						desenvolvimento)
-					</p>
-				</Card>
-
 				{/* Seção "Tipo" e "Público Alvo" */}
 				<div className="flex flex-col sm:flex-row items-stretch gap-4">
 					<Card className="rounded-lg shadow-sm p-4 w-full">
-						<h2 className="font-bold text-xl">Tipo de Projeto</h2>
-						<p className="text-muted-foreground mt-2">
-							Detalhe a categoria ou natureza do projeto. (Em desenvolvimento)
-						</p>
+						<CardTitle className="flex gap-1 items-center font-semibold text-xl">
+							<CircleDollarSign />
+							Valor do Projeto
+						</CardTitle>
+						<span className="text-lg text-muted-foreground">
+							{project.price ? formatPrice(project.price) : "R$ 0,00"}
+						</span>
 					</Card>
 					<Card className="rounded-lg shadow-sm p-4 w-full">
-						<h2 className="font-bold text-xl">Público-Alvo</h2>
-						<p className="text-muted-foreground mt-2">
-							Quem são os usuários ou beneficiários deste projeto? (Em
-							desenvolvimento)
-						</p>
+						<CardTitle className="flex gap-1 items-center font-semibold text-xl">
+							<FileText />
+							Contrado
+						</CardTitle>
+						{project.contractFileName ? (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<span>{project.contractFileName}</span>
+								</TooltipTrigger>
+								<TooltipContent>Exportar</TooltipContent>
+							</Tooltip>
+						) : (
+							<span className="text-muted-foreground">
+								Nenhum contrato vinculado a este projeto
+							</span>
+						)}
 					</Card>
 				</div>
 
 				{/* Seção "Nicho" */}
 				<div className="flex items-center gap-4">
 					<Card className="rounded-lg shadow-sm p-4 w-full">
-						<h2 className="font-bold text-xl">Nicho de Mercado</h2>
+						<CardTitle className="font-semibold text-xl">
+							Nicho de Mercado
+						</CardTitle>
 						<p className="text-muted-foreground mt-2">
 							Em qual nicho de mercado este projeto se insere? (Em
 							desenvolvimento)
@@ -184,8 +187,9 @@ export default async function ProjectDetailsPage({
 				{/* Seção de Listas de Tarefas e Comentários */}
 				<WrapperLists
 					projectId={project.id}
-					comments={project.comments}
-					tasks={project.tasks}
+					comments={project.comments || []}
+					tasks={project.tasks || []}
+					projectProgress={projectProgress}
 				/>
 			</div>
 
