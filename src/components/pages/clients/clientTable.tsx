@@ -124,7 +124,7 @@ const ClientTable = ({ clients }: ClientTableProps): JSX.Element => {
 	};
 
 	return (
-		<div className="rounded-md border overflow-x-auto">
+		<div className="rounded-md border overflow-x-auto max-h-[560px] scrollbar-custom ">
 			<Table className="min-w-full">
 				<TableHeader>
 					<TableRow>

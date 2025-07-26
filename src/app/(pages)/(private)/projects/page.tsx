@@ -61,7 +61,7 @@ export default async function ProjectsPage({
 						))}
 
 						{/* Componente de Paginação */}
-						{totalProjects > pageSize && ( // Só mostra a paginação se houver mais clientes que o tamanho da página
+						{
 							<div className="flex items-center justify-between mt-4">
 								<span className="text-sm text-muted-foreground">
 									Total de projetos: {totalProjects}
@@ -72,7 +72,7 @@ export default async function ProjectsPage({
 									pageSize={pageSize}
 								/>
 							</div>
-						)}
+						}
 					</div>
 				</div>
 

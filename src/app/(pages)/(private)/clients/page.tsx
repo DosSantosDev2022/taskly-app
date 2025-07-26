@@ -69,15 +69,19 @@ export default async function ClientPage({
 				<ClientTable clients={clients} />
 
 				{/* Componente de Paginação */}
-				{totalClients > pageSize && ( // Só mostra a paginação se houver mais clientes que o tamanho da página
-					<div className="flex justify-end mt-4">
+				{
+					// Só mostra a paginação se houver mais clientes que o tamanho da página
+					<div className="flex items-center justify-between mt-4">
+						<span className="text-sm text-muted-foreground">
+							Total de clientes: {totalClients}
+						</span>
 						<PaginationComponent
 							currentPage={currentPage}
 							totalPages={totalPages}
 							pageSize={pageSize}
 						/>
 					</div>
-				)}
+				}
 			</div>
 		</div>
 	);

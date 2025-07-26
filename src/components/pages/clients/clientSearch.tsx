@@ -3,34 +3,50 @@
 
 import { Input } from "@/components/ui/input";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useDebounce } from "use-debounce"; // Vamos usar use-debounce para evitar muitas requisições
+import { useEffect, useState, useRef } from "react"; // Adicione useRef
+import { useDebounce } from "use-debounce";
 
 interface ClientSearchProps {
-	currentQuery?: string; // Recebe a query atual para preencher o input
+	currentQuery?: string;
 }
 
 const ClientSearch = ({ currentQuery = "" }: ClientSearchProps) => {
 	const router = useRouter();
 	const pathname = usePathname();
-	const searchParams = useSearchParams();
+	const searchParams = useSearchParams(); // searchParams é um objeto de somente leitura
 
-	// Estado local para o input de busca
 	const [searchValue, setSearchValue] = useState(currentQuery);
+	const [debouncedSearchValue] = useDebounce(searchValue, 500);
 
-	// Debounce para atrasar a atualização da URL e evitar muitas requisições
-	const [debouncedSearchValue] = useDebounce(searchValue, 500); // Atraso de 500ms
+	// Usar useRef para manter o controle do valor inicial ou quando a query foi aplicada pela última vez.
+	// Isso ajuda a evitar o loop de useEffect.
+	const initialLoadRef = useRef(true);
 
-	// Atualiza o input se a currentQuery mudar (ex: navegação de volta ou URL direto)
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// Efeito para sincronizar o input com a URL (se a URL mudar externamente)
 	useEffect(() => {
-		if (currentQuery !== searchValue) {
+		// Apenas sincroniza se o componente já foi montado e o valor da URL é diferente do valor local
+		if (!initialLoadRef.current && currentQuery !== searchValue) {
 			setSearchValue(currentQuery);
 		}
-	}, [currentQuery]);
+	}, [currentQuery, searchValue]);
 
-	// Efeito para aplicar o debounce e atualizar a URL
+	// Efeito para aplicar o debounce e atualizar a URL APENAS quando o valor da busca muda
 	useEffect(() => {
+		// No carregamento inicial, não queremos disparar um replace
+		// Queremos que a query da URL seja a fonte da verdade para o input inicialmente
+		if (initialLoadRef.current) {
+			initialLoadRef.current = false;
+			// Se já houver uma query na URL na montagem inicial, defina o estado
+			// Mas o `useState(currentQuery)` já lida com isso.
+			return; // Evita o replace na montagem inicial
+		}
+
+		// Só faça o `router.replace` se o valor debounced for diferente da `currentQuery` da URL
+		// Isso evita re-renderizações desnecessárias quando a página muda mas a busca não.
+		if (debouncedSearchValue === currentQuery) {
+			return; // Não faça nada se o valor debounced já corresponder à query da URL
+		}
+
 		const params = new URLSearchParams(searchParams.toString());
 		if (debouncedSearchValue) {
 			params.set("query", debouncedSearchValue);
@@ -38,10 +54,17 @@ const ClientSearch = ({ currentQuery = "" }: ClientSearchProps) => {
 			params.set("page", "1");
 		} else {
 			params.delete("query");
-			params.delete("page"); // Opcional: remover page=1 se a query for limpa
+			params.delete("page"); // Limpa o parâmetro 'page' quando a busca é limpa
 		}
+
+		// Preserve o 'pageSize' que vem da URL
+		const pageSizeFromUrl = searchParams.get("pageSize");
+		if (pageSizeFromUrl) {
+			params.set("pageSize", pageSizeFromUrl);
+		}
+
 		router.replace(`${pathname}?${params.toString()}`);
-	}, [debouncedSearchValue, pathname, router, searchParams]);
+	}, [debouncedSearchValue, currentQuery, pathname, router, searchParams]); // searchParams como dependência é importante
 
 	const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchValue(event.target.value);
