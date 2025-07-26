@@ -9,6 +9,10 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+	TooltipProvider,
 } from "@/components/ui";
 import type { ProjectStatus } from "@prisma/client";
 import { getStatusLabelProject, projectStatusArray } from "@/utils";
@@ -74,50 +78,50 @@ const ProjectFilters = () => {
 	};
 
 	return (
-		<div className="md:col-span-4">
-			<div className="sticky top-20 p-4 border rounded-lg bg-card">
-				<h3 className="text-lg font-semibold mb-4">Navegue por filtros</h3>
+		<div className="flex items-center gap-2 pace-y-2">
+			{/* Filtro por Tipo de Projeto */}
+			<Tooltip>
+				<Select value={selectedType} onValueChange={handleTypeChange}>
+					<TooltipTrigger asChild>
+						<SelectTrigger className="w-full">
+							<SelectValue placeholder="Selecione um tipo" />
+						</SelectTrigger>
+					</TooltipTrigger>
+					<SelectContent>
+						{/* O valor para "Todos" agora é 'all' */}
+						<SelectItem value="all">Todos</SelectItem>
+						{projectTypes.map((type) => (
+							<SelectItem value={type.value} key={type.value}>
+								{type.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 
-				<div className="space-y-2">
-					{/* Filtro por Tipo de Projeto */}
-					<div>
-						<span className="text-sm font-medium">Tipo de projeto</span>
-						<Select value={selectedType} onValueChange={handleTypeChange}>
-							<SelectTrigger className="w-full">
-								<SelectValue placeholder="Selecione um tipo" />
-							</SelectTrigger>
-							<SelectContent>
-								{/* O valor para "Todos" agora é 'all' */}
-								<SelectItem value="all">Todos</SelectItem>
-								{projectTypes.map((type) => (
-									<SelectItem value={type.value} key={type.value}>
-										{type.label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
+				<TooltipContent>Filtrar por Tipo</TooltipContent>
+			</Tooltip>
 
-					{/* Filtro por Status */}
-					<div>
-						<span className="text-sm font-medium">Status</span>
-						<Select value={selectedStatus} onValueChange={handleStatusChange}>
-							<SelectTrigger className="w-full">
-								<SelectValue placeholder="Selecione um status" />
-							</SelectTrigger>
-							<SelectContent>
-								{/* O valor para "Todos" agora é 'all' */}
-								<SelectItem value="all">Todos</SelectItem>
-								{projectStatusArray.map((status) => (
-									<SelectItem key={status} value={status}>
-										{getStatusLabelProject(status)}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
-			</div>
+			{/* Filtro por Status */}
+			<Tooltip>
+				<Select value={selectedStatus} onValueChange={handleStatusChange}>
+					<TooltipTrigger asChild>
+						<SelectTrigger className="w-full">
+							<SelectValue placeholder="Selecione um status" />
+						</SelectTrigger>
+					</TooltipTrigger>
+					<SelectContent>
+						{/* O valor para "Todos" agora é 'all' */}
+						<SelectItem value="all">Todos</SelectItem>
+						{projectStatusArray.map((status) => (
+							<SelectItem key={status} value={status}>
+								{getStatusLabelProject(status)}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+
+				<TooltipContent>Filtrar por Status</TooltipContent>
+			</Tooltip>
 		</div>
 	);
 };

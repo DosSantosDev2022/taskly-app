@@ -80,21 +80,26 @@ const PaginationComponent = ({
 				<div className="flex-1 text-sm text-muted-foreground whitespace-nowrap">
 					Página {currentPage} de {totalPages}
 				</div>
-				<Select
-					value={pageSize.toString()}
-					onValueChange={handlePageSizeChange}
-				>
-					<SelectTrigger className="min-w-[4rem] h-8">
-						<SelectValue placeholder="Itens por página" />
-					</SelectTrigger>
-					<SelectContent className="min-w-[4rem]">
-						<SelectItem value="10">10</SelectItem>
-						<SelectItem value="20">20</SelectItem>
-						<SelectItem value="30">30</SelectItem>
-						<SelectItem value="40">40</SelectItem>
-						<SelectItem value="50">50</SelectItem>
-					</SelectContent>
-				</Select>
+				<Tooltip>
+					<Select
+						value={pageSize.toString()}
+						onValueChange={handlePageSizeChange}
+					>
+						<TooltipTrigger asChild>
+							<SelectTrigger className="min-w-[4rem] h-8">
+								<SelectValue placeholder="Itens por página" />
+							</SelectTrigger>
+						</TooltipTrigger>
+						<SelectContent className="min-w-[4rem]">
+							<SelectItem value="10">10</SelectItem>
+							<SelectItem value="20">20</SelectItem>
+							<SelectItem value="30">30</SelectItem>
+							<SelectItem value="40">40</SelectItem>
+							<SelectItem value="50">50</SelectItem>
+						</SelectContent>
+					</Select>
+					<TooltipContent>Itens por página</TooltipContent>
+				</Tooltip>
 			</div>
 
 			{/* Botões de paginação */}

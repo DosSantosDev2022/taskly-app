@@ -22,7 +22,15 @@ const deleteProjectSchema = z.string().min(1, "O ID do projeto é obrigatório."
  * @returns {Promise<{ success: boolean; message?: string; errors?: Zod.inferFlattenedErrors<typeof deleteProjectSchema>['fieldErrors'] | { general?: string; projectId?: string }; deletedProject?: { projectId: string } }>}
  
  */
-export async function deleteProject(projectId: string) {
+export async function deleteProject(formData: FormData) {
+	const projectId = formData.get("projectId") as string;
+
+	// 1. Validação Simples do ID
+	if (!projectId || typeof projectId !== "string") {
+		console.error("Server Action: ID do projeto inválido ou ausente.");
+		return { success: false, message: "ID do projeto inválido ou ausente." };
+	}
+
 	try {
 		// 1. Validação do ID do projeto
 		const validation = deleteProjectSchema.safeParse(projectId);
