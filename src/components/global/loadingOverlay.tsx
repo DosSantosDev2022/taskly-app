@@ -3,9 +3,13 @@ import type React from "react";
 
 interface LoadingOverlayProps {
 	isLoading: boolean;
+	message?: string;
 }
 
-const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isLoading }) => {
+const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
+	isLoading,
+	message = "Carregando...",
+}) => {
 	if (!isLoading) {
 		return null; // Não renderiza nada se não estiver carregando
 	}
@@ -17,7 +21,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isLoading }) => {
 				<div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent">
 					<span className="sr-only">Carregando...</span>
 				</div>
-				<span>Carregando...</span>
+				<span>{message}</span>
 			</div>
 		</div>
 	);

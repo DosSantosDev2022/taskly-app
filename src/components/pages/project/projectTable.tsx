@@ -18,14 +18,14 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Edit, Trash2, Eye } from "lucide-react"; // Usaremos Eye para "ver detalhes"
+import { Trash2, Eye } from "lucide-react"; // Usaremos Eye para "ver detalhes"
 import { ConfirmationDialog } from "@/components/global"; // Assumindo que você tem um componente de diálogo
 // import { EditProjectForm } from "./forms/editProjectForm"; // Se você tiver um modal de edição de projeto
 import { deleteProject } from "@/actions/project/deleteProject"; // Assumindo que você terá uma Server Action de exclusão
 import { toast } from "react-toastify"; // Para notificações
 
 // Importa o tipo Project do Prisma Client
-import type { Project, ProjectStatus } from "@prisma/client";
+import type { ProjectStatus } from "@prisma/client";
 
 import type { ProjectForClient } from "@/actions/project/getProject";
 import { formatDate, getStatusLabelProject } from "@/utils";
@@ -39,7 +39,6 @@ const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
 	// --- Estados Locais e Transições ---
 	const [isDeleting, startDeleteTransition] = useTransition();
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-	// const [showEditModal, setShowEditModal] = useState(false); // Descomente se tiver modal de edição
 
 	const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
 		null,
@@ -47,7 +46,6 @@ const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
 	const [selectedProjectName, setSelectedProjectName] = useState<string | null>(
 		null,
 	);
-	// const [projectToEdit, setProjectToEdit] = useState<Project | null>(null); // Descomente se tiver modal de edição
 
 	// --- Handlers de Ações ---
 
@@ -96,17 +94,6 @@ const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
 	const handleCancelDelete = () => {
 		setShowConfirmDialog(false);
 	};
-
-	// Descomente se tiver modal de edição de projeto
-	// const handleInitiateEdit = (project: Project) => {
-	//   setProjectToEdit(project);
-	//   setShowEditModal(true);
-	// };
-
-	// const handleCloseEditModal = () => {
-	//   setShowEditModal(false);
-	//   setProjectToEdit(null);
-	// };
 
 	const getStatusVariant = (status: ProjectStatus) => {
 		switch (status) {
@@ -185,6 +172,7 @@ const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
 									<Tooltip>
 										<TooltipTrigger asChild>
 											<Button
+												disabled={isDeleting}
 												variant="ghost"
 												size="icon"
 												aria-label={`Deletar projeto ${project.name}`}

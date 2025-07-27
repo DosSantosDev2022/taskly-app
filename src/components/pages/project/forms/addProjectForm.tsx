@@ -8,7 +8,6 @@ import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import type z from "zod";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { toast } from "react-toastify";
 import { NumericFormat } from "react-number-format";
 import {
 	Button,
@@ -18,6 +17,7 @@ import {
 	CommandGroup,
 	CommandInput,
 	CommandItem,
+	// Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, // REMOVIDOS - Devem estar no modal
 	Form,
 	FormControl,
 	FormField,
@@ -35,104 +35,89 @@ import {
 	SelectValue,
 	Textarea,
 } from "@/components/ui";
-import { LoadingOverlay } from "@/components/global/loadingOverlay"; // Certifique-se de que o caminho está correto
-import { cn } from "@/lib/utils"; // Função utilitária para classes Tailwind
-import { formSchema } from "@/@types/forms/projectSchema"; // Schema de validação Zod
-import { createProject } from "@/actions/project/addProject"; // Server Action
-import type { Client } from "@prisma/client"; // Tipo do Prisma
-import { useRouter } from "next/navigation";
+import { LoadingOverlay } from "@/components/global/loadingOverlay";
+import { cn } from "@/lib/utils";
+import { formSchema } from "@/@types/forms/projectSchema";
+import { createProject } from "@/actions/project/addProject";
+import type { Client } from "@prisma/client";
+import { useQuery } from "@tanstack/react-query";
+import { getClients } from "@/actions/client/getClients";
+import { toast } from "react-toastify"; // Mantido toastify conforme seu código original, mas sonner é uma boa alternativa
 
 // Secao 2: Constantes e Enums (se aplicavel, extraidos de outros arquivos para reuso)
-/**
- * @const PROJECT_TYPES
- * @description Array de objetos que representa os tipos de projeto disponiveis.
- */
 const PROJECT_TYPES = [
 	{ value: "WEB", label: "Web" },
 	{ value: "MOBILE", label: "Mobile" },
 	{ value: "SISTEMA", label: "Sistema" },
-] as const; // 'as const' para inferencia de tipo literal
+] as const;
 
 // Secao 3: Tipos e Interfaces
-
-/**
- * @interface AddProjectFormProps
- * @description Propriedades para o componente AddProjectForm.
- * @property {Client[]} clients - Lista de clientes para associar ao projeto.
- */
 interface AddProjectFormProps {
-	clients: Client[];
+	onSuccess?: () => void;
 }
 
-/**
- * @typedef {z.infer<typeof formSchema>} ProjectFormValues
- * @description Tipo inferido do schema Zod para os valores do formulario de projeto.
- */
 type ProjectFormValues = z.infer<typeof formSchema>;
 
 // Secao 4: Componente Principal
-/**
- * @component AddProjectForm
- * @description Um componente de formulário para adicionar novos projetos.
- * Permite ao usuário inserir detalhes do projeto, como nome, descrição,
- * tipo, status, data limite e cliente associado.
- * @param {AddProjectFormProps} props - As propriedades do componente.
- * @returns {JSX.Element} O formulário para adicionar um projeto.
- */
-const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
+const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 	const [isPending, startTransition] = useTransition();
-	const router = useRouter();
+
+	// --- BUSCA DE CLIENTES COM USEQUERY ---
+	const {
+		data: clients,
+		isLoading: isLoadingClients,
+		isError: isErrorClients,
+		error: errorClients,
+	} = useQuery<Client[]>({
+		queryKey: ["clients"],
+		queryFn: async () => {
+			const response = await getClients();
+			if (!response.success || !response.clients) {
+				throw new Error("Falha ao buscar clientes.");
+			}
+			return response.clients;
+		},
+		staleTime: 1000 * 60 * 5, // 5 minutos de cache
+	});
 
 	const form = useForm<ProjectFormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: "",
 			description: "",
-			type: "WEB", // Valor padrao para o tipo de projeto
-			status: "PENDING", // Valor padrao para o status do projeto
+			type: "WEB",
+			status: "PENDING",
 			clientId: undefined,
 			deadlineDate: undefined,
 			price: 0,
 		},
-		mode: "onBlur", // Valida no blur para melhor UX
+		mode: "onBlur",
 	});
 
-	/**
-	 * @function onSubmit
-	 * @description Lida com a submissão do formulário. Converte os valores do formulário
-	 * para FormData e chama a Server Action `createProject`.
-	 * Fornece feedback ao usuário via toasts e reseta o formulário em caso de sucesso.
-	 * @param {ProjectFormValues} values - Os valores validados do formulário.
-	 */
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const onSubmit = useCallback(
 		async (values: ProjectFormValues) => {
-			// Cria um novo FormData para enviar os dados para a Server Action.
 			const formData = new FormData();
 			formData.append("name", values.name);
-			formData.append("description", values.description || ""); // Garante string vazia se nulo/indefinido
+			formData.append("description", values.description || "");
 			formData.append("type", values.type);
 			formData.append("status", values.status);
 			formData.append(
 				"price",
 				values.price.toLocaleString("en-US", {
-					useGrouping: false, // Não usa separador de milhar
+					useGrouping: false,
 					minimumFractionDigits: 2,
 					maximumFractionDigits: 2,
 				}),
 			);
 			if (values.deadlineDate) {
-				formData.append("deadlineDate", values.deadlineDate.toISOString()); // Converte Data para ISO string
+				formData.append("deadlineDate", values.deadlineDate.toISOString());
 			}
 			if (values.clientId) {
 				formData.append("clientId", values.clientId);
 			}
 
-			// Inicia a transicao para indicar estado de carregamento e evitar bloqueio da UI.
 			startTransition(async () => {
 				try {
-					// Chama a Server Action.
 					const result = await createProject(formData);
 
 					if (result.success) {
@@ -140,16 +125,14 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 							autoClose: 3000,
 							theme: "dark",
 						});
-						form.reset(); // Reseta o formulario para os valores padrao apos o sucesso.
-						router.push("/projects");
+						form.reset();
+						onSuccess?.();
 					} else {
-						// Trata erros de validacao retornados pela Server Action.
 						if (result.errors) {
-							// Itera sobre os erros e seta-os nos campos correspondentes do formulario.
 							Object.entries(result.errors).forEach(([key, value]) => {
 								form.setError(key as keyof ProjectFormValues, {
 									type: "server",
-									message: value as string, // Assumindo que value eh uma string de erro
+									message: value as string,
 								});
 							});
 							toast.error("Erro de validação. Verifique os campos.", {
@@ -157,16 +140,17 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 								theme: "dark",
 							});
 						} else {
-							// Erros gerais ou de servidor nao relacionados a campos especificos.
-							toast.error("Erro ao adicionar novo projeto.", {
+							toast.error(result.errors || "Erro ao adicionar novo projeto.", {
 								autoClose: 5000,
 								theme: "dark",
 							});
 						}
-						console.error("Erro ao enviar formulário:");
+						console.error(
+							"Erro ao enviar formulário:",
+							result.errors || result.errors,
+						);
 					}
 				} catch (error) {
-					// Captura erros inesperados na chamada da Server Action.
 					toast.error("Ocorreu um erro inesperado. Tente novamente.", {
 						autoClose: 5000,
 						theme: "dark",
@@ -175,16 +159,30 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 				}
 			});
 		},
-		[form, router],
+		[form, onSuccess],
 	);
+
+	// --- RENDERIZAÇÃO CONDICIONAL DO CONTEÚDO ---
+	if (isErrorClients) {
+		console.error("Erro ao carregar clientes para o formulário:", errorClients);
+		toast.error("Não foi possível carregar a lista de clientes.");
+		return (
+			<div className="flex flex-col items-center justify-center p-8 text-center text-destructive">
+				<p className="font-semibold text-lg">Erro ao carregar clientes.</p>
+				<p className="text-sm text-muted-foreground">
+					Por favor, tente novamente mais tarde.
+				</p>
+				<Button onClick={() => window.location.reload()} className="mt-4">
+					Recarregar Página
+				</Button>
+			</div>
+		);
+	}
 
 	return (
 		<>
-			{/* Secao 5: Overlay de Carregamento para UX */}
+			<LoadingOverlay message="Cadastrando projeto..." isLoading={isPending} />
 
-			<LoadingOverlay isLoading={isPending} />
-
-			{/* Secao 6: Formulario Principal */}
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
@@ -202,7 +200,7 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 									<Input
 										placeholder="Ex: Aplicativo de Gerenciamento Financeiro"
 										{...field}
-										disabled={isPending}
+										disabled={isPending} // Não mais depende de isLoadingClients aqui
 										aria-label="Nome do projeto"
 									/>
 								</FormControl>
@@ -306,18 +304,15 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 											value={field.value}
 											onBlur={field.onBlur}
 											name={field.name}
-											customInput={Input} // Usa seu componente Input da Shadcn/UI
-											thousandSeparator="." // Separador de milhar no Brasil (ponto)
-											decimalSeparator="," // Separador decimal no Brasil (vírgula)
-											prefix="R$ " // Prefixo de moeda
-											decimalScale={2} // Duas casas decimais
-											fixedDecimalScale={true} // Sempre mostra duas casas decimais
-											allowNegative={false} // Não permite números negativos (já validado pelo Zod também)
+											customInput={Input}
+											thousandSeparator="."
+											decimalSeparator=","
+											prefix="R$ "
+											decimalScale={2}
+											fixedDecimalScale={true}
+											allowNegative={false}
 											onValueChange={(values) => {
-												const numValue = values.floatValue; // NumericFormat já dá o número puro aqui
-
-												// GARANTINDO que o valor passado para o RHF é um NUMBER.
-												// Se for undefined (campo vazio), passa 0.
+												const numValue = values.floatValue;
 												field.onChange(numValue === undefined ? 0 : numValue);
 											}}
 											placeholder="Ex: R$ 1.250,00"
@@ -336,7 +331,8 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 						name="clientId"
 						control={form.control}
 						render={({ field }) => {
-							const selectedClient = clients.find((c) => c.id === field.value);
+							// Aqui clients é garantido como Client[] devido aos checks acima
+							const selectedClient = clients?.find((c) => c.id === field.value);
 							return (
 								<FormItem className="flex flex-col">
 									<FormLabel>Cliente</FormLabel>
@@ -359,11 +355,16 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 															: "Selecione um cliente"
 													}
 												>
-													<span className="truncate">
-														{selectedClient
-															? selectedClient.name
-															: "Selecione um cliente"}
-													</span>
+													{isLoadingClients ? (
+														"Carregando clientes..."
+													) : (
+														<span className="truncate">
+															{selectedClient
+																? selectedClient.name
+																: "Selecione um cliente"}
+														</span>
+													)}
+
 													<ChevronsUpDown
 														className="ml-2 h-4 w-4 shrink-0 opacity-50"
 														aria-hidden="true"
@@ -376,7 +377,7 @@ const AddProjectForm = ({ clients }: AddProjectFormProps): JSX.Element => {
 												<CommandInput placeholder="Buscar cliente..." />
 												<CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
 												<CommandGroup>
-													{clients.map((client) => (
+													{clients?.map((client) => (
 														<CommandItem
 															value={client.name}
 															key={client.id}

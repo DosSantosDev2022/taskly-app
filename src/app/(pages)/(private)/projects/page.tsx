@@ -1,14 +1,13 @@
 import Link from "next/link";
 import type { JSX } from "react";
-import { Plus } from "lucide-react";
 import { z } from "zod"; // Importação do Zod
 
 import { ProjectType, ProjectStatus } from "@prisma/client";
-
 import { ProjectTable, ProjectFilters } from "@/components/pages";
-import { Button } from "@/components/ui";
 import { PaginationComponent } from "@/components/global";
 import { getProjects } from "@/actions/project/getProject";
+import { AddProjectForm } from "@/components/pages/project/forms/addProjectForm";
+import { AddProjectModal } from "@/components/pages/project/addProjectModal";
 
 /**
  * @typedef {object} ProjectsPageProps
@@ -125,17 +124,7 @@ export default async function ProjectsPage({
 						</h1>
 						<div className="flex items-center gap-2">
 							<ProjectFilters />
-							<Button variant="secondary" asChild>
-								<Link
-									href="/projects/project/creation"
-									aria-label="Criar novo projeto"
-									title="Criar novo projeto"
-									className="flex items-center gap-2"
-								>
-									Novo projeto
-									<Plus size={20} aria-hidden="true" />
-								</Link>
-							</Button>
+							<AddProjectModal />
 						</div>
 					</div>
 

@@ -1,5 +1,4 @@
 import {
-	Button,
 	Card,
 	CardContent,
 	CardHeader,
@@ -9,7 +8,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/index";
 import { notFound } from "next/navigation";
-import { Calendar, CircleDollarSign, FileText, SquarePen } from "lucide-react";
+import { Calendar, CircleDollarSign, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { getProjectById } from "@/actions/project/getProject";
 import {
@@ -18,9 +17,9 @@ import {
 	StatusButtonProject,
 } from "@/components/pages";
 import { getTaskProgress } from "@/utils";
-import Link from "next/link";
 import { ptBR } from "date-fns/locale";
 import { formatPrice } from "@/utils/formatPrice";
+import { EditProjectModal } from "@/components/pages/project/editProjectModal";
 
 // --- Tipagem das Props da Página ---
 /**
@@ -65,16 +64,7 @@ export default async function ProjectDetailsPage({
 							<CardTitle className="text-3xl font-bold text-primary">
 								{project.name}
 							</CardTitle>
-							<Button
-								variant={"ghost"}
-								asChild
-								className="shrink-0" // Evita que o botão encolha em telas pequenas
-								aria-label={`Editar projeto ${project.name}`} // Acessibilidade
-							>
-								<Link href={`/projects/project/edition/${project.id}`}>
-									<SquarePen className="h-5 w-5" />
-								</Link>
-							</Button>
+							<EditProjectModal project={project} />
 						</div>
 
 						{/* Tipo do Projeto */}
