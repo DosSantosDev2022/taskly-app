@@ -1,12 +1,11 @@
 import Link from "next/link";
 import type { JSX } from "react";
-import { z } from "zod"; // Importação do Zod
+import { z } from "zod";
 
 import { ProjectType, ProjectStatus } from "@prisma/client";
 import { ProjectTable, ProjectFilters } from "@/components/pages";
 import { PaginationComponent } from "@/components/global";
 import { getProjects } from "@/actions/project/getProject";
-import { AddProjectForm } from "@/components/pages/project/forms/addProjectForm";
 import { AddProjectModal } from "@/components/pages/project/addProjectModal";
 
 /**
@@ -112,58 +111,64 @@ export default async function ProjectsPage({
 	const totalPages = Math.ceil(totalProjects / pageSize);
 
 	return (
-		<div className="container mx-auto mt-20 p-4" role="main">
-			<div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-				<section className="md:col-span-12" aria-labelledby="projects-heading">
-					<div className="flex flex-col sm:flex-row items-center justify-between w-full mb-6 gap-4">
-						<h1
-							id="projects-heading"
-							className="text-2xl font-bold tracking-tight"
-						>
-							Meus Projetos
-						</h1>
-						<div className="flex items-center gap-2">
-							<ProjectFilters />
-							<AddProjectModal />
-						</div>
-					</div>
-
-					<div className="grid grid-cols-1 gap-6">
-						{projects.length === 0 ? (
-							<div className="text-center p-8 border border-dashed rounded-lg text-muted-foreground">
-								<p className="text-lg font-medium">
-									Nenhum projeto encontrado.
-								</p>
-								<p className="mt-2 text-sm">
-									Ajuste seus filtros ou crie um novo projeto para começar!
-								</p>
-							</div>
-						) : (
-							<ProjectTable projects={projects} />
-						)}
-
-						{totalProjects > 0 && (
-							<div
-								className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-4"
-								aria-live="polite"
+		<div
+			className="flex flex-col p-8 min-h-[calc(100vh-theme(spacing.16))]"
+			role="main"
+		>
+			<div className="flex-1">
+				<div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+					<section
+						className="md:col-span-12"
+						aria-labelledby="projects-heading"
+					>
+						<div className="flex flex-col sm:flex-row items-center justify-between w-full mb-6 gap-4">
+							<h1
+								id="projects-heading"
+								className="text-2xl font-bold tracking-tight"
 							>
-								<span
-									className="text-sm text-muted-foreground"
-									aria-atomic="true"
-								>
-									Total de projetos:{" "}
-									<span className="font-semibold">{totalProjects}</span>
-								</span>
-								<PaginationComponent
-									currentPage={currentPage}
-									totalPages={totalPages}
-									pageSize={pageSize}
-								/>
+								Meus Projetos
+							</h1>
+							<div className="flex items-center gap-2">
+								<ProjectFilters />
+								<AddProjectModal />
 							</div>
-						)}
-					</div>
-				</section>
+						</div>
+
+						<div className="grid grid-cols-1 gap-6">
+							{projects.length === 0 ? (
+								<div className="text-center p-8 border border-dashed rounded-lg text-muted-foreground">
+									<p className="text-lg font-medium">
+										Nenhum projeto encontrado.
+									</p>
+									<p className="mt-2 text-sm">
+										Ajuste seus filtros ou crie um novo projeto para começar!
+									</p>
+								</div>
+							) : (
+								<ProjectTable projects={projects} />
+							)}
+						</div>
+					</section>
+				</div>
 			</div>
+
+			{/* Seção da Paginação: */}
+			{totalProjects > 0 && (
+				<div
+					className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-4"
+					aria-live="polite"
+				>
+					<span className="text-sm text-muted-foreground" aria-atomic="true">
+						Total de projetos:{" "}
+						<span className="font-semibold">{totalProjects}</span>
+					</span>
+					<PaginationComponent
+						currentPage={currentPage}
+						totalPages={totalPages}
+						pageSize={pageSize}
+					/>
+				</div>
+			)}
 		</div>
 	);
 }

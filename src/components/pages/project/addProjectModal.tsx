@@ -12,7 +12,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { AddProjectForm } from "@/components/pages/project/forms/addProjectForm";
-// Certifique-se de que não há importações de useQuery, Client, Loader2, getClients aqui.
+import { PlusCircle } from "lucide-react";
 
 export const AddProjectModal = () => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -21,7 +21,10 @@ export const AddProjectModal = () => {
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogTrigger asChild>
 				{/* Este botão aciona o modal */}
-				<Button variant={"secondary"}>Adicionar Novo Projeto</Button>
+				<Button variant={"secondary"}>
+					<PlusCircle className="h-4 w-4" />
+					Novo Projeto
+				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
 				<DialogHeader>

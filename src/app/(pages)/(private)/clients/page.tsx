@@ -49,13 +49,13 @@ export default async function ClientPage({
 	const totalPages = Math.ceil(totalClients / pageSize);
 
 	return (
-		<div className="container mx-auto mt-20 p-4">
+		<div className="flex flex-col p-8 min-h-[calc(100vh-theme(spacing.16))]">
 			<div className="flex-1 space-y-4 pt-6">
 				{/* Cabeçalho da Página */}
 				<div className="flex items-center justify-between space-y-2">
 					<h1 className="font-bold text-xl">Meus clientes</h1>
 					<div className="flex items-center space-x-2 ">
-						{/* Input para filtar cliente por busca */}
+						{/* Input para filtrar cliente por busca */}
 						<ClientSearch currentQuery={searchQuery} />
 
 						{/* Botão para Adicionar Cliente que abre o modal */}
@@ -67,22 +67,21 @@ export default async function ClientPage({
 
 				{/* Tabela de Clientes */}
 				<ClientTable clients={clients} />
-
-				{/* Componente de Paginação */}
-				{
-					// Só mostra a paginação se houver mais clientes que o tamanho da página
-					<div className="flex items-center justify-between mt-4">
-						<span className="text-sm text-muted-foreground">
-							Total de clientes: {totalClients}
-						</span>
-						<PaginationComponent
-							currentPage={currentPage}
-							totalPages={totalPages}
-							pageSize={pageSize}
-						/>
-					</div>
-				}
 			</div>
+
+			{/* Componente de Paginação */}
+			{totalClients > 0 && (
+				<div className="flex items-center justify-between mt-4">
+					<span className="text-sm text-muted-foreground">
+						Total de clientes: {totalClients}
+					</span>
+					<PaginationComponent
+						currentPage={currentPage}
+						totalPages={totalPages}
+						pageSize={pageSize}
+					/>
+				</div>
+			)}
 		</div>
 	);
 }

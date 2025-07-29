@@ -15,8 +15,7 @@ import {
 	FormLabel,
 	FormMessage,
 	Input,
-	Textarea,
-	Dialog, // Importe Dialog para o modal
+	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
@@ -102,6 +101,7 @@ const AddClientForm = (): JSX.Element => {
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<Button
+				variant={"secondary"}
 				onClick={() => setIsOpen(true)}
 				className="flex items-center gap-2"
 			>
