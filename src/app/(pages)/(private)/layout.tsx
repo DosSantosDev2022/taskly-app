@@ -19,17 +19,9 @@ export default function AuthLayout({
 		<div className="flex min-h-screen">
 			<SidebarProvider>
 				<QueryProvider>
-					{/* A AppSidebar (que provavelmente é o <Sidebar />) precisa ser renderizada */}
 					<AppSidebar />
-
-					{/* O SidebarInset vai encapsular todo o conteúdo que deve se ajustar à Sidebar */}
 					<SidebarInset>
-						{/* Seu Header: agora ele não precisa mais calcular a largura/posição da sidebar */}
-						{/* Ele só precisa ser fixo no topo e ter z-index. A largura total é do SidebarInset. */}
 						<Header />
-
-						{/* O main (seu conteúdo principal) ainda precisa de um padding-top */}
-						{/* para compensar a altura do Header fixo. */}
 						<main className="flex-1 overflow-y-auto">{children}</main>
 					</SidebarInset>
 				</QueryProvider>

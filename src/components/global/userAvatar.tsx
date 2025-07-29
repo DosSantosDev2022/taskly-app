@@ -13,6 +13,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui"; // Ajuste os imports conforme sua estrutura de ui
 import { Separator } from "@/components/ui/separator"; // Certifique-se que Separator está disponível
+import { cn } from "@/lib/utils";
 
 const UserAvatar = () => {
 	const { data: session, status } = useSession();
@@ -26,22 +27,24 @@ const UserAvatar = () => {
 					className="relative h-10 w-10 rounded-full"
 					disabled={isLoading}
 				>
-					<Avatar className="h-9 w-9">
-						{session?.user?.image ? (
+					<Avatar
+						className={cn("h-9 w-9", isLoading && "animate-pulse bg-muted")}
+					>
+						{session?.user?.image && !isLoading ? (
 							<AvatarImage
 								src={session.user.image}
 								alt={session.user.name || "User Avatar"}
 							/>
 						) : (
 							<AvatarFallback>
-								{session?.user?.name
-									? session.user.name
-											.split(" ")
-											.map((n) => n[0])
-											.join("")
-											.toUpperCase()
-									: isLoading
-										? ""
+								{isLoading
+									? "" // Não mostra texto no fallback enquanto carrega, o skeleton já está no Avatar
+									: session?.user?.name
+										? session.user.name
+												.split(" ")
+												.map((n) => n[0])
+												.join("")
+												.toUpperCase()
 										: "UN"}
 							</AvatarFallback>
 						)}
@@ -49,38 +52,24 @@ const UserAvatar = () => {
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent className="w-56 p-2" align="end" forceMount>
-				{isLoading ? (
-					<div className="flex items-center p-2 text-sm text-muted-foreground">
-						Carregando...
+				<div>
+					<div className="flex flex-col space-y-1 p-2">
+						<p className="text-sm font-medium leading-none">
+							{session?.user.name}
+						</p>
+						<p className="text-xs leading-none text-muted-foreground">
+							{session?.user.email}
+						</p>
 					</div>
-				) : session?.user ? (
-					<>
-						<div className="flex flex-col space-y-1 p-2">
-							<p className="text-sm font-medium leading-none">
-								{session.user.name}
-							</p>
-							<p className="text-xs leading-none text-muted-foreground">
-								{session.user.email}
-							</p>
-						</div>
-						<Separator className="my-2" />
-						<Button
-							variant="ghost"
-							className="w-full justify-start text-left"
-							onClick={() => signOut({ callbackUrl: "/login" })}
-						>
-							Sair
-						</Button>
-					</>
-				) : (
+					<Separator className="my-2" />
 					<Button
 						variant="ghost"
 						className="w-full justify-start text-left"
-						onClick={() => signIn("google", { callbackUrl: "/projects" })} // Ajuste o provedor e callbackUrl conforme seu projeto
+						onClick={() => signOut({ callbackUrl: "/login" })}
 					>
-						Entrar
+						Sair
 					</Button>
-				)}
+				</div>
 			</PopoverContent>
 		</Popover>
 	);
