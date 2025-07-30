@@ -1,5 +1,5 @@
 // biome-ignore lint/correctness/noUnusedImports: <explanation>
-import NextAuth from "next-auth";
+import "next-auth";
 
 declare module "next-auth" {
 	interface Session {

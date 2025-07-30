@@ -1,14 +1,10 @@
 "use client";
 
 // Secao 1: Importacoes
-import { type JSX, useCallback, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
-import type z from "zod";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { NumericFormat } from "react-number-format";
+import { formSchema } from "@/@types/zod/projectFormSchema";
+import { getClients } from "@/actions/client/getClients";
+import { createProject } from "@/actions/project/addProject";
+import { LoadingOverlay } from "@/components/global/loadingOverlay";
 import {
 	Button,
 	Calendar,
@@ -35,14 +31,18 @@ import {
 	SelectValue,
 	Textarea,
 } from "@/components/ui";
-import { LoadingOverlay } from "@/components/global/loadingOverlay";
 import { cn } from "@/lib/utils";
-import { formSchema } from "@/@types/forms/projectSchema";
-import { createProject } from "@/actions/project/addProject";
-import type { Client } from "@prisma/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Client } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
-import { getClients } from "@/actions/client/getClients";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { JSX, useCallback, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { NumericFormat } from "react-number-format";
 import { toast } from "react-toastify"; // Mantido toastify conforme seu código original, mas sonner é uma boa alternativa
+import z from "zod";
 
 // Secao 2: Constantes e Enums (se aplicavel, extraidos de outros arquivos para reuso)
 const PROJECT_TYPES = [

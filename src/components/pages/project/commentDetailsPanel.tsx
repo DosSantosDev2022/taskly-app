@@ -17,7 +17,8 @@ import type { Comment } from "@prisma/client";
 import { Edit, Trash, X } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
-import { EditCommentForm } from "@/components/pages";
+import { EditCommentForm } from "@/components/pages/project";
+import { useProjectDetailsStore } from "@/store";
 
 // --- Tipagem das Props ---
 /**
@@ -27,8 +28,6 @@ import { EditCommentForm } from "@/components/pages";
 interface CommentDetailsPanelProps {
 	comment: Comment; // O objeto de comentário completo vindo do Prisma
 	onClose: () => void; // Callback para fechar o painel de detalhes
-	onCommentDeleted: () => void; // Callback acionado após a exclusão bem-sucedida do comentário
-	onCommentEdited: (updatedContent: { content: string }) => void; // Callback acionado após a edição do comentário
 }
 
 /**
@@ -38,13 +37,18 @@ interface CommentDetailsPanelProps {
 export function CommentDetailsPanel({
 	comment,
 	onClose,
-	onCommentDeleted,
-	onCommentEdited,
 }: CommentDetailsPanelProps) {
 	// --- Estados Locais e Transições ---
 	const [isDeleting, startDeleteTransition] = useTransition(); // Estado para gerenciar a transição de exclusão
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false); // Estado para controlar a visibilidade do diálogo de confirmação
 	const [showEditModal, setShowEditModal] = useState(false); // Estado para controlar a visibilidade do modal de edição
+
+	const updateSelectedCommentContent = useProjectDetailsStore(
+		(state) => state.updateSelectedCommentContent,
+	);
+	const clearSelection = useProjectDetailsStore(
+		(state) => state.clearSelection,
+	);
 
 	// --- Handlers de Ações ---
 
@@ -71,7 +75,7 @@ export function CommentDetailsPanel({
 					autoClose: 3000,
 					theme: "dark",
 				});
-				onCommentDeleted(); // Aciona o callback para atualizar o estado pai (e.g., limpar seleção)
+				clearSelection(); // Aciona o callback para atualizar o estado pai (e.g., limpar seleção)
 			} else {
 				console.error("Erro ao deletar comentário:", result.errors);
 				toast.error(result.message || "Erro ao deletar comentário!", {
@@ -113,7 +117,7 @@ export function CommentDetailsPanel({
 	 * @param {Object} updatedContent - Objeto com o novo conteúdo do comentário.
 	 */
 	const handleCommentContentUpdated = (updatedContent: { content: string }) => {
-		onCommentEdited(updatedContent); // Notifica o componente pai sobre a atualização
+		updateSelectedCommentContent(updatedContent); // Notifica o componente pai sobre a atualização
 		handleCloseEditModal(); // Fecha o modal de edição
 	};
 

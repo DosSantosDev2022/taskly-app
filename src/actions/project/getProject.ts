@@ -1,35 +1,19 @@
-// src/actions/project/getProjects.ts
 "use server";
-
+import { ProjectDetails } from "@/@types/project-types";
 import { authOptions } from "@/lib/auth";
-import db from "@/lib/prisma"; // Seu cliente Prisma simples
-// Importe os tipos brutos do Prisma, pois você vai transformá-los.
-import type { ProjectStatus, ProjectType, Task, Comment } from "@prisma/client";
+import db from "@/lib/prisma";
+import type { ProjectStatus, ProjectType } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
-// --- Tipo ProjectForClient: Reflete o formato que você VAI ENVIAR ---
-// "price" é um number, "deadlineDate", "createdAt", "updatedAt" são Dates
-export type ProjectForClient = {
-	id: string;
-	name: string;
-	description: string | null;
-	type: ProjectType;
-	status: ProjectStatus;
-	userId: string;
-	price: number; // <-- Explicitamente NUMBER aqui
-	deadlineDate: Date | null; // <-- Explicitamente Date aqui
-	createdAt: Date; // <-- Explicitamente Date aqui
-	updatedAt: Date; // <-- Explicitamente Date aqui
-	clientId: string | null;
-	contractUrl: string | null;
-	contractFileName: string | null;
-	user?: { name: string | null; email: string | null } | null;
-	client?: { name: string | null; email: string | null } | null;
-	tasks?: Task[];
-	comments?: Comment[];
-};
+/**
+ * @typedef {Object} GetProjectsFilters
+ * @property {ProjectType} [type] - Tipo de projeto opcional para filtrar.
+ * @property {ProjectStatus} [status] - Status do projeto opcional para filtrar.
+ * @property {number} [page] - Número da página opcional para paginação. Padrão é 1.
+ * @property {number} [pageSize] - Número opcional de projetos por página para paginação. Padrão é 10.
+ */
 
-// Interface para os parâmetros de filtro (mantém-se igual)
+// Interface para os parâmetros de filtro
 interface GetProjectsFilters {
 	type?: ProjectType;
 	status?: ProjectStatus;
@@ -37,8 +21,16 @@ interface GetProjectsFilters {
 	pageSize?: number;
 }
 
+/**
+ * Busca uma lista de projetos para o usuário autenticado, com filtragem e paginação opcionais.
+ *
+ * @param {GetProjectsFilters} [filters] - Um objeto contendo filtros para os projetos.
+ * @returns {Promise<{ projects: ProjectDetails[], totalProjects: number, currentPage: number, pageSize: number }>} Um objeto contendo o array de projetos, a contagem total, a página atual e o tamanho da página.
+ * @throws {Error} Se o usuário não estiver autenticado ou ocorrer um erro durante o processo de busca.
+ */
+
 export async function getProjects(filters?: GetProjectsFilters): Promise<{
-	projects: ProjectForClient[]; // Retorna o tipo transformado
+	projects: ProjectDetails[]; // Retorna o tipo transformado
 	totalProjects: number;
 	currentPage: number;
 	pageSize: number;
@@ -84,18 +76,12 @@ export async function getProjects(filters?: GetProjectsFilters): Promise<{
 			take: pageSize,
 		});
 
-		// --- TRANSFORMAÇÃO MANUAL AQUI ---
 		// Mapeia cada projeto para o formato esperado pelo Client Component
-		const projectsForClient: ProjectForClient[] = projectsRaw.map(
-			(project) => ({
-				...project,
-				// Converte Prisma.Decimal para number usando .toNumber()
-				price: project.price.toNumber(),
-				// Datas já são Date, não precisam de transformação extra aqui
-				// Se elas fossem string e você quisesse Date, usaria new Date(project.dateString)
-				// Mas o log mostra que já são Date, então tá ok!
-			}),
-		);
+		const projectsForClient: ProjectDetails[] = projectsRaw.map((project) => ({
+			...project,
+			// Converte Prisma.Decimal para number usando .toNumber()
+			price: project.price.toNumber(),
+		}));
 
 		return {
 			projects: projectsForClient,
@@ -109,9 +95,17 @@ export async function getProjects(filters?: GetProjectsFilters): Promise<{
 	}
 }
 
+/**
+ * Busca um único projeto pelo seu ID para o usuário autenticado.
+ *
+ * @param {string} id - O identificador único do projeto a ser buscado.
+ * @returns {Promise<ProjectDetails | null>} Uma promessa que resolve para os detalhes do projeto se encontrado e acessível pelo usuário, caso contrário null.
+ * @throws {Error} Se o usuário não estiver autenticado ou ocorrer um erro durante o processo de busca.
+ */
+
 export async function getProjectById(
 	id: string,
-): Promise<ProjectForClient | null> {
+): Promise<ProjectDetails | null> {
 	try {
 		const session = await getServerSession(authOptions);
 		if (!session?.user?.id) {
@@ -138,8 +132,7 @@ export async function getProjectById(
 			return null;
 		}
 
-		// --- TRANSFORMAÇÃO MANUAL PARA UM ÚNICO PROJETO ---
-		const projectForClient: ProjectForClient = {
+		const projectForClient: ProjectDetails = {
 			...projectRaw,
 			price: projectRaw.price.toNumber(),
 		};

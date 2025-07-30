@@ -1,5 +1,5 @@
 // src/app/login/page.tsx
-import { FormRegister } from "@/components/pages";
+import { FormRegister } from "@/components/pages/auth";
 import { ClipboardList } from "lucide-react";
 import Image from "next/image";
 

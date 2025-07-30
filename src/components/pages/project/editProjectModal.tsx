@@ -1,7 +1,8 @@
 // src/components/modals/EditProjectModal.tsx
 "use client";
 
-import { useState } from "react";
+import type { ProjectForClient } from "@/@types/project-types";
+import { EditProjectForm } from "@/components/pages/project"; // Ajuste o path conforme sua estrutura
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -11,8 +12,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { EditProjectForm } from "@/components/pages"; // Ajuste o path conforme sua estrutura
-import type { ProjectForClient } from "@/actions/project/getProject";
+import { useState } from "react";
 
 interface EditProjectModalProps {
 	project: ProjectForClient;

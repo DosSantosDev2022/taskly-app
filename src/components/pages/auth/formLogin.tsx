@@ -1,38 +1,17 @@
-// src/app/login/page.tsx
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react"; // Importe a função signIn do Next-Auth
-import { useRouter } from "next/navigation"; // Para redirecionar após o login
+import { LoginFormInputs, loginSchema } from "@/@types/zod/authFormSchema";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Link from "next/link";
-import z from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react"; // Importe a função signIn do Next-Auth
+import Link from "next/link";
+import { useRouter } from "next/navigation"; // Para redirecionar após o login
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-
-const loginSchema = z.object({
-	email: z
-		.string()
-		.email({ message: "Email inválido." })
-		.min(1, { message: "O e-mail é obrigatório." }),
-
-	password: z
-		.string()
-		.min(8, { message: "A senha deve ter no mínimo 8 caracteres." })
-		.regex(/[A-Z]/, {
-			message: "A senha deve conter pelo menos uma letra maiúscula.",
-		})
-		.regex(/[^a-zA-Z0-9]/, {
-			message: "A senha deve conter pelo menos um caractere especial.",
-		})
-		.min(1, { message: "A senha é obrigatória." }),
-});
-
-type LoginFormInputs = z.infer<typeof loginSchema>;
 
 const FormLogin = () => {
 	const [error, setError] = useState<string | null>(null);

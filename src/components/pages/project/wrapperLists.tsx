@@ -5,7 +5,7 @@ import type {
 	Comment as PrismaComment,
 } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AddTask, AddComment } from "@/components/pages";
+import { AddTask, AddComment } from "@/components/pages/project";
 import { useProjectDetailsStore } from "@/store";
 import {
 	formatDate,
@@ -52,14 +52,13 @@ export function WrapperLists({
 	// --- Estados e Funções do Zustand Store ---
 	// Seleciona as ações `selectTask` e `selectComment` do store Zustand.
 	// Essas ações são usadas para definir a tarefa ou comentário selecionado no estado global,
-	// geralmente para exibição em um modal de detalhes/edição.
 	const selectTask = useProjectDetailsStore((state) => state.selectTask);
 	const selectComment = useProjectDetailsStore((state) => state.selectComment);
 
 	// --- Renderização do Componente ---
 	return (
 		// biome-ignore lint/a11y/useAriaPropsSupportedByRole: <explanation>
-		<div className="space-y-4" aria-label="Seções de detalhes do projeto">
+		<div className="space-y-4 mb-10" aria-label="Seções de detalhes do projeto">
 			{/* Seção de Imagens do Projeto */}
 			<Card className="rounded-lg shadow-sm">
 				<CardHeader>

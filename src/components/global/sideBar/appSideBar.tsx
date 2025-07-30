@@ -5,11 +5,25 @@ import {
 	SidebarHeader,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { User, File, CircleDollarSign, Clipboard } from "lucide-react";
+import {
+	User,
+	File,
+	CircleDollarSign,
+	Clipboard,
+	Home,
+	ToolCase,
+	Settings,
+} from "lucide-react";
 import { NavLinks } from "./navLinks";
 
 const data = {
 	links: [
+		{
+			title: "Dashboard", // Ou "Home"
+			url: "/dashboard", // URL para a página inicial
+			icon: Home, // Ícone para a página inicial
+			items: [], // Dashboard/Home geralmente não tem sub-itens
+		},
 		{
 			title: "Projetos",
 			url: "#",
@@ -57,6 +71,12 @@ const data = {
 					url: "/finance",
 				},
 			],
+		},
+		{
+			title: "Configurações",
+			url: "/configs",
+			icon: Settings,
+			items: [],
 		},
 	],
 };

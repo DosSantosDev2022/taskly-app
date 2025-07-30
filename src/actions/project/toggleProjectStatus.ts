@@ -41,7 +41,7 @@ const ToggleProjectStatusSchema = z.object({
 		.trim()
 		.min(1, { message: "O ID do projeto é obrigatório." }),
 	// Valida que o currentStatus é um dos valores do enum ProjectStatus
-	currentStatus: z.nativeEnum(ProjectStatus, {
+	currentStatus: z.enum(ProjectStatus, {
 		message: "Status do projeto inválido. Selecione um status válido.",
 	}),
 });

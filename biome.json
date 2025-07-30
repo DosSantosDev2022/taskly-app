@@ -16,6 +16,12 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
+			"style": {
+				"useImportType": "off"
+			},
+			"correctness": {
+				"useExhaustiveDependencies": "off"
+			},
 			"a11y": {
 				"noRedundantRoles": "off",
 				"noStaticElementInteractions": "off",

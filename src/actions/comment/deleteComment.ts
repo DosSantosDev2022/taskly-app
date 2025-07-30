@@ -1,18 +1,9 @@
 "use server";
 
+import { deleteCommentSchema } from "@/@types/zod/commentFormSchema";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z, ZodError } from "zod";
-
-// --- Definição do Schema de Validação com Zod ---
-/**
- * @const deleteCommentSchema
- * @description Schema de validação Zod para o ID do comentário a ser deletado.
- * Garante que o ID seja uma string não vazia.
- */
-const deleteCommentSchema = z
-	.string()
-	.min(1, "O ID do comentário é obrigatório.");
 
 /**
  * @function deleteComment
@@ -34,13 +25,13 @@ export async function deleteComment(commentId: string) {
 		if (!validation.success) {
 			console.error(
 				"Erro de validação ao deletar comentário:",
-				validation.error.flatten().fieldErrors,
+				z.treeifyError(validation.error),
 			);
 			return {
 				success: false,
 				message:
 					"ID do comentário inválido. Não foi possível prosseguir com a exclusão.",
-				errors: validation.error.flatten().fieldErrors,
+				errors: z.treeifyError(validation.error),
 			};
 		}
 
@@ -90,7 +81,7 @@ export async function deleteComment(commentId: string) {
 			return {
 				success: false,
 				message: "Erro de validação dos dados fornecidos.",
-				errors: error.flatten().fieldErrors,
+				errors: z.treeifyError(error),
 			};
 		}
 

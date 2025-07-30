@@ -1,7 +1,7 @@
 "use client";
 
-import { Bounce, toast } from "react-toastify";
-import { useState, useTransition } from "react";
+import { type CreateTaskInput, TaskSchema } from "@/@types/zod/TaskFormSchema";
+import { addTaskAction } from "@/actions/task/addTask";
 import {
 	Button,
 	Dialog,
@@ -12,20 +12,17 @@ import {
 	DialogTrigger,
 	Input,
 	Label,
-	Textarea,
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
+	Textarea,
 } from "@/components/ui";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addTaskAction } from "@/actions/task/addTask";
-import {
-	type CreateTaskInput,
-	createTaskSchema,
-} from "@/@types/forms/tasksSchema";
+import { useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { Bounce, toast } from "react-toastify";
 
 // --- Tipagem das Props ---
 /**
@@ -49,7 +46,7 @@ const AddTask = ({ projectId }: AddTaskProps) => {
 
 	// --- Configuração do React Hook Form ---
 	const form = useForm<CreateTaskInput>({
-		resolver: zodResolver(createTaskSchema), // Integração com Zod para validação
+		resolver: zodResolver(TaskSchema), // Integração com Zod para validação
 		defaultValues: {
 			title: "",
 			description: "",

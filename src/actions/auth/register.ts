@@ -1,18 +1,15 @@
-// src/app/actions/auth.ts
 "use server";
 
 import { hash } from "bcryptjs";
 import db from "@/lib/prisma";
 import * as z from "zod";
 import { v4 as uuidv4 } from "uuid";
-import { Resend } from "resend"; // Importar o Resend SDK
+import { Resend } from "resend";
 
 import VerificationEmail from "@/components/global/emails/verificationEmails";
 
-// Instanciar o Resend com sua chave de API
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// ... (registerSchema e RegisterFormState permanecem os mesmos)
 const registerSchema = z.object({
 	name: z.string().min(1, "O nome é obrigatório."),
 	email: z.string().email("E-mail inválido.").min(1, "O e-mail é obrigatório."),

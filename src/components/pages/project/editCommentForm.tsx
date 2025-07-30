@@ -1,36 +1,24 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { toast } from "react-toastify";
+import { editCommentSchema } from "@/@types/zod/commentFormSchema";
+import { editComment } from "@/actions/comment/editComment";
 import {
 	Button,
 	Dialog,
 	DialogContent,
-	DialogHeader,
-	DialogTitle,
 	DialogDescription,
 	DialogFooter,
+	DialogHeader,
+	DialogTitle,
 	Label,
 	Textarea,
 } from "@/components/ui";
-import { editComment } from "@/actions/comment/editComment";
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { Comment } from "@prisma/client";
-
-// --- Definição do Schema de Validação com Zod ---
-/**
- * @const editCommentSchema
- * @description Schema de validação Zod para o formulário de edição de comentários.
- * Garante que o conteúdo tenha um tamanho mínimo e máximo.
- */
-const editCommentSchema = z.object({
-	content: z
-		.string()
-		.min(10, "O comentário deve ter no mínimo 10 caracteres.")
-		.max(500, "O comentário deve ter no máximo 500 caracteres."),
-});
+import { useEffect, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import * as z from "zod";
 
 /**
  * @type EditCommentFormValues

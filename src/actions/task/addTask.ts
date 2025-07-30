@@ -1,12 +1,9 @@
 "use server";
 
-import {
-	type CreateTaskInput,
-	createTaskSchema,
-} from "@/@types/forms/tasksSchema";
+import { type CreateTaskInput, TaskSchema } from "@/@types/zod/TaskFormSchema";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { ZodError } from "zod";
+import z, { ZodError } from "zod";
 
 /**
  * @function addTaskAction
@@ -22,18 +19,18 @@ export async function addTaskAction(values: CreateTaskInput) {
 	try {
 		// 1. Validação dos dados de entrada com Zod
 		// Usa `safeParse` para validar os dados e capturar erros de forma segura.
-		const validation = createTaskSchema.safeParse(values);
+		const validation = TaskSchema.safeParse(values);
 
 		// Se a validação falhar, retorna um objeto de erro padronizado para o cliente.
 		if (!validation.success) {
 			console.error(
 				"Erro de validação ao criar tarefa:",
-				validation.error.flatten().fieldErrors, // Loga os erros de campo para depuração
+				z.treeifyError(validation.error),
 			);
 			return {
 				success: false,
 				message: "Dados inválidos. Por favor, verifique os campos.",
-				errors: validation.error.flatten().fieldErrors,
+				errors: z.treeifyError(validation.error),
 			};
 		}
 
@@ -74,7 +71,7 @@ export async function addTaskAction(values: CreateTaskInput) {
 			return {
 				success: false,
 				message: "Erro de validação ao processar os dados.",
-				errors: error.flatten().fieldErrors,
+				errors: z.treeifyError(error),
 			};
 		}
 

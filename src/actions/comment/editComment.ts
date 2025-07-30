@@ -1,17 +1,8 @@
 "use server";
 
+import { editCommentSchema } from "@/@types/zod/commentFormSchema";
 import { db } from "@/lib/prisma";
-import { z } from "zod";
 import { revalidatePath } from "next/cache";
-
-// --- Schema de validação para a entrada da action ---
-const EditCommentInputSchema = z.object({
-	id: z.string().uuid("ID de comentário inválido."),
-	content: z
-		.string()
-		.min(10, "O comentário deve ter no mínimo 10 caracteres.")
-		.max(500, "O comentário deve ter no máximo 500 caracteres."),
-});
 
 interface EditCommentResult {
 	success: boolean;
@@ -24,7 +15,7 @@ export async function editComment(
 	content: string,
 ): Promise<EditCommentResult> {
 	// 1. Validação da entrada
-	const validation = EditCommentInputSchema.safeParse({ id, content });
+	const validation = editCommentSchema.safeParse({ id, content });
 
 	if (!validation.success) {
 		const errors: { [key: string]: string } = {};

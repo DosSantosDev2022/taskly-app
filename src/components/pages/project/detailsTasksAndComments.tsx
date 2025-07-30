@@ -6,8 +6,8 @@ import {
 	type TaskDetail,
 	useProjectDetailsStore,
 } from "@/store/projectDetailsStore";
-import { TaskDetailsPanel } from "./taskDetailsPanel";
 import { CommentDetailsPanel } from "./commentDetailsPanel";
+import { TaskDetailsPanel } from "./taskDetailsPanel";
 
 /**
  * @component DetailsTasksAndComments
@@ -22,43 +22,6 @@ export function DetailsTasksAndComments() {
 	const clearSelection = useProjectDetailsStore(
 		(state) => state.clearSelection,
 	);
-	// Ação para atualizar o status de uma tarefa selecionada.
-	const updateSelectedTaskStatus = useProjectDetailsStore(
-		(state) => state.updateSelectedTaskStatus,
-	);
-	// Ação para atualizar os detalhes (título, descrição) de uma tarefa selecionada.
-	const updateSelectedTaskDetails = useProjectDetailsStore(
-		(state) => state.updateSelectedTaskDetails,
-	);
-	// Ação para atualizar o conteúdo de um comentário selecionado.
-	const updateSelectedCommentContent = useProjectDetailsStore(
-		(state) => state.updateSelectedCommentContent,
-	);
-
-	// --- Handlers para callbacks dos componentes filhos ---
-
-	/**
-	 * @function handleTaskUpdated
-	 * @description Lida com a atualização dos detalhes de uma tarefa.
-	 * Chama a ação do store para refletir as mudanças na UI.
-	 * @param {Object} updatedTaskDetails - Objeto contendo o novo título e descrição da tarefa.
-	 */
-	const handleTaskUpdated = (updatedTaskDetails: {
-		title: string;
-		description: string | null;
-	}) => {
-		updateSelectedTaskDetails(updatedTaskDetails);
-	};
-
-	/**
-	 * @function handleCommentContentUpdated
-	 * @description Lida com a atualização do conteúdo de um comentário.
-	 * Chama a ação do store para refletir as mudanças na UI.
-	 * @param {Object} updatedContent - Objeto contendo o novo conteúdo do comentário.
-	 */
-	const handleCommentContentUpdated = (updatedContent: { content: string }) => {
-		updateSelectedCommentContent(updatedContent);
-	};
 
 	// --- Renderização Condicional do Painel de Detalhes ---
 	return (
@@ -70,9 +33,6 @@ export function DetailsTasksAndComments() {
 					// Isso é seguro porque já verificamos selectedItem?.type === "task".
 					task={selectedItem as TaskDetail}
 					onClose={clearSelection}
-					onTaskDeleted={clearSelection} // Limpa a seleção após deletar
-					onUpdateStatus={updateSelectedTaskStatus}
-					onTaskUpdated={handleTaskUpdated}
 				/>
 			)}
 
@@ -82,8 +42,6 @@ export function DetailsTasksAndComments() {
 					// Faz um type assertion explícito para CommentDetail.
 					comment={selectedItem as CommentDetail}
 					onClose={clearSelection}
-					onCommentDeleted={clearSelection}
-					onCommentEdited={handleCommentContentUpdated}
 				/>
 			)}
 

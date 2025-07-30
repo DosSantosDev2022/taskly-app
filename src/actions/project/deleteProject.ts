@@ -39,13 +39,13 @@ export async function deleteProject(formData: FormData) {
 		if (!validation.success) {
 			console.error(
 				"Erro de validação ao deletar projeto:",
-				validation.error.flatten().fieldErrors,
+				z.treeifyError(validation.error),
 			);
 			return {
 				success: false,
 				message:
 					"ID do projeto inválido. Não foi possível prosseguir com a exclusão.",
-				errors: validation.error.flatten().fieldErrors,
+				errors: z.treeifyError(validation.error),
 			};
 		}
 
@@ -92,7 +92,7 @@ export async function deleteProject(formData: FormData) {
 			return {
 				success: false,
 				message: "Erro de validação dos dados fornecidos.",
-				errors: error.flatten().fieldErrors,
+				errors: z.treeifyError(error),
 			};
 		}
 

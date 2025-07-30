@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, type JSX } from "react";
+import { Badge } from "@/components/ui/badge"; // Exemplo para status ou tipo
 import {
 	Table,
 	TableBody,
@@ -9,17 +9,17 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge"; // Exemplo para status ou tipo
+import { useState, useTransition, type JSX } from "react";
 
 // Assumindo que você terá um tipo Client do Prisma
+import { deleteClient } from "@/actions/client/deleteClient";
+import { ConfirmationDialog } from "@/components/global";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import type { Client } from "@prisma/client";
 import { Edit, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { deleteClient } from "@/actions/client/deleteClient";
 import { toast } from "react-toastify";
-import { ConfirmationDialog } from "@/components/global";
-import { EditClientForm } from "./forms/editClientForm";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui";
+import { EditClientForm } from "./editClientForm";
 
 interface ClientTableProps {
 	clients: Client[];
@@ -172,6 +172,7 @@ const ClientTable = ({ clients }: ClientTableProps): JSX.Element => {
 									<Tooltip>
 										<TooltipTrigger asChild>
 											<Button
+												disabled={isDeleting}
 												variant="ghost"
 												size="icon"
 												aria-label={`Deletar cliente ${client.name}`}

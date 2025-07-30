@@ -1,14 +1,11 @@
 // src/components/pages/project/forms/editProjectForm.tsx
 "use client";
 
-import { type JSX, useCallback, useTransition, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarIcon, Check, ChevronsUpDown, Loader2 } from "lucide-react";
-import type z from "zod";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { NumericFormat } from "react-number-format";
+import { ProjectDetails } from "@/@types/project-types";
+import { formSchema } from "@/@types/zod/projectFormSchema"; // Assumindo que você tem um schema similar para edição
+import { getClients } from "@/actions/client/getClients"; // Server Action para buscar projeto
+import { updateProject } from "@/actions/project/updateProject"; // Server Action para atualizar projeto (você precisará criar esta)
+import { LoadingOverlay } from "@/components/global/loadingOverlay";
 import {
 	Button,
 	Calendar,
@@ -34,15 +31,18 @@ import {
 	SelectValue,
 	Textarea,
 } from "@/components/ui";
-import { LoadingOverlay } from "@/components/global/loadingOverlay";
 import { cn } from "@/lib/utils";
-import { formSchema } from "@/@types/forms/projectSchema"; // Assumindo que você tem um schema similar para edição
-import { updateProject } from "@/actions/project/updateProject"; // Server Action para atualizar projeto (você precisará criar esta)
-import type { ProjectForClient } from "@/actions/project/getProject"; // Server Action para buscar projeto
-import { getClients } from "@/actions/client/getClients"; // Server Action para buscar clientes
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { Client } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { CalendarIcon, Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { type JSX, useCallback, useEffect, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { NumericFormat } from "react-number-format";
 import { toast } from "react-toastify";
+import type z from "zod";
 
 // Assumindo que PROJECT_TYPES é o mesmo
 const PROJECT_TYPES = [
@@ -55,7 +55,7 @@ const PROJECT_TYPES = [
 type ProjectFormValues = z.infer<typeof formSchema>;
 
 interface EditProjectFormProps {
-	project: ProjectForClient;
+	project: ProjectDetails;
 	onSuccess?: () => void;
 }
 
@@ -155,7 +155,7 @@ export const EditProjectForm = ({
 							Object.entries(result.errors).forEach(([key, value]) => {
 								form.setError(key as keyof ProjectFormValues, {
 									type: "server",
-									message: value as string,
+									message: value as unknown as string,
 								});
 							});
 							toast.error("Erro de validação. Verifique os campos.", {
@@ -186,11 +186,11 @@ export const EditProjectForm = ({
 	);
 
 	// Exibir estados de carregamento e erro para o projeto E clientes
-	if (isLoadingClients || !clients || !project) {
+	if (!project) {
 		return (
 			<div className="flex items-center justify-center h-64">
 				<Loader2 className="h-8 w-8 animate-spin" />
-				<span className="ml-2">Carregando dados do projeto e clientes...</span>
+				<span className="ml-2">Carregando dados do projeto...</span>
 			</div>
 		);
 	}
@@ -363,8 +363,7 @@ export const EditProjectForm = ({
 						name="clientId"
 						control={form.control}
 						render={({ field }) => {
-							// clients é garantido como Client[] aqui devido aos checks acima
-							const selectedClient = clients.find((c) => c.id === field.value);
+							const selectedClient = clients?.find((c) => c.id === field.value);
 							return (
 								<FormItem className="flex flex-col">
 									<FormLabel>Cliente</FormLabel>
@@ -404,7 +403,7 @@ export const EditProjectForm = ({
 												<CommandInput placeholder="Buscar cliente..." />
 												<CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
 												<CommandGroup>
-													{clients.map((client) => (
+													{clients?.map((client) => (
 														<CommandItem
 															value={client.name}
 															key={client.id}
@@ -423,7 +422,9 @@ export const EditProjectForm = ({
 																)}
 																aria-hidden="true"
 															/>
-															{client.name}
+															{isLoadingClients
+																? "Carregando..."
+																: `${client.name}`}
 														</CommandItem>
 													))}
 												</CommandGroup>

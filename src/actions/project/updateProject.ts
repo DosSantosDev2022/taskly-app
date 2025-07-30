@@ -1,9 +1,9 @@
 "use server";
 
+import { formSchema } from "@/@types/zod/projectFormSchema"; // Schema Zod para validação
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { formSchema } from "@/@types/forms/projectSchema"; // Schema Zod para validação
-import { ZodError } from "zod"; // Importa ZodError para tratamento de erros mais específico
+import z, { ZodError } from "zod"; // Importa ZodError para tratamento de erros mais específico
 
 /**
  * @function updateProject
@@ -36,12 +36,12 @@ export async function updateProject(projectId: string, formData: FormData) {
 		if (!parsed.success) {
 			console.error(
 				"Erro de validação ao atualizar projeto:",
-				parsed.error.flatten().fieldErrors,
+				z.treeifyError(parsed.error),
 			);
 			// Retorna um objeto com `success: false` e os erros de campo formatados
 			return {
 				success: false,
-				errors: parsed.error.flatten().fieldErrors,
+				errors: z.treeifyError(parsed.error),
 				message: "Dados inválidos. Por favor, verifique os campos.",
 			};
 		}
@@ -80,7 +80,7 @@ export async function updateProject(projectId: string, formData: FormData) {
 		if (error instanceof ZodError) {
 			return {
 				success: false,
-				errors: error.flatten().fieldErrors,
+				errors: z.treeifyError(error),
 				message: "Erro de validação ao processar os dados.",
 			};
 		}

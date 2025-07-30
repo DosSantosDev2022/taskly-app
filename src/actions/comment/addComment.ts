@@ -1,25 +1,11 @@
 "use server";
 
+import { commentSchema } from "@/@types/zod/commentFormSchema";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
-import { z, ZodError } from "zod";
-
-// --- Definição do Schema de Validação com Zod ---
-/**
- * @const commentSchema
- * @description Schema de validação Zod para os dados de entrada ao adicionar um comentário.
- * Garante que o `content` não seja vazio e tenha um tamanho limitado,
- * e que o `projectId` seja fornecido e não vazio.
- */
-const commentSchema = z.object({
-	content: z
-		.string()
-		.min(1, "O comentário não pode ser vazio.")
-		.max(5000, "Comentário muito longo. O limite é de 5000 caracteres."),
-	projectId: z.string().min(1, "O ID do projeto é obrigatório."),
-});
+import z, { ZodError } from "zod";
 
 /**
  * @typedef {object} AddCommentResult
@@ -60,9 +46,9 @@ export async function addComment(
 	// Coleta os dados do FormData para validação
 	const commentData = {
 		content: formData.get("content"),
-		projectId: formData.get("projectId"),
+		projectId: formData.get("projectId") || "",
 	};
-
+	console.log("Dados recebidos para validação:", commentData);
 	try {
 		// 2. Validação dos dados de entrada com Zod
 		const parsed = commentSchema.safeParse(commentData);
@@ -70,7 +56,7 @@ export async function addComment(
 		if (!parsed.success) {
 			console.error(
 				"Erro de validação ao adicionar comentário:",
-				parsed.error.flatten().fieldErrors,
+				z.treeifyError(parsed.error),
 			);
 			return {
 				success: false,

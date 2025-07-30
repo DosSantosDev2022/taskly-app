@@ -1,3 +1,10 @@
+import { getProjectById } from "@/actions/project/getProject";
+import {
+	DetailsTasksAndComments,
+	StatusButtonProject,
+	WrapperLists,
+} from "@/components/pages/project";
+import { EditProjectModal } from "@/components/pages/project/editProjectModal";
 import {
 	Card,
 	CardContent,
@@ -7,19 +14,12 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/index";
-import { notFound } from "next/navigation";
-import { Calendar, CircleDollarSign, FileText } from "lucide-react";
-import { format } from "date-fns";
-import { getProjectById } from "@/actions/project/getProject";
-import {
-	WrapperLists,
-	DetailsTasksAndComments,
-	StatusButtonProject,
-} from "@/components/pages";
 import { getTaskProgress } from "@/utils";
-import { ptBR } from "date-fns/locale";
 import { formatPrice } from "@/utils/formatPrice";
-import { EditProjectModal } from "@/components/pages/project/editProjectModal";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Calendar, CircleDollarSign, FileText } from "lucide-react";
+import { notFound } from "next/navigation";
 
 // --- Tipagem das Props da Página ---
 /**
@@ -54,60 +54,66 @@ export default async function ProjectDetailsPage({
 
 	// 3. Renderização do Layout da Página
 	return (
-		<div className="container mx-auto pt-24 p-4 mt-20 grid grid-cols-1 lg:grid-cols-12 gap-6">
+		<div className="container mx-auto p-4  grid grid-cols-1 lg:grid-cols-12 gap-6">
 			{/* Coluna Principal (à esquerda em telas grandes): Detalhes e Listas */}
-			<div className="lg:col-span-7 space-y-4 self-start">
+			<div className="lg:col-span-7 space-y-4 self-start overflow-y-auto max-h-[calc(100vh-theme(spacing.16))] scrollbar-custom p-1 ">
 				{/* Card de Detalhes Básicos do Projeto */}
 				<Card className="rounded-lg shadow-sm">
-					<CardHeader>
-						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
-							<CardTitle className="text-3xl font-bold text-primary">
+					<CardHeader className="">
+						<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-y-2 sm:gap-x-4">
+							<CardTitle className="text-3xl lg:text-4xl font-extrabold text-primary break-words max-w-full">
 								{project.name}
 							</CardTitle>
 							<EditProjectModal project={project} />
 						</div>
 
-						{/* Tipo do Projeto */}
-						<div className="flex flex-col items-start gap-2 mt-2 text-base">
-							<span className="font-bold text-foreground">
-								Cliente:
-								<span className="text-muted-foreground text-sm font-light ml-1">
-									{project.client?.name}
+						{/* Tipo do Projeto e Cliente */}
+						<div className="flex flex-col items-start gap-2 mt-4 text-lg">
+							{project.client?.name && (
+								<span className="font-semibold text-foreground">
+									Cliente:
+									<span className="text-foreground/80 text-base font-normal ml-2">
+										{project.client.name}
+									</span>
 								</span>
-							</span>
+							)}
 
-							<span className="font-bold text-foreground">
+							<span className="font-semibold text-foreground">
 								Tipo:
-								<span className="text-muted-foreground text-sm font-light ml-1">
+								<span className="text-foreground/80 text-base font-normal ml-2">
 									{project.type}
 								</span>
 							</span>
 						</div>
 					</CardHeader>
-					<CardContent>
+					<CardContent className="p-6 pt-0">
 						{/* Datas e Status */}
-						<div className="flex flex-wrap items-center gap-4 text-sm md:text-base">
+						<div className="flex flex-wrap items-center gap-x-3 text-sm md:text-base">
 							{/* Data de Criação */}
-							<div className="flex items-center gap-1 font-medium text-muted-foreground">
-								<span className="font-bold text-foreground flex items-center gap-1">
-									<Calendar className="h-4 w-4 text-primary" /> Data de criação:
-								</span>{" "}
-								{format(project.createdAt, "dd/MM/yyyy", { locale: ptBR })}
+							<div className="flex items-center gap-1 font-medium text-foreground">
+								<Calendar className="h-4 w-4 text-primary" />
+								<span className="font-semibold">Criação:</span>{" "}
+								<span className="text-muted-foreground font-light">
+									{format(project.createdAt, "dd/MM/yyyy", { locale: ptBR })}
+								</span>
 							</div>
 
 							{/* Data de Prazo (se existir) */}
 							{project.deadlineDate && (
-								<div className="font-medium text-muted-foreground flex items-center gap-1">
-									<span className="font-bold text-foreground flex items-center gap-1">
-										<Calendar className="h-4 w-4 text-primary" /> Data de prazo:
-									</span>{" "}
-									{format(project.deadlineDate, "dd/MM/yyyy", { locale: ptBR })}
+								<div className="font-medium text-foreground flex items-center gap-1">
+									<Calendar className="h-4 w-4 text-primary" />
+									<span className="font-semibold">Prazo:</span>{" "}
+									<span className="text-muted-foreground font-light">
+										{format(project.deadlineDate, "dd/MM/yyyy", {
+											locale: ptBR,
+										})}
+									</span>
 								</div>
 							)}
 
 							{/* Status do Projeto */}
-							<div className="flex items-center gap-1">
-								<span className="font-bold text-foreground text-sm md:text-base mr-1">
+							<div className="flex items-center gap-2">
+								<span className="font-semibold text-foreground text-sm md:text-base">
 									Status:
 								</span>
 								<StatusButtonProject
@@ -118,14 +124,19 @@ export default async function ProjectDetailsPage({
 						</div>
 
 						{/* Descrição do Projeto */}
-						<div className="prose dark:prose-invert mt-6 max-w-none text-base text-gray-700 dark:text-gray-300">
-							{project.description ? (
-								<p>{project.description}</p>
-							) : (
-								<p className="text-muted-foreground italic">
-									Nenhuma descrição fornecida para este projeto.
-								</p>
-							)}
+						<div className="my-4 border border-accent/40 rounded p-3 bg-accent/40">
+							<span className="font-semibold text-foreground text-sm md:text-lg ">
+								Descrição:
+							</span>
+							<div className="prose dark:prose-invert mt-4 max-w-none text-base leading-relaxed text-gray-700 dark:text-gray-300">
+								{project.description ? (
+									<p>{project.description}</p>
+								) : (
+									<p className="text-muted-foreground italic">
+										Nenhuma descrição fornecida para este projeto.
+									</p>
+								)}
+							</div>
 						</div>
 					</CardContent>
 				</Card>
@@ -184,8 +195,7 @@ export default async function ProjectDetailsPage({
 			</div>
 
 			{/* Coluna Secundária (à direita em telas grandes): Detalhes de Tarefas/Comentários */}
-			<div className="lg:col-span-5 space-y-6 self-start sticky top-24">
-				{/* Ajuste `top-24` para considerar o header fixo da aplicação */}
+			<div className="lg:col-span-5 space-y-6 self-start sticky top-0">
 				<DetailsTasksAndComments />
 			</div>
 		</div>

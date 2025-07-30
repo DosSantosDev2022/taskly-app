@@ -1,52 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // Importações do React Hook Form e Zod
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useForm } from "react-hook-form";
 
 // Importa o Server Action de registro
+import {
+	RegisterFormInputs,
+	registerSchema,
+} from "@/@types/zod/registerFormSchema";
 import { registerUser } from "@/actions/auth/register";
 import { toast } from "react-toastify";
 
 // 1. Definindo o Schema de Validação com Zod para o frontend
-const registerSchema = z
-	.object({
-		name: z.string().min(1, { message: "O nome é obrigatório." }),
-
-		email: z
-			.string()
-			.email({ message: "E-mail inválido." })
-			.min(1, { message: "O e-mail é obrigatório." }),
-
-		password: z
-			.string()
-			.min(8, { message: "A senha deve ter no mínimo 8 caracteres." })
-			.regex(/[A-Z]/, {
-				message: "A senha deve conter pelo menos uma letra maiúscula.",
-			})
-			.regex(/[^a-zA-Z0-9]/, {
-				message: "A senha deve conter pelo menos um caractere especial.",
-			})
-			.min(1, { message: "A senha é obrigatória." }),
-
-		confirmPassword: z.string().min(1, { message: "Confirme sua senha." }),
-	})
-	.refine((data) => data.password === data.confirmPassword, {
-		message: "As senhas não coincidem.",
-		path: ["confirmPassword"],
-	});
-
-type RegisterFormInputs = z.infer<typeof registerSchema>;
 
 const FormRegister = () => {
 	const [serverFeedback, setServerFeedback] = useState<string | null>(null); // Para mensagens gerais de sucesso/erro do servidor

@@ -1,56 +1,37 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { TaskSchema } from "@/@types/zod/TaskFormSchema";
+import { updateTask } from "@/actions/task/updateTask";
 import {
+	Button,
 	Dialog,
 	DialogContent,
-	DialogHeader,
-	DialogTitle,
 	DialogDescription,
 	DialogFooter,
-} from "@/components/ui/dialog";
-import {
+	DialogHeader,
+	DialogTitle,
 	Form,
 	FormControl,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { toast } from "react-toastify";
-import { useEffect, useTransition } from "react";
+	Input,
+	Textarea,
+} from "@/components/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { updateTask } from "@/actions/task/updateTask";
-
-// --- Definição do Schema de Validação com Zod ---
-/**
- * @const formSchema
- * @description Schema de validação Zod para o formulário de edição de tarefas.
- * Define regras para título (obrigatório, tamanho) e descrição (opcional, tamanho).
- */
-const formSchema = z.object({
-	title: z
-		.string()
-		.min(1, "O título é obrigatório.")
-		.max(100, "O título não pode ter mais de 100 caracteres."),
-	description: z
-		.string()
-		.max(500, "A descrição não pode ter mais de 500 caracteres.")
-		.nullable() // Permite que a descrição seja nula
-		.transform((e) => (e === "" ? null : e)), // Converte string vazia para null
-});
+import { useEffect, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import * as z from "zod";
 
 // --- Tipagem dos Dados do Formulário ---
 /**
  * @type EditTaskFormValues
  * @description Tipo inferido do schema Zod para os valores do formulário.
  */
-type EditTaskFormValues = z.infer<typeof formSchema>;
+type EditTaskFormValues = z.infer<typeof TaskSchema>;
 
 // --- Tipagem das Props ---
 /**
@@ -89,10 +70,10 @@ export function EditTaskModal({
 
 	// --- Configuração do React Hook Form ---
 	const form = useForm<EditTaskFormValues>({
-		resolver: zodResolver(formSchema), // Integração com Zod para validação
+		resolver: zodResolver(TaskSchema), // Integração com Zod para validação
 		defaultValues: {
 			title: task.title,
-			description: task.description,
+			description: task.description || "",
 		},
 		mode: "onBlur", // Valida os campos ao perderem o foco para melhor UX
 	});
@@ -108,10 +89,10 @@ export function EditTaskModal({
 		if (isOpen) {
 			form.reset({
 				title: task.title,
-				description: task.description,
+				description: task.description || "",
 			});
 		}
-	}, [isOpen, task, form]); // Dependências: re-executa se modal abrir, objeto 'task' mudar ou a função 'form' (reset) mudar.
+	}, [isOpen, task, form]);
 
 	// --- Handlers de Eventos ---
 

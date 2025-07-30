@@ -11,7 +11,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { AddProjectForm } from "@/components/pages/project/forms/addProjectForm";
+import { AddProjectForm } from "@/components/pages/project";
 import { PlusCircle } from "lucide-react";
 
 export const AddProjectModal = () => {

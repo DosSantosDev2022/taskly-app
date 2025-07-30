@@ -2,11 +2,11 @@ import Link from "next/link";
 import type { JSX } from "react";
 import { z } from "zod";
 
-import { ProjectType, ProjectStatus } from "@prisma/client";
-import { ProjectTable, ProjectFilters } from "@/components/pages";
-import { PaginationComponent } from "@/components/global";
 import { getProjects } from "@/actions/project/getProject";
+import { PaginationComponent } from "@/components/global";
+import { ProjectFilters, ProjectTable } from "@/components/pages/project";
 import { AddProjectModal } from "@/components/pages/project/addProjectModal";
+import { ProjectStatus, ProjectType } from "@prisma/client";
 
 /**
  * @typedef {object} ProjectsPageProps

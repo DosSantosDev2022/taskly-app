@@ -1,9 +1,9 @@
-import type { JSX } from "react";
-import { Separator } from "@/components/ui/separator";
-import { AddClientForm, ClientTable } from "@/components/pages";
 import { getClients } from "@/actions/client/getClients";
 import { PaginationComponent } from "@/components/global";
+import { AddClientForm, ClientTable } from "@/components/pages/clients";
 import { ClientSearch } from "@/components/pages/clients/clientSearch";
+import { Separator } from "@/components/ui/separator";
+import type { JSX } from "react";
 
 interface ClientPageParams {
 	searchParams: {

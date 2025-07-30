@@ -3,7 +3,7 @@
 
 import { Input } from "@/components/ui/input";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useRef } from "react"; // Adicione useRef
+import { useEffect, useRef, useState } from "react"; // Adicione useRef
 import { useDebounce } from "use-debounce";
 
 interface ClientSearchProps {
@@ -28,7 +28,7 @@ const ClientSearch = ({ currentQuery = "" }: ClientSearchProps) => {
 		if (!initialLoadRef.current && currentQuery !== searchValue) {
 			setSearchValue(currentQuery);
 		}
-	}, [currentQuery, searchValue]);
+	}, [currentQuery]);
 
 	// Efeito para aplicar o debounce e atualizar a URL APENAS quando o valor da busca muda
 	useEffect(() => {

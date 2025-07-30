@@ -1,15 +1,22 @@
-// src/components/pages/edit-client-form.tsx
 "use client";
 
-import { type JSX, useCallback, useTransition, useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { type JSX, useCallback, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import type z from "zod";
-import type { Client } from "@prisma/client"; // Importe o tipo Client
 
+import { clientFormSchema } from "@/@types/zod/clientFormSchema";
+import { createClient } from "@/actions/client/addClient";
+import { LoadingOverlay } from "@/components/global/loadingOverlay";
 import {
 	Button,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
 	Form,
 	FormControl,
 	FormField,
@@ -17,84 +24,56 @@ import {
 	FormLabel,
 	FormMessage,
 	Input,
-	Textarea,
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogDescription,
-	DialogFooter,
 } from "@/components/ui";
-import { LoadingOverlay } from "@/components/global/loadingOverlay"; // Verifique o caminho correto
-import { clientFormSchema } from "@/@types/forms/clientSchema"; // Verifique o caminho correto
-import { updateClient } from "@/actions/client/updateClient"; // Importe a Server Action de atualização
+import { PlusCircle } from "lucide-react";
 
 type ClientFormValues = z.infer<typeof clientFormSchema>;
 
-interface EditClientFormProps {
-	isOpen: boolean;
-	onClose: () => void;
-	client: Client; // O cliente a ser editado
-}
-
-const EditClientForm = ({
-	isOpen,
-	onClose,
-	client,
-}: EditClientFormProps): JSX.Element => {
+const AddClientForm = (): JSX.Element => {
 	const [isPending, startTransition] = useTransition();
+	const [isOpen, setIsOpen] = useState(false); // Estado para controlar o modal
 
 	const form = useForm<ClientFormValues>({
 		resolver: zodResolver(clientFormSchema),
-		// Definir valores padrão com base no cliente recebido
 		defaultValues: {
-			name: client.name || "",
-			email: client.email || "",
-			phone: client.phone || "",
+			name: "",
+			email: "",
+			phone: "",
 		},
 		mode: "onBlur",
 	});
 
-	// Resetar o formulário com os novos dados do cliente se o cliente mudar ou o modal abrir
-	useEffect(() => {
-		if (client) {
-			form.reset({
-				name: client.name || "",
-				email: client.email || "",
-				phone: client.phone || "",
-			});
-		}
-	}, [client, form]);
-
 	const onSubmit = useCallback(
 		async (values: ClientFormValues) => {
-			console.log("Dados do cliente para atualização:", values);
+			console.log("Dados do cliente para envio:", values);
 			const formData = new FormData();
-			formData.append("id", client.id); // Adicione o ID do cliente!
 			formData.append("name", values.name);
 			formData.append("email", values.email ?? "");
 			formData.append("phone", values.phone ?? "");
 
 			startTransition(async () => {
 				try {
-					const result = await updateClient(formData);
-					console.log(
-						"Resultado da Server Action de atualização no frontend:",
-						result,
-					);
+					const result = await createClient(formData);
+					console.log("Resultado da Server Action no frontend:", result); // Mantenha este log!
 
 					if (result.success) {
-						toast.success("Cliente atualizado com sucesso!", {
+						toast.success("Cliente adicionado com sucesso!", {
 							autoClose: 3000,
 							theme: "dark",
 						});
-						onClose(); // Fecha o modal ao sucesso
+						form.reset();
+						setIsOpen(false); // Fecha o modal ao sucesso
 					} else {
-						toast.error(result.message || "Erro ao atualizar cliente.", {
+						// **NOVA LÓGICA DE TRATAMENTO DE ERRO**
+						// 1. Exiba a mensagem principal do `result.message` no toast.
+						//    Isso garante que "Já existe um cliente com este email." apareça no toast.
+						toast.error("Erro ao adicionar cliente.", {
 							autoClose: 3000,
 							theme: "dark",
 						});
 
+						// 2. Se houver erros específicos por campo (`result.errors`),
+						//    defina-os no React Hook Form para que apareçam abaixo dos campos.
 						if (result.errors) {
 							Object.entries(result.errors).forEach(([key, value]) => {
 								form.setError(key as keyof ClientFormValues, {
@@ -105,32 +84,34 @@ const EditClientForm = ({
 						}
 					}
 				} catch (error) {
-					toast.error(
-						"Ocorreu um erro inesperado ao atualizar o cliente. Tente novamente.",
-						{
-							autoClose: 5000,
-							theme: "dark",
-						},
-					);
+					toast.error("Ocorreu um erro inesperado. Tente novamente.", {
+						autoClose: 5000,
+						theme: "dark",
+					});
 					console.error(
-						"Erro inesperado ao enviar formulário de atualização de cliente:",
+						"Erro inesperado ao enviar formulário de cliente:",
 						error,
 					);
 				}
 			});
 		},
-		[form, client.id, onClose], // Adicione client.id e onClose às dependências
+		[form],
 	);
 
 	return (
-		<Dialog open={isOpen} onOpenChange={onClose}>
-			{" "}
-			{/* Controla o modal com isOpen e onClose */}
+		<Dialog open={isOpen} onOpenChange={setIsOpen}>
+			<Button
+				variant={"secondary"}
+				onClick={() => setIsOpen(true)}
+				className="flex items-center gap-2"
+			>
+				<PlusCircle className="h-4 w-4" /> Adicionar Cliente
+			</Button>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>Editar Cliente</DialogTitle>
+					<DialogTitle>Adicionar Novo Cliente</DialogTitle>
 					<DialogDescription>
-						Edite os detalhes do cliente. Clique em salvar quando terminar.
+						Preencha os detalhes para adicionar um novo cliente.
 					</DialogDescription>
 				</DialogHeader>
 				<LoadingOverlay isLoading={isPending} />
@@ -192,16 +173,8 @@ const EditClientForm = ({
 							)}
 						/>
 						<DialogFooter>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={onClose}
-								disabled={isPending}
-							>
-								Cancelar
-							</Button>
 							<Button type="submit" disabled={isPending}>
-								{isPending ? "Salvando..." : "Salvar Alterações"}
+								{isPending ? "Adicionando..." : "Salvar Cliente"}
 							</Button>
 						</DialogFooter>
 					</form>
@@ -211,4 +184,4 @@ const EditClientForm = ({
 	);
 };
 
-export { EditClientForm };
+export { AddClientForm };

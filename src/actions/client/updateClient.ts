@@ -1,12 +1,12 @@
 // src/actions/client/updateClient.ts
 "use server";
 
-import { revalidatePath } from "next/cache";
-import db from "@/lib/prisma";
-import { clientFormSchema } from "@/@types/forms/clientSchema"; // Reutilizaremos o mesmo schema
-import { getServerSession } from "next-auth";
+import { clientFormSchema } from "@/@types/zod/clientFormSchema"; // Reutilizaremos o mesmo schema
 import { authOptions } from "@/lib/auth";
+import db from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { getServerSession } from "next-auth";
+import { revalidatePath } from "next/cache";
 
 /**
  * @interface OurActionResponse
@@ -32,8 +32,8 @@ export async function updateClient(
 		console.error("Server Action: Usuário não autenticado.");
 		return { success: false, message: "Usuário não autenticado." };
 	}
+	/* Usuário autenticado */
 	const userId = session.user.id;
-	console.log("Server Action: Usuário autenticado, ID:", userId);
 
 	const id = formData.get("id") as string; // O ID do cliente a ser atualizado
 	const name = formData.get("name") as string;

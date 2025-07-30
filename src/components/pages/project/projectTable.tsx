@@ -1,8 +1,9 @@
 // src/components/pages/project-table.tsx
 "use client";
 
-import { useState, useTransition, type JSX } from "react";
-import Link from "next/link";
+import { ConfirmationDialog } from "@/components/global"; // Assumindo que você tem um componente de diálogo
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	Table,
 	TableBody,
@@ -11,15 +12,14 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Trash2, Eye } from "lucide-react"; // Usaremos Eye para "ver detalhes"
-import { ConfirmationDialog } from "@/components/global"; // Assumindo que você tem um componente de diálogo
+import { Eye, Trash2 } from "lucide-react"; // Usaremos Eye para "ver detalhes"
+import Link from "next/link";
+import { useState, useTransition, type JSX } from "react";
 // import { EditProjectForm } from "./forms/editProjectForm"; // Se você tiver um modal de edição de projeto
 import { deleteProject } from "@/actions/project/deleteProject"; // Assumindo que você terá uma Server Action de exclusão
 import { toast } from "react-toastify"; // Para notificações
@@ -27,7 +27,7 @@ import { toast } from "react-toastify"; // Para notificações
 // Importa o tipo Project do Prisma Client
 import type { ProjectStatus } from "@prisma/client";
 
-import type { ProjectForClient } from "@/actions/project/getProject";
+import type { ProjectForClient } from "@/@types/project-types";
 import { formatDate, getStatusLabelProject } from "@/utils";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 
@@ -115,8 +115,10 @@ const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
 					<TableRow>
 						<TableHead className="min-w-[150px]">Nome</TableHead>
 						<TableHead className="min-w-[100px]">Tipo</TableHead>
+						<TableHead className="min-w-[100px]">Cliente</TableHead>
 						<TableHead className="min-w-[180px]">Descrição</TableHead>
 						<TableHead className="text-center min-w-[100px]">Status</TableHead>
+						<TableHead className="min-w-[80px]">Tarefas</TableHead>
 						<TableHead className="min-w-[120px]">Criação</TableHead>
 						<TableHead className="min-w-[120px]">Prazo</TableHead>
 						<TableHead className="text-center w-[120px]">Ações</TableHead>
@@ -137,7 +139,8 @@ const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
 							<TableRow key={project.id}>
 								<TableCell className="font-medium">{project.name}</TableCell>
 								<TableCell>{capitalizeFirstLetter(project.type)}</TableCell>
-								<TableCell className="text-sm text-muted-foreground line-clamp-1 truncate max-w-[240px]">
+								<TableCell>{project.client?.name}</TableCell>
+								<TableCell className="text-sm  line-clamp-1 truncate max-w-[240px]">
 									{project.description || "N/A"}
 								</TableCell>
 								<TableCell className="text-center">
@@ -145,6 +148,7 @@ const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
 										{getStatusLabelProject(project.status)}
 									</Badge>
 								</TableCell>
+								<TableCell>{project.tasks?.length}</TableCell>
 								<TableCell className="whitespace-nowrap">
 									{formatDate(project.createdAt)}
 								</TableCell>

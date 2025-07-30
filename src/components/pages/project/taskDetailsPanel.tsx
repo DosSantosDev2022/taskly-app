@@ -18,7 +18,8 @@ import { getStatusLabel, getStatusStyles } from "@/utils";
 import { toggleTaskStatus } from "@/actions/task/toggleTaskStatus";
 import { deleteTask } from "@/actions/task/deleteTask";
 import type { ProjectStatus as PrismaProjectStatus } from "@prisma/client";
-import { EditTaskModal } from "@/components/pages";
+import { EditTaskModal } from "@/components/pages/project";
+import { useProjectDetailsStore } from "@/store";
 
 // --- Tipagens ---
 /**
@@ -42,12 +43,6 @@ interface TaskDetail {
 interface TaskDetailsPanelProps {
 	task: TaskDetail; // Os detalhes da tarefa a serem exibidos/gerenciados
 	onClose: () => void; // Callback para fechar o painel de detalhes
-	onTaskDeleted: () => void; // Callback acionado após a exclusão bem-sucedida da tarefa
-	onUpdateStatus: (newPrismaStatus: PrismaProjectStatus) => void; // Callback acionado após a atualização do status
-	onTaskUpdated: (updatedTaskDetails: {
-		title: string;
-		description: string | null;
-	}) => void; // Callback acionado após a edição dos detalhes da tarefa
 }
 
 /**
@@ -55,18 +50,23 @@ interface TaskDetailsPanelProps {
  * @description Componente que exibe os detalhes de uma tarefa, incluindo status,
  * descrição e botões para editar ou deletar a tarefa.
  */
-export function TaskDetailsPanel({
-	task,
-	onClose,
-	onTaskDeleted,
-	onUpdateStatus,
-	onTaskUpdated,
-}: TaskDetailsPanelProps) {
+export function TaskDetailsPanel({ task, onClose }: TaskDetailsPanelProps) {
 	// --- Estados Locais e Transições ---
 	const [isDeleting, startDeleteTransition] = useTransition(); // Para gerenciar o estado de deleção
 	const [isUpdatingStatus, startStatusUpdateTransition] = useTransition(); // Para gerenciar o estado de atualização de status
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false); // Controla a visibilidade do diálogo de confirmação
 	const [showEditModal, setShowEditModal] = useState(false); // Controla a visibilidade do modal de edição
+
+	// --- Acessando as ações do store  ---
+	const clearSelection = useProjectDetailsStore(
+		(state) => state.clearSelection,
+	);
+	const updateSelectedTaskStatus = useProjectDetailsStore(
+		(state) => state.updateSelectedTaskStatus,
+	);
+	const updateSelectedTaskDetails = useProjectDetailsStore(
+		(state) => state.updateSelectedTaskDetails,
+	);
 
 	// --- Helpers Internos ---
 	/**
@@ -132,7 +132,7 @@ export function TaskDetailsPanel({
 				toast.success("Status atualizado!", { autoClose: 3000, theme: "dark" });
 				// Se a atualização foi bem-sucedida e o novo status está disponível
 				if (result.updatedTask?.status) {
-					onUpdateStatus(result.updatedTask.status); // Notifica o componente pai/store
+					updateSelectedTaskStatus(result.updatedTask.status); // Notifica o componente pai/store
 				}
 			} else {
 				console.error("Erro ao atualizar status:", result.errors);
@@ -167,7 +167,7 @@ export function TaskDetailsPanel({
 					autoClose: 3000,
 					theme: "dark",
 				});
-				onTaskDeleted(); // Aciona o callback para atualizar o estado pai (e.g., limpar seleção)
+				clearSelection(); // Aciona o callback para atualizar o estado pai (e.g., limpar seleção)
 			} else {
 				console.error("Erro ao deletar tarefa:", result.errors);
 				toast.error(result.message || "Erro ao deletar tarefa!", {
@@ -212,7 +212,7 @@ export function TaskDetailsPanel({
 		title: string;
 		description: string | null;
 	}) => {
-		onTaskUpdated(updatedDetails); // Notifica o componente pai sobre a atualização
+		updateSelectedTaskDetails(updatedDetails); // Notifica o componente pai sobre a atualização
 		handleCloseEditModal(); // Fecha o modal de edição
 	};
 
