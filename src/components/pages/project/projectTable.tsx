@@ -27,12 +27,12 @@ import { toast } from "react-toastify"; // Para notificações
 // Importa o tipo Project do Prisma Client
 import type { ProjectStatus } from "@prisma/client";
 
-import type { ProjectForClient } from "@/@types/project-types";
+import type { ProjectDetails } from "@/@types/project-types";
 import { formatDate, getStatusLabelProject } from "@/utils";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 
 interface ProjectTableProps {
-	projects: ProjectForClient[];
+	projects: ProjectDetails[];
 }
 
 const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
@@ -109,7 +109,7 @@ const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
 	};
 
 	return (
-		<div className="rounded-md border overflow-x-auto max-h-[600px] scrollbar-custom ">
+		<div className="rounded-md border overflow-y-auto max-h-[600px] scrollbar-custom ">
 			<Table className="min-w-full">
 				<TableHeader>
 					<TableRow>

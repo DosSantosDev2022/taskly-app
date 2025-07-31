@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge"; // Exemplo para status ou tipo
 import {
 	Table,
 	TableBody,
@@ -20,6 +19,7 @@ import type { Client } from "@prisma/client";
 import { Edit, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { EditClientForm } from "./editClientForm";
+import { StatusButtonClient } from "./statusButtonClient";
 
 interface ClientTableProps {
 	clients: Client[];
@@ -153,7 +153,10 @@ const ClientTable = ({ clients }: ClientTableProps): JSX.Element => {
 								<TableCell>{client.phone || "N/A"}</TableCell>
 								<TableCell className="text-center">
 									{/* Exemplo de badge para status - adapte se seu cliente tiver um campo status */}
-									<Badge variant="secondary">Ativo</Badge>
+									<StatusButtonClient
+										clientId={client.id}
+										currentStatus={client.status}
+									/>
 								</TableCell>
 								<TableCell className="text-right flex justify-end gap-2">
 									<Tooltip>

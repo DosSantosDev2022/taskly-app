@@ -94,15 +94,21 @@ model Project {
   contractFileName String?
 }
 
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model Client {
-  id        String    @id @default(uuid())
+  id        String       @id @default(uuid())
   name      String
-  email     String?   @unique
-  phone     String?   @unique
+  email     String?      @unique
+  phone     String?      @unique
   projects  Project[] // Relação com projetos
   userId    String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  status    ClientStatus @default(ACTIVE)
 }
 
 enum TaskStatus {
