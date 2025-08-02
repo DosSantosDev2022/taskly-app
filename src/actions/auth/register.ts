@@ -1,12 +1,12 @@
 "use server";
 
-import { hash } from "bcryptjs";
 import db from "@/lib/prisma";
-import * as z from "zod";
-import { v4 as uuidv4 } from "uuid";
+import { hash } from "bcryptjs";
 import { Resend } from "resend";
+import { v4 as uuidv4 } from "uuid";
+import * as z from "zod";
 
-import VerificationEmail from "@/components/global/emails/verificationEmails";
+import VerificationEmail from "@/components/global/emails/verification-emails";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

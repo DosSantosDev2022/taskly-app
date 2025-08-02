@@ -19,6 +19,10 @@
 			"style": {
 				"useImportType": "off"
 			},
+			"suspicious": {
+				"noArrayIndexKey": "warn",
+				"noExplicitAny": "warn"
+			},
 			"correctness": {
 				"useExhaustiveDependencies": "off"
 			},

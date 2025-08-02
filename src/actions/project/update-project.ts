@@ -1,6 +1,6 @@
 "use server";
 
-import { formSchema } from "@/@types/zod/projectFormSchema"; // Schema Zod para validação
+import { formSchema } from "@/@types/zod"; // Schema Zod para validação
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import z, { ZodError } from "zod"; // Importa ZodError para tratamento de erros mais específico

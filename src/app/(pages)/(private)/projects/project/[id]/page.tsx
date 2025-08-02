@@ -1,10 +1,10 @@
-import { getProjectById } from "@/actions/project/getProject";
+import { getProjectById } from "@/actions/project";
 import {
 	DetailsTasksAndComments,
+	EditProjectModal,
 	StatusButtonProject,
 	WrapperLists,
 } from "@/components/pages/project";
-import { EditProjectModal } from "@/components/pages/project/editProjectModal";
 import {
 	Card,
 	CardContent,
@@ -13,9 +13,8 @@ import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
-} from "@/components/ui/index";
-import { getTaskProgress } from "@/utils";
-import { formatPrice } from "@/utils/formatPrice";
+} from "@/components/ui";
+import { formatPrice, getTaskProgress } from "@/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar, CircleDollarSign, FileText } from "lucide-react";

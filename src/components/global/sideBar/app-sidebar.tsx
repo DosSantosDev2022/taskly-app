@@ -6,13 +6,12 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import {
-	User,
-	File,
 	CircleDollarSign,
 	Clipboard,
+	File,
 	Home,
-	ToolCase,
 	Settings,
+	User,
 } from "lucide-react";
 import { NavLinks } from "./navLinks";
 

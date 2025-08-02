@@ -1,6 +1,6 @@
 "use server";
 
-import { clientFormSchema } from "@/@types/zod/clientFormSchema"; // Seu schema Zod para cliente
+import { clientFormSchema } from "@/@types/zod"; // Seu schema Zod para cliente
 import { authOptions } from "@/lib/auth"; // Se você usa Next-Auth
 import { db } from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";

@@ -1,6 +1,6 @@
 "use server";
 
-import { deleteCommentSchema } from "@/@types/zod/commentFormSchema";
+import { deleteCommentSchema } from "@/@types/zod";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z, ZodError } from "zod";

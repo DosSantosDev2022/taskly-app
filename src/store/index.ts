@@ -1,2 +1,2 @@
 /* Centralizar exportações */
-export * from "./projectDetailsStore";
+export * from "./project-details-store";

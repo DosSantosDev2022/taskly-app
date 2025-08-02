@@ -20,7 +20,7 @@ import { z } from "zod";
  * @type {number}
  * @description Comprimento mínimo exigido para senhas.
  */
-export const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MIN_LENGTH = 8;
 
 /**
  * @constant
@@ -43,17 +43,14 @@ export const PASSWORD_MIN_LENGTH = 8;
  */
 export const loginSchema = z.object({
 	email: z
-		.string({
-			error: "O e-mail é obrigatório.",
-		})
-		.trim() // Adicionado para remover espaços em branco
+		.string()
+		.min(1, { message: "O e-mail é obrigatório." })
 		.email({ message: "O e-mail fornecido é inválido." })
-		.min(1, { message: "O e-mail não pode ser vazio." }),
+		.trim(), // Adicionado para remover espaços em branco
 
 	password: z
-		.string({
-			error: "A senha é obrigatória.",
-		})
+		.string()
+		.min(1, { message: "A senha é obrigatória." })
 		.trim() // Adicionado para remover espaços em branco
 		.min(PASSWORD_MIN_LENGTH, {
 			message: `A senha deve ter no mínimo ${PASSWORD_MIN_LENGTH} caracteres.`,

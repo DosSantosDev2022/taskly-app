@@ -1,12 +1,14 @@
+import { getProjects } from "@/actions/project";
+import { PaginationComponent } from "@/components/global";
+import {
+	AddProjectModal,
+	ProjectFilters,
+	ProjectTable,
+} from "@/components/pages/project";
+import { ProjectStatus, ProjectType } from "@prisma/client";
 import Link from "next/link";
 import type { JSX } from "react";
 import { z } from "zod";
-
-import { getProjects } from "@/actions/project/getProject";
-import { PaginationComponent } from "@/components/global";
-import { ProjectFilters, ProjectTable } from "@/components/pages/project";
-import { AddProjectModal } from "@/components/pages/project/addProjectModal";
-import { ProjectStatus, ProjectType } from "@prisma/client";
 
 /**
  * @typedef {object} ProjectsPageProps

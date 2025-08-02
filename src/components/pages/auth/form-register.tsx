@@ -1,24 +1,21 @@
 "use client";
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { RegisterFormInputs, registerSchema } from "@/@types/zod";
+import { registerUser } from "@/actions/auth/register";
+import {
+	Button,
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+	Input,
+	Label,
+} from "@/components/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-// Importações do React Hook Form e Zod
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
-// Importa o Server Action de registro
-import {
-	RegisterFormInputs,
-	registerSchema,
-} from "@/@types/zod/registerFormSchema";
-import { registerUser } from "@/actions/auth/register";
 import { toast } from "react-toastify";
 
 // 1. Definindo o Schema de Validação com Zod para o frontend

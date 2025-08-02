@@ -1,6 +1,6 @@
 "use server";
 
-import { backendFormSchema } from "@/@types/zod/backendFormSchema";
+import { backendFormSchema } from "@/@types/zod";
 import { authOptions } from "@/lib/auth";
 import db from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";

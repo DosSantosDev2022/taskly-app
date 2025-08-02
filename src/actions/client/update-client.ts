@@ -1,7 +1,7 @@
 // src/actions/client/updateClient.ts
 "use server";
 
-import { clientFormSchema } from "@/@types/zod/clientFormSchema"; // Reutilizaremos o mesmo schema
+import { clientFormSchema } from "@/@types/zod"; // Reutilizaremos o mesmo schema
 import { authOptions } from "@/lib/auth";
 import db from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";

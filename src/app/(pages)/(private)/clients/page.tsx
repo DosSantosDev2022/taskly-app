@@ -1,7 +1,10 @@
-import { getClients } from "@/actions/client/getClients";
+import { getClients } from "@/actions/client";
 import { PaginationComponent } from "@/components/global";
-import { AddClientForm, ClientTable } from "@/components/pages/clients";
-import { ClientSearch } from "@/components/pages/clients/clientSearch";
+import {
+	AddClientForm,
+	ClientSearch,
+	ClientTable,
+} from "@/components/pages/clients";
 import { Separator } from "@/components/ui/separator";
 import type { JSX } from "react";
 

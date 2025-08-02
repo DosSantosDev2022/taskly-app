@@ -1,6 +1,6 @@
 "use server";
 
-import { editCommentSchema } from "@/@types/zod/commentFormSchema";
+import { editCommentSchema } from "@/@types/zod";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 

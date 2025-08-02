@@ -4,7 +4,7 @@
 import {
 	updateClientStatusSchema,
 	type UpdateClientStatusInput,
-} from "@/@types/zod/clientStatusSchema"; // Importa o novo schema
+} from "@/@types/zod"; // Importa o novo schema
 import { db } from "@/lib/prisma"; // Certifique-se de que o caminho para o Prisma está correto
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";

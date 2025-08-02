@@ -1,8 +1,5 @@
-// src/components/user-nav.tsx
-"use client"; // Este componente precisa ser um Client Component
+"use client";
 
-import { signIn, signOut, useSession } from "next-auth/react";
-import Link from "next/link";
 import {
 	Avatar,
 	AvatarFallback,
@@ -11,9 +8,10 @@ import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from "@/components/ui"; // Ajuste os imports conforme sua estrutura de ui
-import { Separator } from "@/components/ui/separator"; // Certifique-se que Separator está disponível
+} from "@/components/ui";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { signOut, useSession } from "next-auth/react";
 
 const UserAvatar = () => {
 	const { data: session, status } = useSession();

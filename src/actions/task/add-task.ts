@@ -1,6 +1,6 @@
 "use server";
 
-import { type CreateTaskInput, TaskSchema } from "@/@types/zod/TaskFormSchema";
+import { type CreateTaskInput, TaskSchema } from "@/@types/zod";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import z, { ZodError } from "zod";

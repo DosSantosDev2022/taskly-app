@@ -1,10 +1,15 @@
 "use client";
 
-import { LoginFormInputs, loginSchema } from "@/@types/zod/authFormSchema";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { LoginFormInputs, loginSchema } from "@/@types/zod";
+import {
+	Button,
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+	Input,
+	Label,
+} from "@/components/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react"; // Importe a função signIn do Next-Auth
 import Link from "next/link";
@@ -64,7 +69,11 @@ const FormLogin = () => {
 				<CardTitle className="text-2xl text-center">Login</CardTitle>
 			</CardHeader>
 			<CardContent>
-				<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+				<form
+					onSubmit={handleSubmit(onSubmit)}
+					className="space-y-4"
+					noValidate
+				>
 					<div className="grid gap-2">
 						<Label htmlFor="email">Email</Label>
 						<Input

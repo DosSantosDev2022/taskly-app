@@ -1,7 +1,9 @@
 /* Centralizar exportações */
 
-export * from "./formatDate";
-export * from "./getTaskProgress";
-export * from "./isPastDueDate";
-export * from "./themeScript";
-export * from "./getStatusStyles";
+export * from "./format-client-status";
+export * from "./format-date";
+export * from "./format-price";
+export * from "./get-status-styles";
+export * from "./get-task-progress";
+export * from "./is-past-due-date";
+export * from "./theme-script";
