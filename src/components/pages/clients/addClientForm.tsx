@@ -43,6 +43,17 @@ const AddClientForm = (): JSX.Element => {
 		mode: "onBlur",
 	});
 
+	const handleOpenChange = useCallback(
+		(open: boolean) => {
+			setIsOpen(open);
+			if (!open) {
+				form.reset(); // reseta o formulário para os defaultValues
+				form.clearErrors(); // limpa quaisquer erros de validação
+			}
+		},
+		[form],
+	);
+
 	const onSubmit = useCallback(
 		async (values: ClientFormValues) => {
 			console.log("Dados do cliente para envio:", values);
@@ -99,7 +110,7 @@ const AddClientForm = (): JSX.Element => {
 	);
 
 	return (
-		<Dialog open={isOpen} onOpenChange={setIsOpen}>
+		<Dialog open={isOpen} onOpenChange={handleOpenChange}>
 			<Button
 				variant={"secondary"}
 				onClick={() => setIsOpen(true)}

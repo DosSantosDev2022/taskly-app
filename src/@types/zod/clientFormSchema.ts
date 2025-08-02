@@ -19,7 +19,7 @@ export const clientFormSchema = z.object({
 		.string({
 			error: "O nome do cliente é obrigatório.",
 		})
-		.min(2, "O nome deve ter pelo menos 2 caracteres.")
+		.min(2, "O nome do cliente é obrigatório.")
 		.max(100, "O nome não pode exceder 100 caracteres.")
 		.trim(), // Adicionado .trim() para remover espaços em branco no início/fim
 

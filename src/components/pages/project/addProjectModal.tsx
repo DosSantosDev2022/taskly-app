@@ -1,7 +1,7 @@
 // components/modals/AddProjectModal.tsx
 "use client";
 
-import { useState } from "react";
+import { AddProjectForm } from "@/components/pages/project";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -11,8 +11,8 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { AddProjectForm } from "@/components/pages/project";
 import { PlusCircle } from "lucide-react";
+import { useState } from "react";
 
 export const AddProjectModal = () => {
 	const [isOpen, setIsOpen] = useState(false);
