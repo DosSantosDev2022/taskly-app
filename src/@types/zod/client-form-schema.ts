@@ -29,7 +29,7 @@ export const clientFormSchema = z.object({
 	 * Permite string vazia.
 	 */
 	email: z
-		.string({ error: "O e-mail deve ser uma string." })
+		.string()
 		.email("Por favor, insira um endereço de e-mail válido.")
 		.max(255, "O e-mail não pode exceder 255 caracteres."),
 	/**
