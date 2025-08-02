@@ -2,10 +2,10 @@
 "use client";
 
 import { ProjectDetails } from "@/@types/project-types";
-import { formSchema } from "@/@types/zod/projectFormSchema"; // Assumindo que você tem um schema similar para edição
-import { getClients } from "@/actions/client/getClients"; // Server Action para buscar projeto
-import { updateProject } from "@/actions/project/updateProject"; // Server Action para atualizar projeto (você precisará criar esta)
-import { LoadingOverlay } from "@/components/global/loadingOverlay";
+import { formSchema } from "@/@types/zod";
+import { getClients } from "@/actions/client";
+import { updateProject } from "@/actions/project";
+import { LoadingOverlay } from "@/components/global";
 import {
 	Button,
 	Calendar,

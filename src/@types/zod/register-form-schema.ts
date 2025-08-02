@@ -54,21 +54,18 @@ export const registerSchema = z
 				error: "O nome é obrigatório.",
 			})
 			.trim()
-			.min(1, { message: "O nome não pode ser vazio." }),
+			.min(1, { message: "O nome é obrigatório." }),
 
 		email: z
-			.string({
-				error: "O e-mail é obrigatório.",
-			})
+			.string()
 			.trim()
-			.email({ message: "O e-mail fornecido é inválido." })
-			.min(1, { message: "O e-mail não pode ser vazio." }),
+			.email({ message: "O nome é obrigatório." })
+			.min(1, { message: "O nome é obrigatório." }),
 
 		password: z
-			.string({
-				error: "A senha é obrigatória.",
-			})
+			.string()
 			.trim()
+			.min(1, { message: "A senha é obrigatório." })
 			.min(PASSWORD_MIN_LENGTH, {
 				message: `A senha deve ter no mínimo ${PASSWORD_MIN_LENGTH} caracteres.`,
 			})
@@ -80,9 +77,8 @@ export const registerSchema = z
 			}),
 
 		confirmPassword: z
-			.string({
-				error: "A confirmação da senha é obrigatória.",
-			})
+			.string()
+			.min(1, { message: "A confirmação da senha é obrigatório." })
 			.trim()
 			.min(1, { message: "A confirmação da senha não pode ser vazia." }),
 	})

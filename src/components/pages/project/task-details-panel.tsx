@@ -1,25 +1,24 @@
 "use client";
 
+import { deleteTask, toggleTaskStatus } from "@/actions/task";
+import { ConfirmationDialog } from "@/components/global";
+import { EditTaskModal } from "@/components/pages/project";
 import {
+	Button,
 	Card,
+	CardContent,
 	CardHeader,
 	CardTitle,
-	CardContent,
-	Button,
 	Tooltip,
-	TooltipTrigger,
 	TooltipContent,
+	TooltipTrigger,
 } from "@/components/ui";
-import { Trash, ClipboardList, Edit, X } from "lucide-react";
+import { useProjectDetailsStore } from "@/store";
+import { getStatusLabel, getStatusStyles } from "@/utils";
+import type { ProjectStatus as PrismaProjectStatus } from "@prisma/client";
+import { ClipboardList, Edit, Trash, X } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
-import { ConfirmationDialog } from "@/components/global";
-import { getStatusLabel, getStatusStyles } from "@/utils";
-import { toggleTaskStatus } from "@/actions/task/toggleTaskStatus";
-import { deleteTask } from "@/actions/task/deleteTask";
-import type { ProjectStatus as PrismaProjectStatus } from "@prisma/client";
-import { EditTaskModal } from "@/components/pages/project";
-import { useProjectDetailsStore } from "@/store";
 
 // --- Tipagens ---
 /**

@@ -1,7 +1,7 @@
 "use client";
 
-import { editCommentSchema } from "@/@types/zod/commentFormSchema";
-import { editComment } from "@/actions/comment/editComment";
+import { editCommentSchema } from "@/@types/zod";
+import { editComment } from "@/actions/comment";
 import {
 	Button,
 	Dialog,

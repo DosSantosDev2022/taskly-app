@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { FaGoogle } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 // 1. Definindo o Schema de Validação com Zod para o frontend
@@ -193,6 +194,7 @@ const FormRegister = () => {
 						onClick={handleGoogleRegister}
 						disabled={isSubmitting}
 					>
+						<FaGoogle />
 						Cadastrar com Google
 					</Button>
 					<div className="flex justify-end">

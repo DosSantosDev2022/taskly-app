@@ -1,7 +1,6 @@
-// src/app/login/page.tsx
 import { FormLogin } from "@/components/pages/auth";
 import { ClipboardList } from "lucide-react";
-import Image from "next/image"; // Importar o componente Image do Next.js para otimização de imagens
+import Image from "next/image";
 
 export default function LoginPage() {
 	return (

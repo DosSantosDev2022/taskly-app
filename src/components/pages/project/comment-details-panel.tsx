@@ -1,24 +1,24 @@
 "use client";
 
-import { deleteComment } from "@/actions/comment/deleteComment";
+import { deleteComment } from "@/actions/comment";
 import { ConfirmationDialog } from "@/components/global";
+import { EditCommentForm } from "@/components/pages/project";
 import {
+	Button,
 	Card,
+	CardContent,
 	CardHeader,
 	CardTitle,
-	CardContent,
-	Button,
-	TooltipTrigger,
-	TooltipContent,
 	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
 } from "@/components/ui";
+import { useProjectDetailsStore } from "@/store";
 import { formatDate } from "@/utils";
 import type { Comment } from "@prisma/client";
 import { Edit, Trash, X } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
-import { EditCommentForm } from "@/components/pages/project";
-import { useProjectDetailsStore } from "@/store";
 
 // --- Tipagem das Props ---
 /**

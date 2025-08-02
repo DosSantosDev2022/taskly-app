@@ -1,5 +1,4 @@
 "use client";
-
 import { LoginFormInputs, loginSchema } from "@/@types/zod";
 import {
 	Button,
@@ -16,6 +15,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation"; // Para redirecionar após o login
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { FaGoogle } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const FormLogin = () => {
@@ -111,6 +111,7 @@ const FormLogin = () => {
 						type="button"
 						className="w-full"
 					>
+						<FaGoogle />
 						Login com Google
 					</Button>
 					<div className="flex justify-end">

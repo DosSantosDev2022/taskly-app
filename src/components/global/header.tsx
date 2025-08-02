@@ -1,7 +1,7 @@
-import { Search } from "lucide-react";
+import { UserAvatar } from "@/components/global";
 import { Input } from "@/components/ui";
-import { UserAvatar } from "./userAvatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Search } from "lucide-react";
 
 const Header = () => {
 	return (

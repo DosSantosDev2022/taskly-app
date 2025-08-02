@@ -6,9 +6,9 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import type z from "zod";
 
-import { clientFormSchema } from "@/@types/zod/clientFormSchema";
-import { createClient } from "@/actions/client/addClient";
-import { LoadingOverlay } from "@/components/global/loadingOverlay";
+import { clientFormSchema } from "@/@types/zod";
+import { createClient } from "@/actions/client";
+import { LoadingOverlay } from "@/components/global";
 import {
 	Button,
 	Dialog,

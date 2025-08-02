@@ -1,21 +1,21 @@
 // src/components/modals/EditProjectModal.tsx
 "use client";
 
-import type { ProjectForClient } from "@/@types/project-types";
+import type { ProjectDetails } from "@/@types/project-types";
 import { EditProjectForm } from "@/components/pages/project"; // Ajuste o path conforme sua estrutura
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/ui";
 import { useState } from "react";
 
 interface EditProjectModalProps {
-	project: ProjectForClient;
+	project: ProjectDetails;
 	triggerButtonText?: string;
 }
 

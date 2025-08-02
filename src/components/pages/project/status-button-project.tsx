@@ -1,10 +1,10 @@
 "use client";
 
+import { toggleProjectStatus } from "@/actions/project";
+import { getStatusLabelProject, getStatusProjectStyles } from "@/utils";
+import type { ProjectStatus } from "@prisma/client";
 import { useTransition } from "react";
 import { toast } from "react-toastify";
-import type { ProjectStatus } from "@prisma/client";
-import { toggleProjectStatus } from "@/actions/project/toggleProjectStatus";
-import { getStatusLabelProject, getStatusProjectStyles } from "@/utils";
 
 interface ProjectStatusDisplayProps {
 	projectId: string;

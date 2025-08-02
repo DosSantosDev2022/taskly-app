@@ -1,7 +1,7 @@
 "use client";
 
-import { type CreateTaskInput, TaskSchema } from "@/@types/zod/TaskFormSchema";
-import { addTaskAction } from "@/actions/task/addTask";
+import { type CreateTaskInput, TaskSchema } from "@/@types/zod";
+import { addTaskAction } from "@/actions/task";
 import {
 	Button,
 	Dialog,

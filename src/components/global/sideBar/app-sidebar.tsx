@@ -13,7 +13,7 @@ import {
 	Settings,
 	User,
 } from "lucide-react";
-import { NavLinks } from "./navLinks";
+import { NavLinks } from "./nav-links";
 
 const data = {
 	links: [

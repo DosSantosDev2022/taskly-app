@@ -1,10 +1,7 @@
 "use client";
 
-import { updateClientStatus } from "@/actions/client/updateClientStatus";
-import {
-	formatClientStatus,
-	getStatusClientStyles,
-} from "@/utils/formatClientStatus";
+import { updateClientStatus } from "@/actions/client";
+import { formatClientStatus, getStatusClientStyles } from "@/utils";
 import type { ClientStatus } from "@prisma/client";
 import { useTransition } from "react";
 import { toast } from "react-toastify";

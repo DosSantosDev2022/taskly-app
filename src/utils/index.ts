@@ -1,5 +1,6 @@
 /* Centralizar exportações */
 
+export * from "./capitalize-firstLetter";
 export * from "./format-client-status";
 export * from "./format-date";
 export * from "./format-price";

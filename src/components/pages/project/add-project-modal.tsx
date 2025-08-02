@@ -2,15 +2,15 @@
 "use client";
 
 import { AddProjectForm } from "@/components/pages/project";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/ui";
 import { PlusCircle } from "lucide-react";
 import { useState } from "react";
 

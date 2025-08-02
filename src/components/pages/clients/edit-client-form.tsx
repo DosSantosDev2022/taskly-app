@@ -8,9 +8,9 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import type z from "zod";
 
-import { clientFormSchema } from "@/@types/zod/clientFormSchema"; // Verifique o caminho correto
-import { updateClient } from "@/actions/client/updateClient"; // Importe a Server Action de atualização
-import { LoadingOverlay } from "@/components/global/loadingOverlay"; // Verifique o caminho correto
+import { clientFormSchema } from "@/@types/zod";
+import { updateClient } from "@/actions/client";
+import { LoadingOverlay } from "@/components/global";
 import {
 	Button,
 	Dialog,

@@ -1,9 +1,8 @@
+import { AppSidebar, Header } from "@/components/global";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { QueryProvider } from "@/providers";
 import type { Metadata } from "next";
 import "../../../styles/globals.css";
-import { Header } from "@/components/global";
-import { QueryProvider } from "@/providers/QueryProvider";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/global/sideBar/appSideBar";
 
 export const metadata: Metadata = {
 	title: "Taskly App",

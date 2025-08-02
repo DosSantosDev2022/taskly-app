@@ -1,7 +1,7 @@
 "use client";
 
-import { TaskSchema } from "@/@types/zod/TaskFormSchema";
-import { updateTask } from "@/actions/task/updateTask";
+import { TaskSchema } from "@/@types/zod";
+import { updateTask } from "@/actions/task";
 import {
 	Button,
 	Dialog,

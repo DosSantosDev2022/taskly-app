@@ -1,8 +1,6 @@
 // src/components/pages/ProjectFilters.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import {
 	Select,
 	SelectContent,
@@ -12,10 +10,11 @@ import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
-	TooltipProvider,
 } from "@/components/ui";
-import type { ProjectStatus } from "@prisma/client";
 import { getStatusLabelProject, projectStatusArray } from "@/utils";
+import type { ProjectStatus } from "@prisma/client";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type ProjectType = "Web" | "Mobile" | "Desktop";
 

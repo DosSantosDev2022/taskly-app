@@ -1,11 +1,11 @@
 /* Centralizar exportações */
 
+export * from "./confirmation-dialog";
 export * from "./header";
-export * from "./confirmationDialog";
-export * from "./loadingOverlay";
+export * from "./loading-overlay";
 export * from "./pagination";
-export * from "./userAvatar";
+export * from "./user-avatar";
 
-export * from "./emails/verificationEmails";
-export * from "./sideBar/appSideBar";
-export * from "./sideBar/navLinks";
+export * from "./emails/verification-emails";
+export * from "./sideBar/app-sidebar";
+export * from "./sideBar/nav-links";

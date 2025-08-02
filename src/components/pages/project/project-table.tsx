@@ -1,6 +1,8 @@
 // src/components/pages/project-table.tsx
 "use client";
 
+import type { ProjectDetails } from "@/@types/project-types";
+import { deleteProject } from "@/actions/project";
 import { ConfirmationDialog } from "@/components/global"; // Assumindo que você tem um componente de diálogo
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,19 +19,16 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Eye, Trash2 } from "lucide-react"; // Usaremos Eye para "ver detalhes"
+import {
+	capitalizeFirstLetter,
+	formatDate,
+	getStatusLabelProject,
+} from "@/utils";
+import type { ProjectStatus } from "@prisma/client";
+import { Eye, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition, type JSX } from "react";
-// import { EditProjectForm } from "./forms/editProjectForm"; // Se você tiver um modal de edição de projeto
-import { deleteProject } from "@/actions/project/deleteProject"; // Assumindo que você terá uma Server Action de exclusão
-import { toast } from "react-toastify"; // Para notificações
-
-// Importa o tipo Project do Prisma Client
-import type { ProjectStatus } from "@prisma/client";
-
-import type { ProjectDetails } from "@/@types/project-types";
-import { formatDate, getStatusLabelProject } from "@/utils";
-import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
+import { toast } from "react-toastify";
 
 interface ProjectTableProps {
 	projects: ProjectDetails[];

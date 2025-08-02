@@ -1,10 +1,10 @@
 "use client";
 
 // Secao 1: Importacoes
-import { formSchema } from "@/@types/zod/projectFormSchema";
-import { getClients } from "@/actions/client/getClients";
-import { createProject } from "@/actions/project/addProject";
-import { LoadingOverlay } from "@/components/global/loadingOverlay";
+import { formSchema } from "@/@types/zod";
+import { getClients } from "@/actions/client";
+import { createProject } from "@/actions/project";
+import { LoadingOverlay } from "@/components/global";
 import {
 	Button,
 	Calendar,

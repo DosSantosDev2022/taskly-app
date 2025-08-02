@@ -123,7 +123,7 @@
 
 /* Estilos para a barra de rolagem no modo light */
 .scrollbar-custom::-webkit-scrollbar {
-	width: 6px;
+	width: 8px;
 }
 
 .scrollbar-custom::-webkit-scrollbar-track {
@@ -132,12 +132,12 @@
 
 .scrollbar-custom::-webkit-scrollbar-thumb {
 	background-color: var(--primary);
-	border-radius: 6px;
+	border-radius: 8px;
 }
 
 /* Estilos para a barra de rolagem no modo dark */
 .dark .scrollbar-custom::-webkit-scrollbar {
-	width: 6px;
+	width: 8px;
 }
 
 .dark .scrollbar-custom::-webkit-scrollbar-track {
@@ -146,5 +146,5 @@
 
 .dark .scrollbar-custom::-webkit-scrollbar-thumb {
 	background-color: var(--color-secondary-foreground); /* Cor do polegar clara */
-	border-radius: 6px;
+	border-radius: 8px;
 }

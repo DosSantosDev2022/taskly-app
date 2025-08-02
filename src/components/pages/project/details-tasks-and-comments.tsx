@@ -5,9 +5,9 @@ import {
 	type CommentDetail,
 	type TaskDetail,
 	useProjectDetailsStore,
-} from "@/store/projectDetailsStore";
-import { CommentDetailsPanel } from "./commentDetailsPanel";
-import { TaskDetailsPanel } from "./taskDetailsPanel";
+} from "@/store";
+import { CommentDetailsPanel } from "./comment-details-panel";
+import { TaskDetailsPanel } from "./task-details-panel";
 
 /**
  * @component DetailsTasksAndComments

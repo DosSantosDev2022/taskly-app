@@ -1,5 +1,6 @@
 "use client";
 
+import { addComment } from "@/actions/comment";
 import {
 	Button,
 	Dialog,
@@ -9,9 +10,8 @@ import {
 	DialogTrigger,
 	Textarea,
 } from "@/components/ui";
-import { useState, useTransition, useRef } from "react";
+import { useRef, useState, useTransition } from "react";
 import { toast } from "react-toastify";
-import { addComment } from "@/actions/comment/addComment";
 
 // --- Tipagem das Props ---
 /**
