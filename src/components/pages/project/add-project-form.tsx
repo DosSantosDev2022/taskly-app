@@ -140,7 +140,7 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 								theme: "dark",
 							});
 						} else {
-							toast.error(result.errors || "Erro ao adicionar novo projeto.", {
+							toast.error(result.message || "Erro ao adicionar novo projeto.", {
 								autoClose: 5000,
 								theme: "dark",
 							});

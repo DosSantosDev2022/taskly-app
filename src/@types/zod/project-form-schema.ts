@@ -13,7 +13,8 @@ export const formSchema = z.object({
 	 * @description Deve ter pelo menos 2 caracteres e no máximo 255. Campo obrigatório.
 	 */
 	name: z
-		.string({ error: "O nome do projeto é obrigatório." })
+		.string()
+		.min(1, "O nome do projeto é obrigatório.")
 		.min(2, "O nome do projeto deve ter pelo menos 2 caracteres.")
 		.max(255, "O nome do projeto não pode exceder 255 caracteres.") // Aumentei o limite para consistência com o backend
 		.trim(),
