@@ -13,12 +13,12 @@ import { useState, useTransition, type JSX } from "react";
 // Assumindo que você terá um tipo Client do Prisma
 import { deleteClient } from "@/actions/client";
 import { ConfirmationDialog } from "@/components/global";
+import { EditClientForm } from "@/components/pages/clients";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import type { Client } from "@prisma/client";
 import { Edit, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
-import { EditClientForm } from "./edit-client-form";
 import { StatusButtonClient } from "./status-button-client";
 
 interface ClientTableProps {

@@ -1,13 +1,15 @@
 "use client";
 
+import {
+	CommentDetailsPanel,
+	TaskDetailsPanel,
+} from "@/components/pages/project";
 import { Card, CardContent } from "@/components/ui";
 import {
 	type CommentDetail,
 	type TaskDetail,
 	useProjectDetailsStore,
 } from "@/store";
-import { CommentDetailsPanel } from "./comment-details-panel";
-import { TaskDetailsPanel } from "./task-details-panel";
 
 /**
  * @component DetailsTasksAndComments
