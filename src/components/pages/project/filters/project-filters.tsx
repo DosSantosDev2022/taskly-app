@@ -82,7 +82,7 @@ const ProjectFilters = () => {
 			<Tooltip>
 				<Select value={selectedType} onValueChange={handleTypeChange}>
 					<TooltipTrigger asChild>
-						<SelectTrigger className="w-full">
+						<SelectTrigger aria-label="Selecione um tipo" className="w-full">
 							<SelectValue placeholder="Selecione um tipo" />
 						</SelectTrigger>
 					</TooltipTrigger>
@@ -104,7 +104,7 @@ const ProjectFilters = () => {
 			<Tooltip>
 				<Select value={selectedStatus} onValueChange={handleStatusChange}>
 					<TooltipTrigger asChild>
-						<SelectTrigger className="w-full">
+						<SelectTrigger aria-label="Selecione um status" className="w-full">
 							<SelectValue placeholder="Selecione um status" />
 						</SelectTrigger>
 					</TooltipTrigger>
