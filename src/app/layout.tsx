@@ -1,3 +1,4 @@
+import { QueryProvider } from "@/providers";
 import AuthProvider from "@/providers/auth-provider";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
@@ -24,10 +25,12 @@ export default function RootLayout({
 			<body
 				className={`${poppins.className} bg-background overflow-y-hidden text-foreground dark scrollbar-custom antialiased`}
 			>
-				<AuthProvider>
-					{children}
-					<ToastContainer />
-				</AuthProvider>
+				<QueryProvider>
+					<AuthProvider>
+						{children}
+						<ToastContainer />
+					</AuthProvider>
+				</QueryProvider>
 			</body>
 		</html>
 	);

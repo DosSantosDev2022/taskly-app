@@ -11,12 +11,12 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui";
-import { getStatusLabelProject, projectStatusArray } from "@/utils";
-import type { ProjectStatus } from "@prisma/client";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-
-type ProjectType = "Web" | "Mobile" | "Desktop";
+import { Button } from "@/components/ui/button";
+import { useProjectStore } from "@/store/use-project-store";
+import type { ProjectStatus, ProjectType } from "@prisma/client";
+import { FilterX } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 const projectTypes = [
 	{ label: "Web", value: "WEB" as ProjectType },
@@ -24,103 +24,129 @@ const projectTypes = [
 	{ label: "Sistema", value: "SISTEMA" as ProjectType },
 ];
 
-// O tipo agora incluirá a string literal 'all' para a opção "Todos"
-type FilterValue = ProjectType | ProjectStatus | "all";
+const projectStatus = [
+	{ label: "Pendente", value: "PENDING" as ProjectStatus },
+	{ label: "Em Andamento", value: "IN_PROGRESS" as ProjectStatus },
+	{ label: "Concluído", value: "COMPLETED" as ProjectStatus },
+];
 
 const ProjectFilters = () => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
+	const pathname = usePathname();
 
-	// Inicializa os estados com o valor da URL, ou 'all' se não houver filtro
-	const [selectedType, setSelectedType] = useState<FilterValue>(
-		(searchParams.get("type") as ProjectType) || "all",
-	);
-	const [selectedStatus, setSelectedStatus] = useState<FilterValue>(
-		(searchParams.get("status") as ProjectStatus) || "all",
-	);
+	// Obtém o estado e a função de atualização do store Zustand
+	const { type, status, setSearchParams } = useProjectStore();
 
+	// Efeito para sincronizar o estado do Zustand com a URL
+	// Isso é crucial para que, ao carregar a página com a URL, o estado do store seja o mesmo.
 	useEffect(() => {
-		// Sincroniza o estado local com os parâmetros da URL
-		setSelectedType((searchParams.get("type") as ProjectType) || "all");
-		setSelectedStatus((searchParams.get("status") as ProjectStatus) || "all");
-	}, [searchParams]);
+		// Lê os valores da URL de forma segura
+		const urlType = (searchParams.get("type") as ProjectType) || undefined;
+		const urlStatus =
+			(searchParams.get("status") as ProjectStatus) || undefined;
+		const urlPage = Number(searchParams.get("page")) || 1;
+		const urlPageSize = Number(searchParams.get("pageSize")) || 10;
 
-	const updateFilters = (newType: FilterValue, newStatus: FilterValue) => {
-		const params = new URLSearchParams(searchParams.toString());
+		// ATUALIZAÇÃO DO ZUSTAND COM O ESTADO COMPLETO E CORRETO
+		setSearchParams({
+			type: urlType,
+			status: urlStatus,
+			page: urlPage,
+			pageSize: urlPageSize,
+		});
+	}, [searchParams, setSearchParams]);
 
-		// Se o valor for 'all', delete o parâmetro. Caso contrário, defina-o.
-		if (newType !== "all") {
-			params.set("type", newType);
+	// Função centralizada para atualizar a URL e o estado
+	const handleUpdateFilter = (
+		key: "type" | "status",
+		value: string | undefined,
+	) => {
+		const params = new URLSearchParams(searchParams);
+
+		if (value) {
+			params.set(key, value);
 		} else {
-			params.delete("type");
+			params.delete(key);
 		}
 
-		if (newStatus !== "all") {
-			params.set("status", newStatus);
-		} else {
-			params.delete("status");
-		}
+		// Resetar a paginação para a primeira página ao aplicar um novo filtro
+		params.set("page", "1");
 
-		router.push(`?${params.toString()}`);
+		// Atualiza a URL
+		router.push(`${pathname}?${params.toString()}`);
 	};
 
-	const handleTypeChange = (value: string) => {
-		const newType = value as FilterValue;
-		setSelectedType(newType);
-		updateFilters(newType, selectedStatus);
-	};
-
-	const handleStatusChange = (value: string) => {
-		const newStatus = value as FilterValue;
-		setSelectedStatus(newStatus);
-		updateFilters(selectedType, newStatus);
+	const handleClearFilters = () => {
+		router.push(pathname);
 	};
 
 	return (
-		<div className="flex items-center gap-2 pace-y-2">
+		<div className="flex items-center gap-2">
 			{/* Filtro por Tipo de Projeto */}
 			<Tooltip>
-				<Select value={selectedType} onValueChange={handleTypeChange}>
+				{/* O valor e a mudança de valor agora são gerenciados pelo Zustand */}
+				<Select
+					value={type || "all"}
+					onValueChange={(value) =>
+						handleUpdateFilter("type", value !== "all" ? value : undefined)
+					}
+				>
 					<TooltipTrigger asChild>
-						<SelectTrigger aria-label="Selecione um tipo" className="w-full">
-							<SelectValue placeholder="Selecione um tipo" />
+						<SelectTrigger aria-label="Selecione um tipo" className="w-[180px]">
+							<SelectValue placeholder="Filtrar por Tipo" />
 						</SelectTrigger>
 					</TooltipTrigger>
 					<SelectContent>
-						{/* O valor para "Todos" agora é 'all' */}
-						<SelectItem value="all">Todos</SelectItem>
-						{projectTypes.map((type) => (
-							<SelectItem value={type.value} key={type.value}>
-								{type.label}
+						<SelectItem value="all">Todos os tipos</SelectItem>
+						{projectTypes.map((t) => (
+							<SelectItem value={t.value} key={t.value}>
+								{t.label}
 							</SelectItem>
 						))}
 					</SelectContent>
 				</Select>
-
 				<TooltipContent>Filtrar por Tipo</TooltipContent>
 			</Tooltip>
 
 			{/* Filtro por Status */}
 			<Tooltip>
-				<Select value={selectedStatus} onValueChange={handleStatusChange}>
+				<Select
+					value={status || "all"}
+					onValueChange={(value) =>
+						handleUpdateFilter("status", value !== "all" ? value : undefined)
+					}
+				>
 					<TooltipTrigger asChild>
-						<SelectTrigger aria-label="Selecione um status" className="w-full">
-							<SelectValue placeholder="Selecione um status" />
+						<SelectTrigger
+							aria-label="Selecione um status"
+							className="w-[180px]"
+						>
+							<SelectValue placeholder="Filtrar por Status" />
 						</SelectTrigger>
 					</TooltipTrigger>
 					<SelectContent>
-						{/* O valor para "Todos" agora é 'all' */}
-						<SelectItem value="all">Todos</SelectItem>
-						{projectStatusArray.map((status) => (
-							<SelectItem key={status} value={status}>
-								{getStatusLabelProject(status)}
+						<SelectItem value="all">Todos os status</SelectItem>
+						{projectStatus.map((status) => (
+							<SelectItem key={status.label} value={status.value}>
+								{status.label}
 							</SelectItem>
 						))}
 					</SelectContent>
 				</Select>
-
 				<TooltipContent>Filtrar por Status</TooltipContent>
 			</Tooltip>
+
+			{(type || status) && (
+				<Button
+					variant="outline"
+					size="icon"
+					onClick={handleClearFilters}
+					aria-label="Limpar Filtros"
+				>
+					<FilterX className="h-4 w-4" />
+				</Button>
+			)}
 		</div>
 	);
 };

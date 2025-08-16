@@ -1,24 +1,22 @@
-// src/components/pages/project-table.tsx
+// src/components/pages/projects/ProjectTable.tsx
 "use client";
 
-import type { ProjectDetails } from "@/@types/project-types";
-import { deleteProject } from "@/actions/project";
-import { ConfirmationDialog } from "@/components/global"; // Assumindo que você tem um componente de diálogo
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ConfirmationDialog, PaginationComponent } from "@/components/global";
 import {
+	Badge,
+	Button,
 	Table,
 	TableBody,
 	TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table";
-import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/ui";
+import { useDeleteProjectMutation, useProjectsQuery } from "@/hooks/project";
+import { useProjectStore } from "@/store/use-project-store";
 import {
 	capitalizeFirstLetter,
 	formatDate,
@@ -27,73 +25,50 @@ import {
 import type { ProjectStatus } from "@prisma/client";
 import { Eye, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useState, useTransition, type JSX } from "react";
-import { toast } from "react-toastify";
+import { useState, type JSX } from "react";
+import { ProjectsTableSkeleton } from "./project-skeleton-table";
 
-interface ProjectTableProps {
-	projects: ProjectDetails[];
-}
-
-const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
-	// --- Estados Locais e Transições ---
-	const [isDeleting, startDeleteTransition] = useTransition();
+const ProjectTable = (): JSX.Element => {
+	const { pageSize } = useProjectStore();
+	// Hook customizado para buscar e gerenciar os dados
+	const { data, isFetching, isLoading, isError, error } = useProjectsQuery();
+	//  Hook customizado para deletar projeto com React Query
+	const deleteMutation = useDeleteProjectMutation();
+	// Acesso direto aos dados do hook
+	const projects = data?.projects || [];
+	const totalProjects = data?.totalProjects || 0;
+	const totalPages = Math.ceil(totalProjects / pageSize);
+	// Estado para controle do diálogo de confirmação
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+	// Estado para armazenar o projeto selecionado para exclusão
+	const [selectedProject, setSelectedProject] = useState<{
+		id: string;
+		name: string;
+	} | null>(null);
 
-	const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
-		null,
-	);
-	const [selectedProjectName, setSelectedProjectName] = useState<string | null>(
-		null,
-	);
-
-	// --- Handlers de Ações ---
-
+	// Função para iniciar o processo de exclusão
+	// Recebe o ID e o nome do projeto para exibir no diálogo de confirmação
 	const handleInitiateDelete = (projectId: string, projectName: string) => {
-		setSelectedProjectId(projectId);
-		setSelectedProjectName(projectName);
+		setSelectedProject({ id: projectId, name: projectName });
 		setShowConfirmDialog(true);
 	};
 
+	// Função para confirmar a exclusão do projeto
+	// Chama a mutação de exclusão e fecha o diálogo
 	const handleConfirmDelete = async () => {
-		if (!selectedProjectId) {
-			toast.error("Nenhum projeto selecionado para exclusão.", {
-				autoClose: 3000,
-				theme: "dark",
-			});
-			setShowConfirmDialog(false);
-			return;
-		}
-
+		if (!selectedProject) return;
 		setShowConfirmDialog(false);
-		startDeleteTransition(async () => {
-			const formData = new FormData();
-			formData.append("projectId", selectedProjectId);
-
-			const result = await deleteProject(formData); // Chame sua Server Action de exclusão de projeto
-
-			if (result.success) {
-				toast.success(
-					`Projeto "${selectedProjectName}" deletado com sucesso!`,
-					{ autoClose: 3000, theme: "dark" },
-				);
-				setSelectedProjectId(null);
-				setSelectedProjectName(null);
-				// O Next.js deve revalidar o cache e buscar a lista atualizada automaticamente
-				// se a sua Server Action de delete usar `revalidatePath` ou `revalidateTag`.
-			} else {
-				console.error("Erro ao deletar projeto:", result.errors);
-				toast.error(result.message || "Erro ao deletar projeto!", {
-					autoClose: 3000,
-					theme: "dark",
-				});
-			}
-		});
+		await deleteMutation.mutateAsync(selectedProject.id);
 	};
 
+	// Função para cancelar a exclusão
+	// Apenas fecha o diálogo e limpa o projeto selecionado
 	const handleCancelDelete = () => {
 		setShowConfirmDialog(false);
+		setSelectedProject(null);
 	};
 
+	// Função para obter o rótulo do status do projeto
 	const getStatusVariant = (status: ProjectStatus) => {
 		switch (status) {
 			case "COMPLETED":
@@ -107,93 +82,115 @@ const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
 		}
 	};
 
+	if (isError) {
+		return (
+			<div className="text-center p-8 border border-dashed rounded-lg text-destructive">
+				<p className="text-lg font-medium">Erro ao carregar os projetos.</p>
+				<p className="mt-2 text-sm">
+					Por favor, tente novamente mais tarde. Detalhes do erro:{" "}
+					{error?.message}
+				</p>
+			</div>
+		);
+	}
+
 	return (
-		<div className="rounded-md border overflow-y-auto max-h-[600px] scrollbar-custom ">
-			<Table className="min-w-full">
-				<TableHeader>
-					<TableRow>
-						<TableHead className="min-w-[150px]">Nome</TableHead>
-						<TableHead className="min-w-[100px]">Tipo</TableHead>
-						<TableHead className="min-w-[100px]">Cliente</TableHead>
-						<TableHead className="min-w-[180px]">Descrição</TableHead>
-						<TableHead className="text-center min-w-[100px]">Status</TableHead>
-						<TableHead className="min-w-[80px]">Tarefas</TableHead>
-						<TableHead className="min-w-[120px]">Criação</TableHead>
-						<TableHead className="min-w-[120px]">Prazo</TableHead>
-						<TableHead className="text-center w-[120px]">Ações</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{projects.length === 0 ? (
+		<div className="flex flex-col gap-6">
+			{/* Container da tabela */}
+			<div className="rounded-md border overflow-y-auto max-h-[600px] scrollbar-custom relative">
+				<Table className="min-w-full">
+					<TableHeader>
 						<TableRow>
-							<TableCell
-								colSpan={7}
-								className="h-24 text-center text-muted-foreground"
-							>
-								Nenhum projeto encontrado.
-							</TableCell>
+							<TableHead className="min-w-[150px]">Nome</TableHead>
+							<TableHead className="min-w-[100px]">Tipo</TableHead>
+							<TableHead className="min-w-[100px]">Cliente</TableHead>
+							<TableHead className="min-w-[180px]">Descrição</TableHead>
+							<TableHead className="text-center min-w-[100px]">
+								Status
+							</TableHead>
+							<TableHead className="min-w-[80px]">Tarefas</TableHead>
+							<TableHead className="min-w-[120px]">Criação</TableHead>
+							<TableHead className="min-w-[120px]">Prazo</TableHead>
+							<TableHead className="text-center w-[120px]">Ações</TableHead>
 						</TableRow>
-					) : (
-						projects.map((project) => (
-							<TableRow key={project.id}>
-								<TableCell className="font-medium">{project.name}</TableCell>
-								<TableCell>{capitalizeFirstLetter(project.type)}</TableCell>
-								<TableCell>{project.client?.name}</TableCell>
-								<TableCell className="text-sm  line-clamp-1 truncate max-w-[240px]">
-									{project.description || "N/A"}
-								</TableCell>
-								<TableCell className="text-center">
-									<Badge variant={getStatusVariant(project.status)}>
-										{getStatusLabelProject(project.status)}
-									</Badge>
-								</TableCell>
-								<TableCell>{project.tasks?.length}</TableCell>
-								<TableCell className="whitespace-nowrap">
-									{formatDate(project.createdAt)}
-								</TableCell>
-								<TableCell className="whitespace-nowrap">
-									{project.deadlineDate
-										? formatDate(project.deadlineDate)
-										: "N/A"}
-								</TableCell>
-								<TableCell className="text-center flex justify-center items-center h-full gap-2">
-									{/* Botão de Ver Detalhes */}
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<Button variant="ghost" size="icon" asChild>
-												<Link
-													href={`/projects/project/${project.id}`}
-													aria-label={`Ver detalhes de ${project.name}`}
+					</TableHeader>
+					<TableBody>
+						{isLoading && isFetching ? (
+							<ProjectsTableSkeleton />
+						) : (
+							projects.map((project) => (
+								<TableRow key={project.id}>
+									<TableCell className="font-medium">{project.name}</TableCell>
+									<TableCell>{capitalizeFirstLetter(project.type)}</TableCell>
+									<TableCell>{project.client?.name}</TableCell>
+									<TableCell className="text-sm line-clamp-1 truncate max-w-[240px]">
+										{project.description || "N/A"}
+									</TableCell>
+									<TableCell className="text-center">
+										<Badge variant={getStatusVariant(project.status)}>
+											{getStatusLabelProject(project.status)}
+										</Badge>
+									</TableCell>
+									<TableCell>{project.tasks?.length}</TableCell>
+									<TableCell className="whitespace-nowrap">
+										{formatDate(project.createdAt)}
+									</TableCell>
+									<TableCell className="whitespace-nowrap">
+										{project.deadlineDate
+											? formatDate(project.deadlineDate)
+											: "N/A"}
+									</TableCell>
+									<TableCell className="text-center flex justify-center items-center h-full gap-2">
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<Button variant="ghost" size="icon" asChild>
+													<Link
+														href={`/projects/project/${project.id}`}
+														aria-label={`Ver detalhes de ${project.name}`}
+													>
+														<Eye className="h-4 w-4" />
+													</Link>
+												</Button>
+											</TooltipTrigger>
+											<TooltipContent>Ver Detalhes</TooltipContent>
+										</Tooltip>
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<Button
+													disabled={deleteMutation.isPending}
+													variant="ghost"
+													size="icon"
+													aria-label={`Deletar projeto ${project.name}`}
+													onClick={() =>
+														handleInitiateDelete(project.id, project.name)
+													}
 												>
-													<Eye className="h-4 w-4" />
-												</Link>
-											</Button>
-										</TooltipTrigger>
-										<TooltipContent>Ver Detalhes</TooltipContent>
-									</Tooltip>
-									{/* Botão de Excluir */}
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<Button
-												disabled={isDeleting}
-												variant="ghost"
-												size="icon"
-												aria-label={`Deletar projeto ${project.name}`}
-												onClick={() =>
-													handleInitiateDelete(project.id, project.name)
-												}
-											>
-												<Trash2 className="h-4 w-4 text-destructive" />
-											</Button>
-										</TooltipTrigger>
-										<TooltipContent>Deletar</TooltipContent>
-									</Tooltip>
-								</TableCell>
-							</TableRow>
-						))
-					)}
-				</TableBody>
-			</Table>
+													<Trash2 className="h-4 w-4 text-destructive" />
+												</Button>
+											</TooltipTrigger>
+											<TooltipContent>Deletar</TooltipContent>
+										</Tooltip>
+									</TableCell>
+								</TableRow>
+							))
+						)}
+					</TableBody>
+				</Table>
+			</div>
+
+			{/* Seção da Paginação: */}
+			{totalProjects > 0 && (
+				<div
+					className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-4"
+					aria-live="polite"
+				>
+					<span className="text-sm text-muted-foreground" aria-atomic="true">
+						Total de projetos:{" "}
+						<span className="font-semibold">{totalProjects}</span>
+					</span>
+					<PaginationComponent totalPages={totalPages} />
+				</div>
+			)}
 
 			{/* Diálogo de confirmação para exclusão */}
 			<ConfirmationDialog
@@ -202,8 +199,8 @@ const ProjectTable = ({ projects }: ProjectTableProps): JSX.Element => {
 				onCancel={handleCancelDelete}
 				title="Deletar Projeto"
 				description={
-					selectedProjectName
-						? `Tem certeza que deseja deletar o projeto "${selectedProjectName}"? Esta ação não pode ser desfeita e o projeto será removido permanentemente.`
+					selectedProject?.name
+						? `Tem certeza que deseja deletar o projeto "${selectedProject.name}"? Esta ação não pode ser desfeita e o projeto será removido permanentemente.`
 						: "Tem certeza que deseja deletar este projeto? Esta ação não pode ser desfeita e o projeto será removido permanentemente."
 				}
 				confirmText="Sim, Deletar"

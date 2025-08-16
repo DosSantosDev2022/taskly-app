@@ -19,8 +19,8 @@ export const TaskSchema = z.object({
 	 * @description Obrigatório, com mínimo de 1 e máximo de 255 caracteres.
 	 */
 	title: z
-		.string({ error: "O título da tarefa é obrigatório." })
-		.min(1, "O título é obrigatório.")
+		.string()
+		.min(1, "O título da tarefa é obrigatório.")
 		.max(255, "O título é muito longo (máximo 255 caracteres).")
 		.trim(),
 	/**
@@ -28,8 +28,8 @@ export const TaskSchema = z.object({
 	 * @description Obrigatória, com mínimo de 1 e máximo de 1000 caracteres.
 	 */
 	description: z
-		.string({ error: "A descrição da tarefa é obrigatória." })
-		.min(1, "A descrição é obrigatória.")
+		.string()
+		.min(1, "A descrição da tarefa é obrigatória.")
 		.max(1000, "A descrição é muito longa (máximo 1000 caracteres).")
 		.trim(),
 	/**

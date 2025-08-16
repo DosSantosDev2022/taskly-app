@@ -1,7 +1,6 @@
 "use client";
 
 import { TaskSchema } from "@/@types/zod";
-import { updateTask } from "@/actions/task";
 import {
 	Button,
 	Dialog,
@@ -19,33 +18,24 @@ import {
 	Input,
 	Textarea,
 } from "@/components/ui";
+import { useUpdateTask } from "@/hooks/task/use-update-task";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect, useTransition } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
 import * as z from "zod";
 
-// --- Tipagem dos Dados do Formulário ---
-/**
- * @type EditTaskFormValues
- * @description Tipo inferido do schema Zod para os valores do formulário.
- */
 type EditTaskFormValues = z.infer<typeof TaskSchema>;
 
-// --- Tipagem das Props ---
-/**
- * @interface EditTaskModalProps
- * @description Propriedades esperadas pelo componente EditTaskModal.
- */
 interface EditTaskModalProps {
 	isOpen: boolean; // Controla a visibilidade do modal
 	onClose: () => void; // Callback para fechar o modal
 	task: {
-		// Detalhes da tarefa a ser editada
+		projectId: string; // ID do projeto ao qual a tarefa pertence
 		id: string;
 		title: string;
 		description: string | null;
+		status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
 	};
 	onTaskUpdated: (updatedTaskDetails: {
 		title: string;
@@ -53,20 +43,9 @@ interface EditTaskModalProps {
 	}) => void; // Callback acionado após a atualização bem-sucedida da tarefa
 }
 
-/**
- * @component EditTaskModal
- * @description Componente de modal para edição de tarefas.
- * Utiliza React Hook Form para gerenciamento do formulário, Zod para validação
- * e interage com a Server Action `updateTask`.
- */
-export function EditTaskModal({
-	isOpen,
-	onClose,
-	task,
-	onTaskUpdated,
-}: EditTaskModalProps) {
+export function EditTaskModal({ isOpen, onClose, task }: EditTaskModalProps) {
 	// --- Estados Locais e Transições ---
-	const [isPending, startTransition] = useTransition(); // Gerencia o estado de "pending" (carregando) da Server Action
+	const { mutate, isPending } = useUpdateTask();
 
 	// --- Configuração do React Hook Form ---
 	const form = useForm<EditTaskFormValues>({
@@ -74,73 +53,34 @@ export function EditTaskModal({
 		defaultValues: {
 			title: task.title,
 			description: task.description || "",
+			projectId: task.projectId,
+			status: task.status,
 		},
 		mode: "onBlur", // Valida os campos ao perderem o foco para melhor UX
 	});
 
-	// --- Efeitos Colaterais ---
-	/**
-	 * @hook useEffect
-	 * @description Reseta o formulário com os valores da tarefa sempre que
-	 * o modal é aberto ou a tarefa em si muda. Isso garante que o formulário
-	 * sempre exiba os dados mais recentes da tarefa.
-	 */
 	useEffect(() => {
 		if (isOpen) {
 			form.reset({
 				title: task.title,
 				description: task.description || "",
+				projectId: task.projectId,
+				status: task.status,
 			});
 		}
 	}, [isOpen, task, form]);
 
-	// --- Handlers de Eventos ---
-
-	/**
-	 * @function onSubmit
-	 * @description Lida com a submissão do formulário de edição de tarefa.
-	 * Chama a Server Action `updateTask` e trata o resultado.
-	 * @param {EditTaskFormValues} values - Os valores validados do formulário.
-	 */
 	const onSubmit = (values: EditTaskFormValues) => {
-		startTransition(async () => {
-			// Chama a Server Action para atualizar a tarefa
-			const result = await updateTask(task.id, values);
-
-			if (result.success) {
-				toast.success("Tarefa atualizada com sucesso!", {
-					autoClose: 3000,
-					theme: "dark",
-				});
-				// Notifica o componente pai/store sobre os detalhes atualizados da tarefa
-				onTaskUpdated({ title: values.title, description: values.description });
-				onClose(); // Fecha o modal após o sucesso
-			} else {
-				console.error(
-					"Erro ao atualizar tarefa:",
-					result.errors || result.message,
-				);
-				toast.error(result.message || "Erro ao atualizar tarefa.", {
-					autoClose: 3000,
-					theme: "dark",
-				});
-				// Se a Server Action retornar erros de validação específicos
-				if (result.errors) {
-					for (const key in result.errors) {
-						if (Object.hasOwn(result.errors, key)) {
-							form.setError(key as keyof EditTaskFormValues, {
-								type: "server",
-								message:
-									result.errors[key as keyof typeof result.errors]?.[0] ||
-									String(result.errors[key as keyof typeof result.errors]),
-							});
-						}
-					}
-				}
-			}
-		});
+		// Use a função `mutate` diretamente
+		mutate(
+			{ taskId: task.id, taskData: values },
+			{
+				onSuccess: () => {
+					onClose(); // Fecha o modal após o sucesso
+				},
+			},
+		);
 	};
-
 	// --- Renderização do Componente ---
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>

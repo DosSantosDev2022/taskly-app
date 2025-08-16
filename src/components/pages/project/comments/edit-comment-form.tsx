@@ -1,7 +1,7 @@
 "use client";
 
 import { editCommentSchema } from "@/@types/zod";
-import { editComment } from "@/actions/comment";
+import { editCommentAction } from "@/actions/comment";
 import {
 	Button,
 	Dialog,
@@ -20,17 +20,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import * as z from "zod";
 
-/**
- * @type EditCommentFormValues
- * @description Tipo inferido do schema Zod para as propriedades do formulário.
- */
 type EditCommentFormValues = z.infer<typeof editCommentSchema>;
 
-// --- Tipagem das Props ---
-/**
- * @interface EditCommentFormProps
- * @description Propriedades esperadas pelo componente EditCommentForm.
- */
 interface EditCommentFormProps {
 	comment: Comment; // O objeto de comentário a ser editado (do Prisma)
 	isOpen: boolean; // Controla a visibilidade do diálogo
@@ -38,11 +29,6 @@ interface EditCommentFormProps {
 	onCommentEdited: (updatedContent: { content: string }) => void; // Callback acionado após a edição bem-sucedida
 }
 
-/**
- * @component EditCommentForm
- * @description Componente para edição de um comentário existente.
- * Apresenta um formulário dentro de um diálogo e interage com uma Server Action.
- */
 export function EditCommentForm({
 	comment,
 	isOpen,
@@ -68,16 +54,10 @@ export function EditCommentForm({
 
 	// --- Handlers de Eventos ---
 
-	/**
-	 * @function onSubmit
-	 * @description Lida com a submissão do formulário de edição.
-	 * Chama a Server Action para atualizar o comentário e trata os resultados.
-	 * @param {EditCommentFormValues} data - Os valores do formulário validados.
-	 */
 	const onSubmit = async (data: EditCommentFormValues) => {
 		startTransition(async () => {
 			// Chama a Server Action para editar o comentário, passando o ID e o novo conteúdo
-			const result = await editComment(comment.id, data.content);
+			const result = await editCommentAction(comment.id, data.content);
 
 			if (result.success) {
 				toast.success("Comentário editado com sucesso!", {
@@ -96,25 +76,16 @@ export function EditCommentForm({
 		});
 	};
 
-	// --- Efeitos Colaterais ---
-	/**
-	 * @hook useEffect
-	 * @description Reseta o formulário com o conteúdo atual do comentário sempre que o modal é aberto
-	 * ou o comentário em si muda (caso seja re-renderizado com um novo comentário).
-	 */
 	useEffect(() => {
 		if (isOpen) {
-			// Reseta o formulário com o conteúdo mais recente do comentário.
-			// O `reset` é importante para garantir que o formulário mostre sempre
-			// o estado mais atual do comentário quando o modal for reaberto.
 			reset({ content: comment.content });
 		}
-	}, [isOpen, comment.content, reset]); // Dependências: re-executa se modal abrir, conteúdo do comentário mudar ou a função reset mudar.
+	}, [isOpen, comment.content, reset]);
 
 	// --- Renderização do Componente ---
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-3xl h-full max-h-[90vh]  grid grid-rows-[auto,1fr,auto]">
 				<DialogHeader>
 					<DialogTitle>Editar Comentário</DialogTitle>
 					<DialogDescription>
@@ -122,13 +93,16 @@ export function EditCommentForm({
 						terminar.
 					</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
+				<form
+					onSubmit={handleSubmit(onSubmit)}
+					className="flex flex-col gap-4 overflow-y-auto scrollbar-custom pr-2"
+				>
 					<div className="grid gap-2">
 						<Label htmlFor="content">Conteúdo</Label>
 						<Textarea
 							id="content"
 							{...register("content")} // Registra o textarea no React Hook Form
-							className="resize-y min-h-[100px]" // Permite redimensionamento vertical, mínimo de 100px
+							className="resize-y min-h-[250px]" // Permite redimensionamento vertical, mínimo de 100px
 							disabled={isPending} // Desabilita o campo enquanto o envio está pendente
 							aria-invalid={errors.content ? "true" : "false"} // Acessibilidade: indica se há erro
 							aria-describedby="content-error"

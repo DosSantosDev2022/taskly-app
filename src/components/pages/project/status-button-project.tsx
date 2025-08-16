@@ -1,6 +1,6 @@
 "use client";
 
-import { toggleProjectStatus } from "@/actions/project";
+import { toggleProjectStatusAction } from "@/actions/project";
 import { getStatusLabelProject, getStatusProjectStyles } from "@/utils";
 import type { ProjectStatus } from "@prisma/client";
 import { useTransition } from "react";
@@ -19,7 +19,7 @@ const StatusButtonProject = ({
 
 	const handleClick = () => {
 		startTransition(async () => {
-			const result = await toggleProjectStatus(projectId, currentStatus);
+			const result = await toggleProjectStatusAction(projectId, currentStatus);
 
 			if (result.success) {
 				toast.success("Status do projeto atualizado!", {

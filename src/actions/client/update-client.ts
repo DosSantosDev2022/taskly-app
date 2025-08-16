@@ -15,7 +15,7 @@ import { revalidatePath } from "next/cache";
  * @property {string} [message] - Mensagem descritiva do resultado da operação (sucesso ou erro geral).
  * @property {Record<string, string>} [errors] - Objeto contendo mensagens de erro por campo para validação.
  */
-interface OurActionResponse {
+interface UpdateClientActionResponse {
 	success: boolean;
 	message?: string;
 	errors?: Record<string, string>;
@@ -23,11 +23,10 @@ interface OurActionResponse {
 
 export async function updateClient(
 	formData: FormData,
-): Promise<OurActionResponse> {
-	console.log("Server Action: updateClient iniciada.");
-
+): Promise<UpdateClientActionResponse> {
+	// Verificar se o usuário está autenticado
 	const session = await getServerSession(authOptions);
-
+	// Se não houver sessão, o usuário não está autenticado
 	if (!session?.user?.id) {
 		console.error("Server Action: Usuário não autenticado.");
 		return { success: false, message: "Usuário não autenticado." };
@@ -35,14 +34,15 @@ export async function updateClient(
 	/* Usuário autenticado */
 	const userId = session.user.id;
 
-	const id = formData.get("id") as string; // O ID do cliente a ser atualizado
+	//  Extrair os campos do FormData
+	const id = formData.get("id") as string;
 	const name = formData.get("name") as string;
 	const email = formData.get("email") as string | null;
 	const phone = formData.get("phone") as string | null;
 	const address = formData.get("address") as string | null;
 	const notes = formData.get("notes") as string | null;
 
-	// 1. Validação do ID do Cliente
+	//  Validação do ID do Cliente
 	if (!id || typeof id !== "string") {
 		console.error(
 			"Server Action: ID do cliente para atualização inválido ou ausente.",
@@ -66,10 +66,12 @@ export async function updateClient(
 			notes: transformedNotes,
 		});
 
+		//  Validar os campos do formulário
+		// Se a validação falhar, retornamos os erros formatados
 		if (!validatedFields.success) {
 			const fieldErrors = validatedFields.error.flatten().fieldErrors;
 			const formattedErrors: Record<string, string> = {};
-
+			// Formatar os erros para retornar apenas a primeira mensagem de erro por campo
 			Object.keys(fieldErrors).forEach((key) => {
 				const errorMessages = fieldErrors[key as keyof typeof fieldErrors];
 				if (errorMessages && errorMessages.length > 0) {
@@ -88,16 +90,18 @@ export async function updateClient(
 			};
 		}
 
+		// Se a validação for bem-sucedida, extraímos os dados validados
 		const {
 			name: validatedName,
 			email: validatedEmail,
 			phone: validatedPhone,
 		} = validatedFields.data;
 
+		//	Tratar campos opcionais: se estiverem vazios, armazenar como null no banco de dados
 		const finalEmailForDb = validatedEmail === "" ? null : validatedEmail;
 		const finalPhoneForDb = validatedPhone === "" ? null : validatedPhone;
 
-		// 2. Verificar se o cliente existe e pertence ao usuário logado (Segurança!)
+		//  Verificar se o cliente existe e pertence ao usuário logado (Segurança!)
 		const existingClient = await db.client.findUnique({
 			where: { id: id },
 		});
@@ -132,11 +136,9 @@ export async function updateClient(
 			},
 		});
 
-		console.log(
-			`Server Action: Cliente com ID ${id} atualizado com sucesso! Revalidando paths...`,
-		);
+		// Revalidar as rotas afetadas para garantir que os dados atualizados sejam refletidos
 		revalidatePath("/clients");
-		revalidatePath("/projects"); // Revalide se projetos dependem da info do cliente
+		revalidatePath("/projects");
 
 		return { success: true, message: "Cliente atualizado com sucesso!" };
 	} catch (error: unknown) {

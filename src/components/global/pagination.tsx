@@ -1,8 +1,6 @@
 // src/components/global/pagination-component.tsx
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
 import {
 	Button,
 	Select,
@@ -14,62 +12,66 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui";
+import { useProjectStore } from "@/store/use-project-store";
 import {
 	ChevronLeft,
 	ChevronRight,
 	ChevronsLeft,
 	ChevronsRight,
 } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect } from "react";
 
 interface PaginationComponentProps {
-	currentPage: number;
 	totalPages: number;
-	pageSize: number;
-	currentQuery?: string;
 }
 
-const PaginationComponent = ({
-	currentPage,
-	totalPages,
-	currentQuery = "",
-	pageSize,
-}: PaginationComponentProps) => {
+const PaginationComponent = ({ totalPages }: PaginationComponentProps) => {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 
-	const createQueryString = useCallback(
-		(name: string, value: string, newPageSize?: number) => {
-			// Começamos com os searchParams atuais para preservar todos eles
-			const params = new URLSearchParams(searchParams.toString());
-			// Define o novo parâmetro de página
-			params.set(name, value);
+	// Obtém o estado e a função de atualização do store Zustand
+	const { page, pageSize, setSearchParams } = useProjectStore();
 
-			// Preserva o parâmetro 'query' se existir
-			if (currentQuery) {
-				params.set("query", currentQuery);
-			} else {
-				params.delete("query"); // Remove se não houver query
-			}
+	// Efeito para sincronizar o estado do Zustand com a URL na montagem inicial
+	useEffect(() => {
+		const urlPage = searchParams.get("page");
+		const urlPageSize = searchParams.get("pageSize");
 
-			// Preserva o parâmetro 'pageSize'
-			params.set("pageSize", (newPageSize || pageSize).toString());
+		setSearchParams({
+			page: urlPage ? Number(urlPage) : 1,
+			pageSize: urlPageSize ? Number(urlPageSize) : 10,
+		});
+	}, [searchParams, setSearchParams]);
 
-			return params.toString();
+	// Função para criar o link e atualizar a URL
+	const updateUrlWithParams = useCallback(
+		(params: URLSearchParams) => {
+			router.push(`${pathname}?${params.toString()}`);
 		},
-		[searchParams, currentQuery, pageSize],
+		[router, pathname],
 	);
 
-	const goToPage = (page: number) => {
-		if (page >= 1 && page <= totalPages) {
-			router.push(`${pathname}?${createQueryString("page", page.toString())}`);
+	const goToPage = (pageNumber: number) => {
+		if (pageNumber >= 1 && pageNumber <= totalPages) {
+			const params = new URLSearchParams(searchParams);
+			params.set("page", pageNumber.toString());
+
+			updateUrlWithParams(params);
+			setSearchParams({ page: pageNumber });
 		}
 	};
 
 	const handlePageSizeChange = (newSize: string) => {
 		const newPageSize = Number(newSize);
 		if (!Number.isNaN(newPageSize) && newPageSize > 0) {
-			router.push(`${pathname}?${createQueryString("page", "1", newPageSize)}`);
+			const params = new URLSearchParams(searchParams);
+			params.set("pageSize", newPageSize.toString());
+			params.set("page", "1"); // Ao mudar o tamanho da página, sempre volte para a primeira
+
+			updateUrlWithParams(params);
+			setSearchParams({ pageSize: newPageSize, page: 1 });
 		}
 	};
 
@@ -78,7 +80,7 @@ const PaginationComponent = ({
 			{/* Informação de página e seletor de pageSize */}
 			<div className="flex items-center space-x-2">
 				<div className="flex-1 text-sm text-muted-foreground whitespace-nowrap">
-					Página {currentPage} de {totalPages}
+					Página {page} de {totalPages}
 				</div>
 				<Tooltip>
 					<Select
@@ -110,7 +112,7 @@ const PaginationComponent = ({
 							variant="outline"
 							size="icon"
 							onClick={() => goToPage(1)}
-							disabled={currentPage === 1}
+							disabled={page <= 1}
 							aria-label="Primeira página"
 						>
 							<ChevronsLeft className="h-4 w-4" />
@@ -123,8 +125,8 @@ const PaginationComponent = ({
 						<Button
 							variant="outline"
 							size="icon"
-							onClick={() => goToPage(currentPage - 1)}
-							disabled={currentPage === 1}
+							onClick={() => goToPage(page - 1)}
+							disabled={page <= 1}
 							aria-label="Página anterior"
 						>
 							<ChevronLeft className="h-4 w-4" />
@@ -138,8 +140,8 @@ const PaginationComponent = ({
 						<Button
 							variant="outline"
 							size="icon"
-							onClick={() => goToPage(currentPage + 1)}
-							disabled={currentPage === totalPages}
+							onClick={() => goToPage(page + 1)}
+							disabled={page >= totalPages}
 							aria-label="Próxima página"
 						>
 							<ChevronRight className="h-4 w-4" />
@@ -153,7 +155,7 @@ const PaginationComponent = ({
 							variant="outline"
 							size="icon"
 							onClick={() => goToPage(totalPages)}
-							disabled={currentPage === totalPages}
+							disabled={page >= totalPages}
 							aria-label="Última página"
 						>
 							<ChevronsRight className="h-4 w-4" />

@@ -8,7 +8,7 @@ import {
 } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { addComment } from "@/actions/comment";
+import { addCommentAction } from "@/actions/comment";
 import { AddComment } from "@/components/pages/project";
 import { toast } from "react-toastify";
 
@@ -46,7 +46,7 @@ describe("AddComment", () => {
 
 	const mockProjectId = "project-123";
 	const mockOnCommentAdded = vi.fn();
-	const mockAddComment = vi.mocked(addComment);
+	const mockAddComment = vi.mocked(addCommentAction);
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -195,30 +195,30 @@ describe("AddComment", () => {
 	});
 	// --- Estado de Carregamento (isPending) ---
 	/*  it("should disable the textarea and button while isPending is true", async () => {
-     // Description: Verifies that the input field and submit button are disabled when the form submission is pending.
-     // Descrição: Verifica se o campo de texto e o botão de envio são desabilitados enquanto o formulário está em estado de envio.
+		 // Description: Verifies that the input field and submit button are disabled when the form submission is pending.
+		 // Descrição: Verifica se o campo de texto e o botão de envio são desabilitados enquanto o formulário está em estado de envio.
  
-     // Configura o mock do useTransition para simular o estado de "pending"
-     // No click, isPending deve ser true, e a ação deve ser 'pendente'.
-     mockUseTransition.mockReturnValueOnce([true, mockStartTransition]);
+		 // Configura o mock do useTransition para simular o estado de "pending"
+		 // No click, isPending deve ser true, e a ação deve ser 'pendente'.
+		 mockUseTransition.mockReturnValueOnce([true, mockStartTransition]);
  
-     render(<AddComment projectId={mockProjectId} />);
+		 render(<AddComment projectId={mockProjectId} />);
  
-     // Abre o modal para que o formulário seja renderizado
-     fireEvent.click(screen.getByRole("button", { name: /Adicionar Comentário/i }));
+		 // Abre o modal para que o formulário seja renderizado
+		 fireEvent.click(screen.getByRole("button", { name: /Adicionar Comentário/i }));
  
-     // Mock o startTransition para que ele não execute a função, mantendo o estado de isPending
-     mockUseTransition.mockImplementation(() => [true, vi.fn()]);
+		 // Mock o startTransition para que ele não execute a função, mantendo o estado de isPending
+		 mockUseTransition.mockImplementation(() => [true, vi.fn()]);
  
-     await act(async () => {
-       fireEvent.click(screen.getByRole("button", { name: /Adicionar Comentário/i }));
-     });
+		 await act(async () => {
+			 fireEvent.click(screen.getByRole("button", { name: /Adicionar Comentário/i }));
+		 });
  
-     // A renderização é instantânea, então as verificações podem ser síncronas
-     const commentInput = screen.getByLabelText(/Conteúdo do comentário/i);
-     const submitButton = screen.getByRole("button", { name: /Adicionando.../i });
+		 // A renderização é instantânea, então as verificações podem ser síncronas
+		 const commentInput = screen.getByLabelText(/Conteúdo do comentário/i);
+		 const submitButton = screen.getByRole("button", { name: /Adicionando.../i });
  
-     expect(commentInput).toBeDisabled();
-     expect(submitButton).toBeDisabled();
-   }); */
+		 expect(commentInput).toBeDisabled();
+		 expect(submitButton).toBeDisabled();
+	 }); */
 });

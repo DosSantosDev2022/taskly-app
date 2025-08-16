@@ -1,10 +1,10 @@
+import db from "@/lib/prisma"; // Ajuste para importar o default
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compare } from "bcryptjs";
 import type { AuthOptions } from "next-auth";
 import type { Adapter } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import db from "@/lib/prisma"; // Ajuste para importar o default
 
 export const authOptions: AuthOptions = {
 	adapter: PrismaAdapter(db) as Adapter,
@@ -62,7 +62,15 @@ export const authOptions: AuthOptions = {
 		}),
 	],
 	callbacks: {
-		async jwt({ token, user }) {
+		async jwt({ token, user, account }) {
+			// ✅ A correção está aqui!
+			// Se houver um 'account', isso significa que é a primeira vez que o
+			// usuário fez login com um provedor (ex: Google).
+			if (account) {
+				// Captura o access_token do provedor e adiciona ao token JWT.
+				token.accessToken = account.access_token;
+			}
+
 			if (user) {
 				token.id = user.id;
 			} else if (token?.email) {
@@ -74,12 +82,17 @@ export const authOptions: AuthOptions = {
 					token.id = dbUser.id;
 				}
 			}
+
 			return token;
 		},
 		async session({ session, token }) {
 			if (session.user && token) {
 				session.user.id = token.id as string;
 			}
+			// ✅ A segunda correção está aqui!
+			// Adiciona o accessToken do token JWT para a sessão.
+			session.accessToken = token.accessToken as string;
+
 			return session;
 		},
 	},

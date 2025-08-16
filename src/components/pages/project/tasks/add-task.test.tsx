@@ -1,7 +1,7 @@
 // src/components/pages/project/add-task.test.tsx
 
 import { addTaskAction } from "@/actions/task";
-import { AddTask } from "@/components/pages/project/add-task";
+import { AddTask } from "@/components/pages/project";
 import "@testing-library/jest-dom/vitest";
 import {
 	act,

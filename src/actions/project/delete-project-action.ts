@@ -4,12 +4,6 @@ import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z, ZodError } from "zod";
 
-// --- Definição do Schema de Validação com Zod ---
-/**
- * @const deleteProjectSchema
- * @description Schema de validação Zod para o ID do projeto a ser deletado.
- * Garante que o ID seja uma string não vazia.
- */
 const deleteProjectSchema = z.string().min(1, "O ID do projeto é obrigatório.");
 
 /**
@@ -17,22 +11,22 @@ const deleteProjectSchema = z.string().min(1, "O ID do projeto é obrigatório."
  * @description Server Action para deletar um projeto existente no banco de dados.
  * Valida o ID do projeto, executa a exclusão via Prisma e revalida o cache
  * da página do projeto.
- *
  * @param {string} projectId - O ID único do projeto a ser deletado.
  * @returns {Promise<{ success: boolean; message?: string; errors?: Zod.inferFlattenedErrors<typeof deleteProjectSchema>['fieldErrors'] | { general?: string; projectId?: string }; deletedProject?: { projectId: string } }>}
  
  */
-export async function deleteProject(formData: FormData) {
+export async function deleteProjectAction(formData: FormData) {
+	// Extrai o ID do projeto do FormData
 	const projectId = formData.get("projectId") as string;
 
-	// 1. Validação Simples do ID
+	//  Validação Simples do ID
 	if (!projectId || typeof projectId !== "string") {
 		console.error("Server Action: ID do projeto inválido ou ausente.");
 		return { success: false, message: "ID do projeto inválido ou ausente." };
 	}
 
 	try {
-		// 1. Validação do ID do projeto
+		// Validação do ID do projeto
 		const validation = deleteProjectSchema.safeParse(projectId);
 
 		// Se a validação falhar, retorna um objeto de erro padronizado.
@@ -49,6 +43,7 @@ export async function deleteProject(formData: FormData) {
 			};
 		}
 
+		// Se a validação for bem-sucedida, extrai o ID validado
 		const validatedProjectId = validation.data;
 
 		// 2. Exclusão do projeto no banco de dados via Prisma
@@ -69,7 +64,6 @@ export async function deleteProject(formData: FormData) {
 			deadlineDate: deletedProject.deadlineDate?.toISOString() || null,
 		};
 
-		// 3. Revalidação do cache
 		// Revalida a rota da página do projeto pai para garantir atualização dos dados
 		revalidatePath("/projects");
 		// 4. Retorna sucesso

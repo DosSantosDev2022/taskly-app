@@ -57,7 +57,7 @@ describe("AddProjectForm", () => {
 	// Description: Tests the AddProjectForm component, covering data fetching, form submission, and validation.
 	// Descrição: Testa o componente AddProjectForm, cobrindo a busca de dados, submissão do formulário e validação.
 
-	const mockCreateProject = vi.mocked(projectActions.createProject);
+	const mockCreateProject = vi.mocked(projectActions.createProjectAction);
 
 	const mockOnSuccess = vi.fn();
 	const mockClients = [
@@ -264,16 +264,16 @@ describe("AddProjectForm", () => {
 
 	// --- Interações do Usuário e Estado de Carregamento ---
 	/* it("should disable form elements and show loading state during pending submission", async () => {
-    // Description: Verifies that form inputs and the submit button are disabled when the `isPending` state is true.
-    // Descrição: Verifica se os inputs do formulário e o botão de submissão são desabilitados quando o estado `isPending` é verdadeiro.
-    mockUseTransition.mockReturnValueOnce([true, vi.fn()]);
+		// Description: Verifies that form inputs and the submit button are disabled when the `isPending` state is true.
+		// Descrição: Verifica se os inputs do formulário e o botão de submissão são desabilitados quando o estado `isPending` é verdadeiro.
+		mockUseTransition.mockReturnValueOnce([true, vi.fn()]);
 
-    render(<AddProjectForm />);
+		render(<AddProjectForm />);
 
-    // Verifica o estado de carregamento
-    expect(screen.getByLabelText(/Nome do Projeto/i)).toBeDisabled();
-    expect(screen.getByLabelText(/Preço do projeto/i)).toBeDisabled();
-    expect(screen.getByLabelText(/Descrição do projeto/i)).toBeDisabled();
-    expect(screen.getByRole("button", { name: /Criando Projeto.../i })).toBeDisabled();
-  }); */
+		// Verifica o estado de carregamento
+		expect(screen.getByLabelText(/Nome do Projeto/i)).toBeDisabled();
+		expect(screen.getByLabelText(/Preço do projeto/i)).toBeDisabled();
+		expect(screen.getByLabelText(/Descrição do projeto/i)).toBeDisabled();
+		expect(screen.getByRole("button", { name: /Criando Projeto.../i })).toBeDisabled();
+	}); */
 });

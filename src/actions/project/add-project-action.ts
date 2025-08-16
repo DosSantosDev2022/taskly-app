@@ -7,32 +7,34 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 
-/**
- * @interface OurActionResponse
- * @description Define a estrutura de resposta padrão para as Server Actions.
- * @property {boolean} success - Indica se a operação foi bem-sucedida.
- * @property {string} [message] - Mensagem descritiva do resultado da operação (sucesso ou erro geral).
- * @property {Record<string, string>} [errors] - Objeto contendo mensagens de erro por campo para validação.
- */
-interface OurActionResponse {
+interface CreateProjectActionResponse {
 	success: boolean;
 	message?: string;
 	errors?: Record<string, string>;
 }
 
-// A função agora retorna Promise<OurActionResponse>
-export async function createProject(
+/**
+ * @function createProjectAction
+ * @description Server Action para criar um novo projeto.
+ * @param {FormData} formData - Dados do formulário enviados pelo cliente.
+ * @returns {Promise<CreateProjectActionResponse>} - Retorna um objeto com o status da operação e mensagens de erro, se houver.
+ * @throws {Error} - Lança erros genéricos ou específicos do Prisma.
+ */
+export async function createProjectAction(
 	formData: FormData,
-): Promise<OurActionResponse> {
+): Promise<CreateProjectActionResponse> {
+	// Obtém a sessão do usuário autenticado
 	const session = await getServerSession(authOptions);
-
+	// Verifica se o usuário está autenticado
 	if (!session?.user?.id) {
 		console.error("Server Action: Usuário não autenticado.");
 		// Em vez de throw new Error, retorne um objeto de erro
 		return { success: false, message: "Usuário não autenticado." };
 	}
+	// Obtém o ID do usuário da sessão
 	const userId = session.user.id;
 
+	// Extrai os campos do FormData
 	const name = formData.get("name") as string;
 	const description = formData.get("description") as string;
 	const type = formData.get("type") as string;
@@ -41,25 +43,25 @@ export async function createProject(
 	const clientId = formData.get("clientId") as string | null;
 	const priceStr = formData.get("price");
 
-	// Zod, por padrão, espera `undefined` para campos opcionais que não foram fornecidos,
-	// e não `null`. Ajuste aqui para compatibilidade.
+	// Valida se o campo priceStr é uma string válida
 	const deadlineDate = deadlineDateString
 		? new Date(deadlineDateString)
 		: undefined;
-	const parsedClientId = clientId || undefined; // Converte string vazia ou null para undefined
+	const parsedClientId = clientId || undefined;
 
-	// Bloco try-catch para capturar erros durante a validação e interação com o DB
 	try {
+		// Valida os campos usando o schema Zod
 		const validatedFields = backendFormSchema.safeParse({
 			name,
 			description: description || undefined,
 			type,
 			status,
 			deadlineDate: deadlineDate,
-			clientId: parsedClientId, // Usar parsedClientId aqui
+			clientId: parsedClientId,
 			price: priceStr,
 		});
 
+		// Verifica se a validação falhou
 		if (!validatedFields.success) {
 			const fieldErrors = validatedFields.error.flatten().fieldErrors;
 			const formattedErrors: Record<string, string> = {};
@@ -80,7 +82,7 @@ export async function createProject(
 				errors: formattedErrors,
 			};
 		}
-
+		// Se a validação for bem-sucedida, extrai os dados validados
 		const {
 			name: validatedName,
 			description: validatedDescription,
@@ -91,6 +93,7 @@ export async function createProject(
 			price: validatedPrice,
 		} = validatedFields.data;
 
+		// Cria o novo projeto no banco de dados
 		await db.project.create({
 			data: {
 				name: validatedName,
@@ -104,9 +107,7 @@ export async function createProject(
 			},
 		});
 
-		console.log(
-			"Server Action: Projeto criado com sucesso! Revalidando paths...",
-		);
+		// Revalida as rotas para refletir a criação do novo projeto
 		revalidatePath("/projects");
 		revalidatePath("/dashboard");
 

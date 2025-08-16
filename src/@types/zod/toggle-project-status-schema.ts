@@ -11,10 +11,7 @@ export const toggleProjectStatusSchema = z.object({
 	 * @property {string} projectId - ID único do projeto.
 	 * @description Obrigatório, deve ser uma string não vazia.
 	 */
-	projectId: z
-		.string({ error: "O ID do projeto é obrigatório." })
-		.trim()
-		.min(1, "ID do projeto é obrigatório."),
+	projectId: z.string().trim().min(1, "ID do projeto é obrigatório."),
 	/**
 	 * @property {ProjectStatus} currentStatus - Status atual ou novo status do projeto.
 	 * @description Deve ser um valor válido do enum `ProjectStatus` do Prisma.

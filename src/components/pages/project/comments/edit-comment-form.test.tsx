@@ -1,7 +1,7 @@
 // src/components/pages/project/edit-comment-form.test.tsx
 
-import { editComment } from "@/actions/comment";
-import { EditCommentForm } from "@/components/pages/project/edit-comment-form";
+import { editCommentAction } from "@/actions/comment";
+import { EditCommentForm } from "@/components/pages/project";
 import "@testing-library/jest-dom/vitest";
 import {
 	act,
@@ -107,7 +107,7 @@ describe("EditCommentForm", () => {
 	it("should successfully submit the form, show a success toast, and call callbacks", async () => {
 		/* deve enviar o formulário com sucesso, mostrar um brinde de sucesso e chamar retornos de chamada */
 		// Mock da Server Action para sucesso
-		vi.mocked(editComment).mockResolvedValue({
+		vi.mocked(editCommentAction).mockResolvedValue({
 			success: true,
 			message: "Comentário editado com sucesso!",
 		});
@@ -138,7 +138,10 @@ describe("EditCommentForm", () => {
 		// Espera as ações assíncronas
 		await waitFor(() => {
 			// Verifica se a Server Action foi chamada com os dados corretos
-			expect(editComment).toHaveBeenCalledWith(mockComment.id, newContent);
+			expect(editCommentAction).toHaveBeenCalledWith(
+				mockComment.id,
+				newContent,
+			);
 			// Verifica se o toast de sucesso foi exibido
 			expect(toast.success).toHaveBeenCalledWith(
 				"Comentário editado com sucesso!",
@@ -155,7 +158,7 @@ describe("EditCommentForm", () => {
 		/* deve mostrar um erro de notificação se o envio falhar */
 		// Mock da Server Action para falha
 		const errorMessage = "Erro ao editar comentário";
-		vi.mocked(editComment).mockResolvedValue({
+		vi.mocked(editCommentAction).mockResolvedValue({
 			success: false,
 			errors: {},
 			message: errorMessage,
@@ -183,7 +186,10 @@ describe("EditCommentForm", () => {
 
 		await waitFor(() => {
 			// Verifica se a Server Action foi chamada
-			expect(editComment).toHaveBeenCalledWith(mockComment.id, newContent);
+			expect(editCommentAction).toHaveBeenCalledWith(
+				mockComment.id,
+				newContent,
+			);
 			// Verifica se o toast de erro foi exibido
 			expect(toast.error).toHaveBeenCalledWith(
 				errorMessage,
@@ -224,7 +230,7 @@ describe("EditCommentForm", () => {
 				screen.getByText(/O comentário deve ter no mínimo 10 caracteres./i),
 			).toBeInTheDocument();
 			// Verifica se a Server Action NÃO foi chamada
-			expect(editComment).not.toHaveBeenCalled();
+			expect(editCommentAction).not.toHaveBeenCalled();
 		});
 	});
 });

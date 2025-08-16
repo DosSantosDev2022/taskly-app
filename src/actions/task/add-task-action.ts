@@ -54,8 +54,7 @@ export async function addTaskAction(values: CreateTaskInput) {
 		// 3. Revalidação do cache
 		// Revalida a rota específica do projeto para que a lista de tarefas seja atualizada
 		// no lado do cliente na próxima requisição, mostrando a nova tarefa.
-		revalidatePath(`/projects/${projectId}`);
-
+		revalidatePath(`/projects/project/${projectId}`);
 		// 4. Retorna sucesso e a nova tarefa criada
 		return {
 			success: true,

@@ -78,11 +78,7 @@ export default async function ClientPage({
 					<span className="text-sm text-muted-foreground">
 						Total de clientes: {totalClients}
 					</span>
-					<PaginationComponent
-						currentPage={currentPage}
-						totalPages={totalPages}
-						pageSize={pageSize}
-					/>
+					<PaginationComponent totalPages={totalPages} />
 				</div>
 			)}
 		</div>

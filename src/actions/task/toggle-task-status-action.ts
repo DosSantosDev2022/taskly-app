@@ -110,6 +110,7 @@ export async function toggleTaskStatus(formData: FormData) {
 
 		// 4. Revalida o cache da página do projeto para refletir a mudança na UI
 		revalidatePath(`/projects/${validatedProjectId}`);
+		revalidatePath(`/projects/project/${validatedProjectId}`);
 
 		// 5. Retorna sucesso
 		return {

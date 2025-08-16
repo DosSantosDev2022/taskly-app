@@ -1,9 +1,9 @@
 "use server";
 
 import { db } from "@/lib/prisma";
+import { ProjectStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { ProjectStatus } from "@prisma/client";
 
 /**
  * @file Server Action para alternar o status de um projeto.
@@ -57,7 +57,7 @@ const ToggleProjectStatusSchema = z.object({
  * @returns {Promise<ToggleProjectStatusState>} Um objeto indicando o sucesso da operação,
  * uma mensagem e/ou erros de validação ou do servidor.
  */
-export async function toggleProjectStatus(
+export async function toggleProjectStatusAction(
 	projectId: string,
 	currentStatus: ProjectStatus,
 ): Promise<ToggleProjectStatusState> {
@@ -126,11 +126,8 @@ export async function toggleProjectStatus(
 			},
 		});
 
-		// 4. Gerenciamento de Cache (revalidatePath)
 		// Revalida o caminho da página para mostrar o status atualizado.
-		// É importante que a rota correspondente ao projeto seja revalidada.
-		revalidatePath(`/projects/${validatedProjectId}`);
-		// Se houver uma página de listagem de projetos que também precisa ser atualizada:
+		revalidatePath(`/projects/project/${validatedProjectId}`);
 		revalidatePath("/projects");
 
 		// 5. Retorno de sucesso padronizado

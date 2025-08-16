@@ -1,24 +1,32 @@
+// src/components/global/QueryProvider.tsx
 "use client";
 
+import type { DehydratedState } from "@tanstack/react-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type React from "react";
+import { useState } from "react";
 
-const queryClient = new QueryClient({
-	defaultOptions: {
-		queries: {
-			staleTime: 1000 * 60 * 60 * 7, // Dados "frescos" por 7 horas antes de serem considerados "stale"
-			refetchOnWindowFocus: false, // Evita refetch em cada foco de janela para dados que não precisam de atualização em tempo real
-		},
-	},
-});
+interface QueryProviderProps {
+	children: React.ReactNode;
+	dehydratedState?: DehydratedState;
+}
 
-export function QueryProvider({ children }: { children: React.ReactNode }) {
+export function QueryProvider({
+	children,
+	dehydratedState,
+}: QueryProviderProps) {
+	const [queryClient] = useState(
+		() =>
+			new QueryClient({
+				defaultOptions: {
+					queries: {
+						refetchOnWindowFocus: false,
+						staleTime: 1000 * 60 * 5,
+					},
+				},
+			}),
+	);
+
 	return (
-		<QueryClientProvider client={queryClient}>
-			{children}
-			<ReactQueryDevtools initialIsOpen={false} />{" "}
-			{/* Ferramentas de desenvolvimento */}
-		</QueryClientProvider>
+		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);
 }

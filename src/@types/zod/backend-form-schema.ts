@@ -13,9 +13,9 @@ export const backendFormSchema = z.object({
 	 * @description Obrigatório, sem validações de min/max aqui, pois o frontend já deve garantir.
 	 */
 	name: z
-		.string({ error: "O nome do projeto é obrigatório." })
-		.min(2, "O nome do projeto deve ter pelo menos 2 caracteres.") // Mantido para segurança
-		.max(255, "O nome do projeto não pode exceder 255 caracteres.") // Mantido para segurança
+		.string()
+		.min(2, "O nome do projeto é obrigatório.") // Mantido para segurança
+		.max(50, "O nome do projeto não pode exceder 50 caracteres.") // Mantido para segurança
 		.trim(),
 	/**
 	 * @property {string} description - Descrição do projeto.
@@ -58,11 +58,7 @@ export const backendFormSchema = z.object({
 	 * @description Obrigatório, deve ser um número não negativo.
 	 * Usa `z.coerce.number()` para converter string para número, comum em formulários.
 	 */
-	price: z.coerce
-		.number({
-			error: "O preço é obrigatório.",
-		})
-		.min(0, "O preço não pode ser negativo."),
+	price: z.coerce.number().min(0, "O preço é obrigatório."),
 	/**
 	 * @property {string} contractUrl - URL do contrato.
 	 * @description Campo opcional, transformado para `undefined` se vazio.

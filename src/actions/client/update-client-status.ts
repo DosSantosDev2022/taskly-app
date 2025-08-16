@@ -43,11 +43,9 @@ export const updateClientStatus = async (data: UpdateClientStatusInput) => {
 			},
 		});
 
-		console.log("Status do cliente atualizado:", updatedClient);
-
 		// 5. Revalidar o cache da página onde os clientes são exibidos
-		// Substitua '/dashboard/clients' pelo caminho da sua página de listagem de clientes.
-		revalidatePath("/dashboard/clients");
+
+		revalidatePath("/dashboard");
 		revalidatePath("/clients");
 
 		return {

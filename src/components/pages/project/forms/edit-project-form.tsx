@@ -3,8 +3,6 @@
 
 import { ProjectDetails } from "@/@types/project-types";
 import { formSchema } from "@/@types/zod";
-import { getClients } from "@/actions/client";
-import { updateProject } from "@/actions/project";
 import { LoadingOverlay } from "@/components/global";
 import {
 	Button,
@@ -31,20 +29,29 @@ import {
 	SelectValue,
 	Textarea,
 } from "@/components/ui";
+import { useGetClients } from "@/hooks/clients";
+import { useUpdateProjectMutation } from "@/hooks/project";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Client } from "@prisma/client";
-import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon, Check, ChevronsUpDown, Loader2 } from "lucide-react";
-import { type JSX, useCallback, useEffect, useTransition } from "react";
+import { type JSX, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 import { toast } from "react-toastify";
 import type z from "zod";
 
-// Assumindo que PROJECT_TYPES é o mesmo
+const ComboboxLoading = () => (
+	<CommandGroup>
+		<CommandItem disabled>
+			<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+			<span>Carregando clientes...</span>
+		</CommandItem>
+	</CommandGroup>
+);
+
+// Tipos fixos para o campo de tipo de projeto
 const PROJECT_TYPES = [
 	{ value: "WEB", label: "Web" },
 	{ value: "MOBILE", label: "Mobile" },
@@ -63,26 +70,13 @@ export const EditProjectForm = ({
 	project,
 	onSuccess,
 }: EditProjectFormProps): JSX.Element => {
-	const [isPending, startTransition] = useTransition();
+	// Hook de mutação para atualizar o projeto
+	const { isPending, mutateAsync } = useUpdateProjectMutation();
 
-	// 1. Buscar lista de clientes
-	const {
-		data: clients,
-		isLoading: isLoadingClients,
-		isError: isErrorClients,
-		error: errorClients,
-	} = useQuery<Client[]>({
-		queryKey: ["clients"],
-		queryFn: async () => {
-			const response = await getClients();
-			if (!response.success || !response.clients) {
-				throw new Error("Falha ao buscar clientes.");
-			}
-			return response.clients;
-		},
-		staleTime: 1000 * 60 * 30, // 30 minutos de cache
-	});
+	//  Buscar lista de clientes com o hook customizado
+	const { data: clients, isLoading: isLoadingClients } = useGetClients();
 
+	//  React Hook Form com Zod para validação
 	const form = useForm<ProjectFormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -116,10 +110,10 @@ export const EditProjectForm = ({
 		}
 	}, [project, form]);
 
+	// Função de submissão do formulário
 	const onSubmit = useCallback(
 		async (values: ProjectFormValues) => {
 			const formData = new FormData();
-			formData.append("id", project.id); // Adiciona o ID do projeto para a atualização
 			formData.append("name", values.name);
 			formData.append("description", values.description || "");
 			formData.append("type", values.type);
@@ -139,80 +133,43 @@ export const EditProjectForm = ({
 				formData.append("clientId", values.clientId);
 			}
 
-			startTransition(async () => {
-				try {
-					const result = await updateProject(project.id, formData); // Use a server action de update
-
-					if (result.success) {
-						toast.success("Projeto atualizado com sucesso!", {
-							autoClose: 3000,
-							theme: "dark",
-						});
-						form.reset(values); // Resetar com os novos valores para manter o estado
+			// Chama a mutação com o ID e o FormData
+			await mutateAsync(
+				{ projectId: project.id, formData },
+				{
+					onSuccess: () => {
+						// Executa a função `onSuccess` passada por prop
 						onSuccess?.();
-					} else {
-						if (result.errors) {
-							Object.entries(result.errors).forEach(([key, value]) => {
-								form.setError(key as keyof ProjectFormValues, {
-									type: "server",
-									message: value as unknown as string,
-								});
-							});
+					},
+					onError: (error) => {
+						if (error.message === "Erro de validação") {
 							toast.error("Erro de validação. Verifique os campos.", {
 								autoClose: 5000,
 								theme: "dark",
 							});
-						} else {
-							toast.error(result.errors || "Erro ao atualizar projeto.", {
-								autoClose: 5000,
-								theme: "dark",
-							});
 						}
-						console.error(
-							"Erro ao enviar formulário:",
-							result.errors || result.errors,
-						);
-					}
-				} catch (error) {
-					toast.error("Ocorreu um erro inesperado. Tente novamente.", {
-						autoClose: 5000,
-						theme: "dark",
-					});
-					console.error("Erro inesperado ao enviar formulário:", error);
-				}
-			});
+					},
+				},
+			);
 		},
-		[form, project.id, onSuccess],
+		[mutateAsync, project.id, onSuccess],
 	);
 
-	// Exibir estados de carregamento e erro para o projeto E clientes
+	// Se o projeto não estiver disponível, mostra um estado de carregamento
 	if (!project) {
 		return (
 			<div className="flex items-center justify-center h-64">
-				<Loader2 className="h-8 w-8 animate-spin" />
-				<span className="ml-2">Carregando dados do projeto...</span>
-			</div>
-		);
-	}
-
-	if (isErrorClients) {
-		console.error("Erro ao carregar clientes para o formulário:", errorClients);
-		toast.error("Não foi possível carregar a lista de clientes.");
-		return (
-			<div className="flex flex-col items-center justify-center p-8 text-center text-destructive">
-				<p className="font-semibold text-lg">Erro ao carregar clientes.</p>
-				<p className="text-sm text-muted-foreground">
-					Por favor, tente novamente mais tarde.
-				</p>
-				<Button onClick={() => window.location.reload()} className="mt-4">
-					Recarregar Página
-				</Button>
+				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+				<span className="ml-2 text-muted-foreground">
+					Carregando dados do projeto...
+				</span>
 			</div>
 		);
 	}
 
 	return (
 		<>
+			{/* Overlay de carregamento durante a submissão */}
 			<LoadingOverlay isLoading={isPending} />
 
 			<Form {...form}>
@@ -387,9 +344,11 @@ export const EditProjectForm = ({
 													}
 												>
 													<span className="truncate">
-														{selectedClient
-															? selectedClient.name
-															: "Selecione um cliente"}
+														{isLoadingClients
+															? "Carregando clientes..."
+															: selectedClient
+																? selectedClient.name
+																: "Selecione um cliente"}
 													</span>
 													<ChevronsUpDown
 														className="ml-2 h-4 w-4 shrink-0 opacity-50"
@@ -401,33 +360,39 @@ export const EditProjectForm = ({
 										<PopoverContent className="w-xl p-0">
 											<Command aria-label="Lista de clientes">
 												<CommandInput placeholder="Buscar cliente..." />
-												<CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
-												<CommandGroup>
-													{clients?.map((client) => (
-														<CommandItem
-															value={client.name}
-															key={client.id}
-															onSelect={() => {
-																form.setValue("clientId", client.id);
-																form.trigger("clientId");
-															}}
-															aria-selected={client.id === field.value}
-														>
-															<Check
-																className={cn(
-																	"mr-2 h-4 w-4",
-																	client.id === field.value
-																		? "opacity-100"
-																		: "opacity-0",
-																)}
-																aria-hidden="true"
-															/>
-															{isLoadingClients
-																? "Carregando..."
-																: `${client.name}`}
-														</CommandItem>
-													))}
-												</CommandGroup>
+												{/* ⭐️ Melhoria 3: Estado de carregamento na lista do Command */}
+												{isLoadingClients ? (
+													<ComboboxLoading />
+												) : clients?.length === 0 ? (
+													<CommandEmpty>
+														Nenhum cliente encontrado.
+													</CommandEmpty>
+												) : (
+													<CommandGroup>
+														{clients?.map((client) => (
+															<CommandItem
+																value={client.name}
+																key={client.id}
+																onSelect={() => {
+																	form.setValue("clientId", client.id);
+																	form.trigger("clientId");
+																}}
+																aria-selected={client.id === field.value}
+															>
+																<Check
+																	className={cn(
+																		"mr-2 h-4 w-4",
+																		client.id === field.value
+																			? "opacity-100"
+																			: "opacity-0",
+																	)}
+																	aria-hidden="true"
+																/>
+																{client.name}
+															</CommandItem>
+														))}
+													</CommandGroup>
+												)}
 											</Command>
 										</PopoverContent>
 									</Popover>

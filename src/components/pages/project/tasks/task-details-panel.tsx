@@ -1,6 +1,5 @@
 "use client";
 
-import { deleteTask, toggleTaskStatus } from "@/actions/task";
 import { ConfirmationDialog } from "@/components/global";
 import { EditTaskModal } from "@/components/pages/project";
 import {
@@ -13,221 +12,71 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui";
-import { useProjectDetailsStore } from "@/store";
+import { useTaskDetailsPanel } from "@/hooks/task";
+import { TaskDetail } from "@/store";
 import { getStatusLabel, getStatusStyles } from "@/utils";
 import type { ProjectStatus as PrismaProjectStatus } from "@prisma/client";
 import { ClipboardList, Edit, Trash, X } from "lucide-react";
-import { useState, useTransition } from "react";
-import { toast } from "react-toastify";
 
-// --- Tipagens ---
-/**
- * @interface TaskDetail
- * @description Define a estrutura detalhada de uma tarefa conforme é consumida pelo componente.
- * Corresponde ao tipo 'TaskDetail' definido no store.
- */
-interface TaskDetail {
-	id: string;
-	projectId: string;
-	title: string;
-	description: string | null;
-	status: "Pendente" | "Em Andamento" | "Concluída"; // Status já formatado do store
-	// Adicione outras propriedades da tarefa se existirem e forem necessárias aqui.
-}
-
-/**
- * @interface TaskDetailsPanelProps
- * @description Propriedades esperadas pelo componente TaskDetailsPanel.
- */
 interface TaskDetailsPanelProps {
-	task: TaskDetail; // Os detalhes da tarefa a serem exibidos/gerenciados
-	onClose: () => void; // Callback para fechar o painel de detalhes
+	task: TaskDetail;
 }
 
-/**
- * @component TaskDetailsPanel
- * @description Componente que exibe os detalhes de uma tarefa, incluindo status,
- * descrição e botões para editar ou deletar a tarefa.
- */
-export function TaskDetailsPanel({ task, onClose }: TaskDetailsPanelProps) {
-	// --- Estados Locais e Transições ---
-	const [isDeleting, startDeleteTransition] = useTransition(); // Para gerenciar o estado de deleção
-	const [isUpdatingStatus, startStatusUpdateTransition] = useTransition(); // Para gerenciar o estado de atualização de status
-	const [showConfirmDialog, setShowConfirmDialog] = useState(false); // Controla a visibilidade do diálogo de confirmação
-	const [showEditModal, setShowEditModal] = useState(false); // Controla a visibilidade do modal de edição
-
-	// --- Acessando as ações do store  ---
-	const clearSelection = useProjectDetailsStore(
-		(state) => state.clearSelection,
-	);
-	const updateSelectedTaskStatus = useProjectDetailsStore(
-		(state) => state.updateSelectedTaskStatus,
-	);
-	const updateSelectedTaskDetails = useProjectDetailsStore(
-		(state) => state.updateSelectedTaskDetails,
-	);
-
-	// --- Helpers Internos ---
-	/**
-	 * @function convertFriendlyStatusToPrisma
-	 * @description Converte o status amigável (UI) de volta para o formato ENUM do Prisma.
-	 * @param {"Pendente" | "Em Andamento" | "Concluída"} friendlyStatus - Status da tarefa no formato amigável.
-	 * @returns {PrismaProjectStatus | null} O status no formato Prisma, ou null se não for reconhecido.
-	 */
-	const convertFriendlyStatusToPrisma = (
-		friendlyStatus: "Pendente" | "Em Andamento" | "Concluída",
-	): PrismaProjectStatus | null => {
-		switch (friendlyStatus) {
-			case "Pendente":
-				return "PENDING";
-			case "Em Andamento":
-				return "IN_PROGRESS";
-			case "Concluída":
-				return "COMPLETED";
-			default:
-				// Caso um status inesperado, retorna null ou lança um erro, dependendo da necessidade de tratamento
-				return null;
-		}
-	};
-
-	// --- Handlers de Ações ---
-
-	/**
-	 * @function handleStatusClick
-	 * @description Lida com o clique no status da tarefa para alterná-lo.
-	 * Converte o status, chama a Server Action e atualiza o store via callback.
-	 */
-	const handleStatusClick = () => {
-		// Validação inicial dos dados da tarefa
-		if (!task.id || !task.projectId) {
-			toast.error("Dados insuficientes para atualizar o status da tarefa.", {
-				autoClose: 3000,
-				theme: "dark",
-			});
-			return;
-		}
-
-		const currentPrismaStatus = convertFriendlyStatusToPrisma(task.status);
-
-		if (!currentPrismaStatus) {
-			toast.error("Status da tarefa não reconhecido para atualização.", {
-				autoClose: 3000,
-				theme: "dark",
-			});
-			return;
-		}
-
-		// Cria FormData para a Server Action
-		const formData = new FormData();
-		formData.append("taskId", task.id);
-		formData.append("currentStatus", currentPrismaStatus);
-		formData.append("projectId", task.projectId);
-
-		// Inicia a transição de atualização de status
-		startStatusUpdateTransition(async () => {
-			const result = await toggleTaskStatus(formData);
-
-			if (result.success) {
-				toast.success("Status atualizado!", { autoClose: 3000, theme: "dark" });
-				// Se a atualização foi bem-sucedida e o novo status está disponível
-				if (result.updatedTask?.status) {
-					updateSelectedTaskStatus(result.updatedTask.status); // Notifica o componente pai/store
-				}
-			} else {
-				console.error("Erro ao atualizar status:", result.errors);
-				toast.error(result.message || "Erro ao atualizar status da tarefa.", {
-					autoClose: 3000,
-					theme: "dark",
-				});
-			}
-		});
-	};
-
-	/**
-	 * @function handleInitiateDelete
-	 * @description Abre o diálogo de confirmação para deletar a tarefa.
-	 */
-	const handleInitiateDelete = () => {
-		setShowConfirmDialog(true);
-	};
-
-	/**
-	 * @function handleConfirmDelete
-	 * @description Executa a ação de deletar a tarefa após a confirmação.
-	 * Exibe toasts de sucesso/erro e aciona o callback de exclusão.
-	 */
-	const handleConfirmDelete = async () => {
-		setShowConfirmDialog(false); // Fecha o diálogo de confirmação
-		startDeleteTransition(async () => {
-			const result = await deleteTask(task.id); // Chama a Server Action de exclusão
-
-			if (result.success) {
-				toast.success("Tarefa deletada com sucesso!", {
-					autoClose: 3000,
-					theme: "dark",
-				});
-				clearSelection(); // Aciona o callback para atualizar o estado pai (e.g., limpar seleção)
-			} else {
-				console.error("Erro ao deletar tarefa:", result.errors);
-				toast.error(result.message || "Erro ao deletar tarefa!", {
-					autoClose: 3000,
-					theme: "dark",
-				});
-			}
-		});
-	};
-
-	/**
-	 * @function handleCancelDelete
-	 * @description Cancela a operação de exclusão, fechando o diálogo de confirmação.
-	 */
-	const handleCancelDelete = () => {
-		setShowConfirmDialog(false);
-	};
-
-	/**
-	 * @function handleOpenEditModal
-	 * @description Abre o modal de edição da tarefa.
-	 */
-	const handleOpenEditModal = () => {
-		setShowEditModal(true);
-	};
-
-	/**
-	 * @function handleCloseEditModal
-	 * @description Fecha o modal de edição da tarefa.
-	 */
-	const handleCloseEditModal = () => {
-		setShowEditModal(false);
-	};
-
-	/**
-	 * @function handleTaskEdited
-	 * @description Callback acionado pelo EditTaskModal após a edição bem-sucedida.
-	 * Passa os detalhes atualizados para o componente pai e fecha o modal.
-	 * @param {Object} updatedDetails - Objeto com o novo título e descrição da tarefa.
-	 */
-	const handleTaskEdited = (updatedDetails: {
-		title: string;
-		description: string | null;
-	}) => {
-		updateSelectedTaskDetails(updatedDetails); // Notifica o componente pai sobre a atualização
-		handleCloseEditModal(); // Fecha o modal de edição
-	};
+export function TaskDetailsPanel({ task }: TaskDetailsPanelProps) {
+	const {
+		isUpdatingStatus,
+		showConfirmDialog,
+		showEditModal,
+		isDeleting,
+		handleStatusClick,
+		handleInitiateDelete,
+		handleConfirmDelete,
+		handleCancelDelete,
+		handleOpenEditModal,
+		handleCloseEditModal,
+		handleTaskEdited,
+		convertFriendlyStatusToPrisma,
+		clearSelection,
+	} = useTaskDetailsPanel(task); // Chama o hook customizado
 
 	// --- Renderização do Componente ---
 	return (
-		<Card>
-			<CardHeader className="flex flex-row items-center justify-between">
-				<CardTitle className="w-full">Detalhes da Tarefa</CardTitle>
-				<div className="flex items-center justify-end gap-2 w-full p-1">
-					{/* Botão para editar a tarefa */}
+		<Card className="shadow-lg rounded-lg">
+			<CardHeader className="flex flex-row items-center justify-between p-4 border-b">
+				{/* Título e status do comentário */}
+				<div className="flex-grow">
+					<CardTitle className="flex items-center gap-2 text-xl font-bold">
+						<ClipboardList className="h-6 w-6 text-primary" />
+						Detalhes da Tarefa
+					</CardTitle>
+					<div className="flex items-center mt-2">
+						<span className="font-bold text-sm mr-2">Status:</span>
+						{task.status && (
+							<span
+								className={`
+                  inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer transition-colors duration-200 ease-in-out
+                  ${getStatusStyles(task.status)}
+                  ${isUpdatingStatus ? "opacity-50 pointer-events-none" : ""}
+                `}
+								onClick={handleStatusClick}
+							>
+								{isUpdatingStatus
+									? "Atualizando..."
+									: getStatusLabel(task.status)}
+							</span>
+						)}
+					</div>
+				</div>
+
+				{/* Botões de ação, alinhados à direita */}
+				<div className="flex items-center gap-2">
+					{/* Botão para editar */}
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Button
-								className="rounded-full w-7 h-7 p-1 hover:scale-95"
+								className="rounded-full w-8 h-8 p-0"
 								onClick={handleOpenEditModal}
-								variant={"secondary"}
+								variant="secondary"
 							>
 								<Edit className="h-4 w-4" aria-label="Editar Tarefa" />
 							</Button>
@@ -235,31 +84,30 @@ export function TaskDetailsPanel({ task, onClose }: TaskDetailsPanelProps) {
 						<TooltipContent>Editar</TooltipContent>
 					</Tooltip>
 
-					{/* Botão para excluir a tarefa */}
+					{/* Botão para deletar */}
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Button
-								className="rounded-full w-7 h-7 p-1 hover:scale-95"
+								className="rounded-full w-8 h-8 p-0"
 								onClick={handleInitiateDelete}
-								variant={"destructive"}
+								variant="destructive"
 								disabled={isDeleting}
 							>
-								<Trash aria-label="Deletar Tarefa" />
+								<Trash className="h-4 w-4" aria-label="Deletar Tarefa" />
 							</Button>
 						</TooltipTrigger>
 						<TooltipContent>Deletar</TooltipContent>
 					</Tooltip>
 
-					{/* Botão para fechar o painel */}
+					{/* Botão para fechar */}
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Button
-								variant={"outline"}
-								onClick={onClose}
-								className="rounded-full w-7 h-7 p-1 hover:scale-95"
+								variant="outline"
+								onClick={clearSelection}
+								className="rounded-full w-8 h-8 p-0"
 							>
-								<X className="h-3 w-3" aria-label="Fechar Painel" />
-								<span className="sr-only">Fechar</span>
+								<X className="h-4 w-4" aria-label="Fechar Painel" />
 							</Button>
 						</TooltipTrigger>
 						<TooltipContent>Fechar</TooltipContent>
@@ -267,55 +115,25 @@ export function TaskDetailsPanel({ task, onClose }: TaskDetailsPanelProps) {
 				</div>
 			</CardHeader>
 
-			<CardContent className="space-y-4">
-				{/* Título da Tarefa */}
-				<h3 className="text-base font-semibold flex items-center gap-1">
-					<ClipboardList className="h-5 w-5 text-primary" />
-					{task.title}
-				</h3>
-
-				{/* Status da Tarefa */}
-				<div className="space-x-1">
-					<span className="font-bold text-sm">Status: </span>
-					{task.status && (
-						// biome-ignore lint/a11y/useFocusableInteractive: <explanation>
-						// biome-ignore lint/a11y/useSemanticElements: <explanation>
-						<span
-							className={`
-                inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer transition-colors duration-200 ease-in-out
-                ${getStatusStyles(task.status)}
-                ${isUpdatingStatus ? "opacity-50 pointer-events-none" : ""}
-              `}
-							onClick={handleStatusClick}
-							role="button" // Indica que o span é interativo
-							aria-live="polite" // Anuncia mudanças para leitores de tela
-							aria-label={`Mudar status da tarefa para ${
-								task.status === "Pendente"
-									? "Em Andamento"
-									: task.status === "Em Andamento"
-										? "Concluída"
-										: "Pendente"
-							}`}
-						>
-							{isUpdatingStatus
-								? "Atualizando..."
-								: getStatusLabel(task.status)}
-						</span>
-					)}
+			<CardContent className="p-4 space-y-4">
+				{/* Título da Tarefa aprimorado */}
+				<div>
+					<h3 className="text-base font-bold text-foreground">Título:</h3>
+					<p className="text-muted-foreground mt-1">{task.title}</p>
 				</div>
 
-				{/* Descrição da Tarefa */}
-				<div className="flex flex-col">
-					{" "}
-					{/* Use flex-col para o label e o parágrafo */}
-					<p className="font-bold mb-1 text-sm">Descrição:</p>
-					<p className="text-muted-foreground break-words whitespace-pre-wrap">
-						{task.description || "Nenhuma descrição."}
-					</p>
+				{/* Descrição da Tarefa em destaque */}
+				<div>
+					<h3 className="text-base font-bold text-foreground">Descrição:</h3>
+					<div className="bg-muted p-4 rounded-md mt-1">
+						<p className="text-sm text-foreground break-words whitespace-pre-wrap">
+							{task.description || "Nenhuma descrição."}
+						</p>
+					</div>
 				</div>
 			</CardContent>
 
-			{/* Diálogo de Confirmação de Exclusão */}
+			{/* Diálogos e Modals */}
 			<ConfirmationDialog
 				isOpen={showConfirmDialog}
 				onConfirm={handleConfirmDelete}
@@ -325,13 +143,16 @@ export function TaskDetailsPanel({ task, onClose }: TaskDetailsPanelProps) {
 				confirmText="Sim, Deletar"
 				cancelText="Não, Cancelar"
 			/>
-
-			{/* Modal de Edição da Tarefa */}
 			{showEditModal && (
 				<EditTaskModal
 					isOpen={showEditModal}
 					onClose={handleCloseEditModal}
-					task={task}
+					task={{
+						...task,
+						status: convertFriendlyStatusToPrisma(
+							task.status,
+						) as PrismaProjectStatus,
+					}}
 					onTaskUpdated={handleTaskEdited}
 				/>
 			)}

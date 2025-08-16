@@ -1,9 +1,9 @@
 "use server";
 
-import db from "@/lib/prisma";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import db from "@/lib/prisma";
 import type { Client, Prisma } from "@prisma/client";
+import { getServerSession } from "next-auth";
 
 /**
  * @interface GetClientsResponse
@@ -39,9 +39,10 @@ export async function getClients(
 	pageSize: number = 10,
 	query: string = "",
 ): Promise<GetClientsResponse> {
+	// Obtém a sessão do usuário autenticado
 	const session = await getServerSession(authOptions);
 	const userId = session?.user.id;
-
+	// Verifica se o usuário está autenticado
 	if (!userId) {
 		console.error(
 			"Server Action: Usuário não autenticado para buscar clientes.",
@@ -55,9 +56,9 @@ export async function getClients(
 	// Garante que page e pageSize são números positivos
 	const validatedPage = Math.max(1, page);
 	const validatedPageSize = Math.max(1, Math.min(100, pageSize));
-
+	// Calcula o número de registros a pular com base na página e no tamanho da página
 	const skip = (validatedPage - 1) * validatedPageSize;
-
+	// Inicializa as condições de busca
 	let searchConditions: Prisma.ClientWhereInput = {};
 
 	// Condições de busca para o Prisma
@@ -67,19 +68,21 @@ export async function getClients(
 				{
 					name: {
 						contains: query,
+						// Ignora maiúsculas e minúsculas na busca
 						mode: "insensitive" as Prisma.QueryMode,
 					},
 				},
 				{
 					email: {
 						contains: query,
+						// Ignora maiúsculas e minúsculas na busca
 						mode: "insensitive" as Prisma.QueryMode,
 					},
 				},
 			],
 		};
 	}
-
+	// Busca os clientes no banco de dados com as condições e paginação
 	try {
 		const totalClients = await db.client.count({
 			where: {
@@ -87,7 +90,7 @@ export async function getClients(
 				...searchConditions,
 			},
 		});
-
+		// Busca os clientes com paginação e ordenação
 		const clients = await db.client.findMany({
 			orderBy: {
 				createdAt: "desc", // Ordenar por criação para ver os mais novos primeiro
@@ -100,9 +103,7 @@ export async function getClients(
 			take: validatedPageSize,
 		});
 
-		console.log(
-			`Server Action: ${clients.length} clientes encontrados para o usuário ${userId}.`,
-		);
+		// Retorna a resposta com os clientes e informações de paginação
 		return {
 			success: true,
 			clients: clients,

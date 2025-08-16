@@ -15,7 +15,10 @@ import z, { ZodError } from "zod"; // Importa ZodError para tratamento de erros 
  * @param {FormData} formData - Os dados do formulário enviados pelo cliente.
  * @returns {Promise<{ success: boolean; errors?: any; message?: string }>} Objeto indicando sucesso/falha, erros de validação ou mensagem de erro geral.
  */
-export async function updateProject(projectId: string, formData: FormData) {
+export async function updateProjectAction(
+	projectId: string,
+	formData: FormData,
+) {
 	try {
 		// 1. Validação dos dados de entrada com Zod
 		// Converte os dados do FormData para um objeto plano que o Zod pode validar.
@@ -67,7 +70,7 @@ export async function updateProject(projectId: string, formData: FormData) {
 
 		// 3. Revalidação do cache
 		// Garante que a página do projeto atualizada seja exibida na próxima requisição
-		revalidatePath(`/projects/${projectId}`);
+		revalidatePath(`/projects/project/${projectId}`);
 
 		// 4. Retorna sucesso
 		return { success: true, message: "Projeto atualizado com sucesso!" };

@@ -1,7 +1,6 @@
 "use client";
 
 import { type CreateTaskInput, TaskSchema } from "@/@types/zod";
-import { addTaskAction } from "@/actions/task";
 import {
 	Button,
 	Dialog,
@@ -19,31 +18,20 @@ import {
 	SelectValue,
 	Textarea,
 } from "@/components/ui";
+import { useAddTask } from "@/hooks/task/use-add-task";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Bounce, toast } from "react-toastify";
 
-// --- Tipagem das Props ---
-/**
- * @interface AddTaskProps
- * @description Propriedades esperadas pelo componente AddTask.
- */
 interface AddTaskProps {
 	projectId: string; // ID do projeto ao qual a tarefa será adicionada
 }
 
-/**
- * @component AddTask
- * @description Componente para adicionar uma nova tarefa a um projeto específico.
- * Utiliza Shadcn UI para o modal e formulário, React Hook Form para gerenciamento
- * de formulário e Zod para validação.
- */
 const AddTask = ({ projectId }: AddTaskProps) => {
 	// --- Estados Locais e Transições ---
 	const [open, setOpen] = useState(false); // Controla a visibilidade do Dialog/Modal
-	const [isPending, startTransition] = useTransition(); // Gerencia o estado de "pending" (carregando) da Server Action
-
+	// --- Hook de Mutação para Adicionar Tarefa ---
+	const { mutate, isPending } = useAddTask();
 	// --- Configuração do React Hook Form ---
 	const form = useForm<CreateTaskInput>({
 		resolver: zodResolver(TaskSchema), // Integração com Zod para validação
@@ -58,64 +46,17 @@ const AddTask = ({ projectId }: AddTaskProps) => {
 	});
 
 	// --- Handlers de Eventos ---
-
-	/**
-	 * @function onSubmit
-	 * @description Lida com o envio do formulário.
-	 * Acionado pelo `form.handleSubmit` do React Hook Form.
-	 * @param {CreateTaskInput} values - Os valores do formulário validados.
-	 */
 	const onSubmit = (values: CreateTaskInput) => {
-		// Validação adicional: garante que projectId esteja sempre presente antes de enviar.
-		// Embora já seja padrão, é uma boa prática de segurança.
 		if (!projectId) {
-			toast.error(
-				"Erro interno: ID do projeto não disponível para adicionar tarefa.",
-				{
-					autoClose: 3000,
-					theme: "dark",
-				},
-			);
 			console.error("ID do projeto não disponível para adicionar tarefa.");
 			return;
 		}
-
-		// Inicia a transição de UI para o estado de "pending"
-		startTransition(async () => {
-			// Chama a Server Action com os valores do formulário, incluindo o projectId
-			const result = await addTaskAction({ ...values, projectId });
-
-			if (result.success) {
-				toast.success("Tarefa cadastrada com sucesso!", {
-					autoClose: 3000,
-					theme: "dark",
-					transition: Bounce,
-				});
-				form.reset(); // Limpa todos os campos do formulário
-				setOpen(false); // Fecha o modal
-			} else {
-				toast.error(result.message || "Erro ao cadastrar tarefa!", {
-					autoClose: 3000,
-					theme: "dark",
-					transition: Bounce,
-				});
-
-				// Se houver erros de validação específicos retornados pela Server Action
-				if (result.errors) {
-					// Itera sobre os erros e os define no formulário para exibição ao usuário
-					for (const key in result.errors) {
-						if (Object.hasOwn(result.errors, key)) {
-							// Garante que 'key' é um nome de campo válido e define o erro
-							form.setError(key as keyof CreateTaskInput, {
-								type: "server",
-								message:
-									result.errors[key as keyof typeof result.errors]?.[0] || // Pega a primeira mensagem de erro, se for um array
-									String(result.errors[key as keyof typeof result.errors]), // Fallback para string direta
-							});
-						}
-					}
-				}
-			}
+		// Chama a função `mutate` do hook do React Query
+		mutate(values, {
+			onSuccess: () => {
+				form.reset();
+				setOpen(false);
+			},
 		});
 	};
 

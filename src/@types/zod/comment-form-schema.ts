@@ -34,3 +34,5 @@ export const editCommentSchema = z.object({
 	id: z.string().optional(),
 	content: z.string().min(10, "O comentário deve ter no mínimo 10 caracteres."),
 });
+
+export type CreateCommentInput = z.infer<typeof commentSchema>;

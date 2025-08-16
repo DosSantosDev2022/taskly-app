@@ -1,3 +1,5 @@
+// src/actions/auth.ts
+
 "use server";
 
 import db from "@/lib/prisma";
@@ -10,6 +12,14 @@ import VerificationEmail from "@/components/global/emails/verification-emails";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/**
+ * @fileoverview Server Actions para autenticação de usuário (registro e verificação de e-mail).
+ */
+
+/**
+ * Esquema de validação Zod para o formulário de registro de usuário.
+ * Define os requisitos para nome, e-mail e senha.
+ */
 const registerSchema = z.object({
 	name: z.string().min(1, "O nome é obrigatório."),
 	email: z.string().email("E-mail inválido.").min(1, "O e-mail é obrigatório."),
@@ -19,6 +29,14 @@ const registerSchema = z.object({
 		.min(1, "A senha é obrigatória."),
 });
 
+/**
+ * Define a estrutura do objeto de estado de formulário retornado após o registro.
+ *
+ * @interface RegisterFormState
+ * @property {boolean} success - Indica se o registro foi bem-sucedido.
+ * @property {string} message - Uma mensagem descritiva para o usuário.
+ * @property {Object.<string, string>} [errors] - Objeto de erros de validação, onde a chave é o nome do campo.
+ */
 type RegisterFormState = {
 	success: boolean;
 	message: string;
@@ -31,13 +49,33 @@ type RegisterFormState = {
 	};
 };
 
+/**
+ * Define a estrutura do objeto de resultado retornado após a verificação de e-mail.
+ *
+ * @interface VerificationResult
+ * @property {boolean} success - Indica se a verificação foi bem-sucedida.
+ * @property {string} message - Uma mensagem descritiva para o usuário.
+ */
 type VerificationResult = {
 	success: boolean;
 	message: string;
 };
 
-/* Registro de usuário com credenciais */
-export async function registerUser(
+/**
+ * Server Action para registrar um novo usuário com credenciais (e-mail e senha).
+ *
+ * Este processo inclui:
+ * 1. Validação dos dados do formulário de registro usando o Zod.
+ * 2. Verificação se o e-mail já está em uso.
+ * 3. Hashing da senha do usuário com `bcryptjs`.
+ * 4. Criação do novo usuário no banco de dados.
+ * 5. Geração de um token de verificação de e-mail e seu armazenamento.
+ * 6. Envio de um e-mail de verificação usando Resend.
+ *
+ * @param {z.infer<typeof registerSchema>} formData - Os dados do formulário de registro, tipados e validados pelo Zod.
+ * @returns {Promise<RegisterFormState>} O estado do formulário de registro, contendo o resultado da operação.
+ */
+export async function registerUserAction(
 	formData: z.infer<typeof registerSchema>,
 ): Promise<RegisterFormState> {
 	try {
@@ -78,7 +116,7 @@ export async function registerUser(
 				name,
 				email,
 				password: hashedPassword,
-				emailVerified: null, // Ainda como null, será atualizado após a verificação do e-mail
+				emailVerified: null,
 			},
 		});
 
@@ -95,22 +133,17 @@ export async function registerUser(
 		});
 
 		const verificationLink = `${process.env.NEXTAUTH_URL}/verify-email?token=${verificationToken}&email=${encodeURIComponent(newUser.email)}`;
-		console.log("verificação:", verificationLink);
-		try {
-			// Renderiza o template de e-mail (se estiver usando React Email)
 
+		try {
 			await resend.emails.send({
-				from: "Acme <onboarding@resend.dev>", // Quem envia o e-mail
-				to: newUser.email, // Quem recebe o e-mail
+				from: "Acme <onboarding@resend.dev>",
+				to: newUser.email,
 				subject: "Verifique seu e-mail para Taskly App",
 				react: VerificationEmail({
 					username: newUser.name,
 					verificationLink: verificationLink,
 				}),
 			});
-			console.log(
-				`E-mail de verificação enviado com sucesso para: ${newUser.email}`,
-			);
 		} catch (emailError) {
 			console.error(
 				"Erro ao enviar e-mail de verificação com Resend:",
@@ -139,7 +172,19 @@ export async function registerUser(
 	}
 }
 
-// Verificação de e-mail após registro de usuário
+/**
+ * Server Action para verificar o e-mail de um usuário.
+ *
+ * Este processo inclui:
+ * 1. Busca o token de verificação no banco de dados.
+ * 2. Valida se o token existe e se não está expirado.
+ * 3. Se o token for válido, atualiza o campo `emailVerified` do usuário.
+ * 4. Remove o token de verificação do banco de dados para evitar reutilização.
+ *
+ * @param {string} token - O token de verificação recebido via URL.
+ * @param {string} email - O e-mail do usuário associado ao token.
+ * @returns {Promise<VerificationResult>} Um objeto com o resultado da verificação.
+ */
 export async function verifyEmailAction(
 	token: string,
 	email: string,
@@ -148,7 +193,6 @@ export async function verifyEmailAction(
 		const verificationToken = await db.verificationToken.findUnique({
 			where: {
 				identifier_token: {
-					// Use o nome do campo composto definido no Prisma
 					identifier: email,
 					token: token,
 				},
@@ -163,6 +207,7 @@ export async function verifyEmailAction(
 		}
 
 		if (new Date() > verificationToken.expires) {
+			// Deleta o token expirado
 			await db.verificationToken.delete({
 				where: {
 					identifier_token: {
@@ -178,6 +223,7 @@ export async function verifyEmailAction(
 			};
 		}
 
+		// Atualiza o usuário para marcar o e-mail como verificado
 		const updatedUser = await db.user.update({
 			where: { email: email },
 			data: { emailVerified: new Date() },
@@ -187,6 +233,7 @@ export async function verifyEmailAction(
 			return { success: false, message: "Usuário não encontrado." };
 		}
 
+		// Deleta o token após a verificação bem-sucedida
 		await db.verificationToken.delete({
 			where: {
 				identifier_token: {

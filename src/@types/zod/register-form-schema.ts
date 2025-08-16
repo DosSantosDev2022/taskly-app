@@ -49,12 +49,7 @@ export const PASSWORD_MIN_LENGTH = 8;
  */
 export const registerSchema = z
 	.object({
-		name: z
-			.string({
-				error: "O nome é obrigatório.",
-			})
-			.trim()
-			.min(1, { message: "O nome é obrigatório." }),
+		name: z.string().trim().min(1, { message: "O nome é obrigatório." }),
 
 		email: z
 			.string()

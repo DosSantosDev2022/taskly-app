@@ -16,11 +16,9 @@ export const clientFormSchema = z.object({
 	 * @description Deve ter no mínimo 2 e no máximo 100 caracteres. Campo obrigatório.
 	 */
 	name: z
-		.string({
-			error: "O nome do cliente é obrigatório.",
-		})
+		.string()
 		.min(2, "O nome do cliente é obrigatório.")
-		.max(100, "O nome não pode exceder 100 caracteres.")
+		.max(30, "O nome não pode exceder 30 caracteres.")
 		.trim(), // Adicionado .trim() para remover espaços em branco no início/fim
 
 	/**
@@ -37,7 +35,7 @@ export const clientFormSchema = z.object({
 	 * @description Deve ter no máximo 20 caracteres. Campo opcional.
 	 * Permite string vazia.
 	 */
-	phone: z
-		.string({ error: "O telefone é obrigatório" })
-		.max(20, "O telefone não pode exceder 20 caracteres."),
+	phone: z.string().max(20, " telefone é obrigatório"),
 });
+
+export type clientFormType = z.infer<typeof clientFormSchema>;

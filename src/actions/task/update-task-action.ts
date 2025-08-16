@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { z, ZodError } from "zod";
 import { revalidatePath } from "next/cache";
+import { z, ZodError } from "zod";
 
 // --- Definição do Schema de Validação com Zod ---
 /**
@@ -78,7 +78,7 @@ export async function updateTask(taskId: string, data: UpdateTaskInput) {
 		// Revalida a rota da página do projeto pai para garantir que a lista de tarefas
 		// ou os detalhes da tarefa na página do projeto mostrem os dados atualizados.
 		revalidatePath(`/projects/${updatedTask.projectId}`);
-
+		revalidatePath(`/projects/project/${updatedTask.projectId}`);
 		// 4. Retorna sucesso
 		return { success: true, message: "Tarefa atualizada com sucesso!" };
 	} catch (error) {

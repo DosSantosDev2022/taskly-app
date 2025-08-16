@@ -3,7 +3,7 @@
 // Secao 1: Importacoes
 import { formSchema } from "@/@types/zod";
 import { getClients } from "@/actions/client";
-import { createProject } from "@/actions/project";
+import { createProjectAction } from "@/actions/project";
 import { LoadingOverlay } from "@/components/global";
 import {
 	Button,
@@ -13,7 +13,6 @@ import {
 	CommandGroup,
 	CommandInput,
 	CommandItem,
-	// Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, // REMOVIDOS - Devem estar no modal
 	Form,
 	FormControl,
 	FormField,
@@ -34,17 +33,17 @@ import {
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Client } from "@prisma/client";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
-import { JSX, useCallback, useTransition } from "react";
+import { JSX, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
-import { toast } from "react-toastify"; // Mantido toastify conforme seu código original, mas sonner é uma boa alternativa
+import { toast } from "react-toastify";
 import z from "zod";
 
-// Secao 2: Constantes e Enums (se aplicavel, extraidos de outros arquivos para reuso)
+// Secao 2: Constantes e Enums
 const PROJECT_TYPES = [
 	{ value: "WEB", label: "Web" },
 	{ value: "MOBILE", label: "Mobile" },
@@ -60,9 +59,9 @@ type ProjectFormValues = z.infer<typeof formSchema>;
 
 // Secao 4: Componente Principal
 const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
-	const [isPending, startTransition] = useTransition();
+	const queryClient = useQueryClient();
 
-	// --- BUSCA DE CLIENTES COM USEQUERY ---
+	// --- BUSCA DE CLIENTES COM USEQUERY (sem alteração) ---
 	const {
 		data: clients,
 		isLoading: isLoadingClients,
@@ -77,7 +76,7 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 			}
 			return response.clients;
 		},
-		staleTime: 1000 * 60 * 5, // 5 minutos de cache
+		staleTime: 1000 * 60 * 5,
 	});
 
 	const form = useForm<ProjectFormValues>({
@@ -94,6 +93,50 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 		mode: "onBlur",
 	});
 
+	// --- MUTACAO PARA CRIAR PROJETO COM USEMUTATION ---
+	const createProjectMutation = useMutation({
+		// A função de mutação que irá chamar a Server Action
+		mutationFn: async (formData: FormData) => {
+			const result = await createProjectAction(formData);
+			if (!result.success) {
+				// Lidar com erros de validação da Server Action
+				if (result.errors) {
+					Object.entries(result.errors).forEach(([key, value]) => {
+						form.setError(key as keyof ProjectFormValues, {
+							type: "server",
+							message: value as string,
+						});
+					});
+				}
+				throw new Error(
+					result.message || "Erro de validação ao criar projeto.",
+				);
+			}
+			return result;
+		},
+		// Executado em caso de sucesso
+		onSuccess: () => {
+			toast.success("Novo projeto adicionado com sucesso!", {
+				autoClose: 3000,
+				theme: "dark",
+			});
+			form.reset();
+			// INVALIDE A QUERY DE PROJETOS PARA ATUALIZAR A TABELA
+			queryClient.invalidateQueries({ queryKey: ["projects"] });
+			onSuccess?.();
+		},
+		// Executado em caso de erro
+		onError: (error) => {
+			// O toast de erro já está no mutationFn, mas podemos adicionar um genérico aqui
+			console.error("Erro ao criar projeto:", error.message);
+			toast.error(error.message, {
+				autoClose: 5000,
+				theme: "dark",
+			});
+		},
+	});
+
+	// A função onSubmit agora apenas prepara os dados e chama a mutação
 	const onSubmit = useCallback(
 		async (values: ProjectFormValues) => {
 			const formData = new FormData();
@@ -116,53 +159,13 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 				formData.append("clientId", values.clientId);
 			}
 
-			startTransition(async () => {
-				try {
-					const result = await createProject(formData);
-
-					if (result.success) {
-						toast.success("Novo projeto adicionado com sucesso!", {
-							autoClose: 3000,
-							theme: "dark",
-						});
-						form.reset();
-						onSuccess?.();
-					} else {
-						if (result.errors) {
-							Object.entries(result.errors).forEach(([key, value]) => {
-								form.setError(key as keyof ProjectFormValues, {
-									type: "server",
-									message: value as string,
-								});
-							});
-							toast.error("Erro de validação. Verifique os campos.", {
-								autoClose: 5000,
-								theme: "dark",
-							});
-						} else {
-							toast.error(result.message || "Erro ao adicionar novo projeto.", {
-								autoClose: 5000,
-								theme: "dark",
-							});
-						}
-						console.error(
-							"Erro ao enviar formulário:",
-							result.errors || result.errors,
-						);
-					}
-				} catch (error) {
-					toast.error("Ocorreu um erro inesperado. Tente novamente.", {
-						autoClose: 5000,
-						theme: "dark",
-					});
-					console.error("Erro inesperado ao enviar formulário:", error);
-				}
-			});
+			// Chama a mutação. O restante da lógica de sucesso/erro é gerenciado pelo useMutation.
+			createProjectMutation.mutate(formData);
 		},
-		[form, onSuccess],
+		[createProjectMutation],
 	);
 
-	// --- RENDERIZAÇÃO CONDICIONAL DO CONTEÚDO ---
+	// --- RENDERIZAÇÃO CONDICIONAL ---
 	if (isErrorClients) {
 		console.error("Erro ao carregar clientes para o formulário:", errorClients);
 		toast.error("Não foi possível carregar a lista de clientes.");
@@ -179,9 +182,14 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 		);
 	}
 
+	const isFormPending = createProjectMutation.isPending || isLoadingClients;
+
 	return (
 		<>
-			<LoadingOverlay message="Cadastrando projeto..." isLoading={isPending} />
+			<LoadingOverlay
+				message="Cadastrando projeto..."
+				isLoading={isFormPending}
+			/>
 
 			<Form {...form}>
 				<form
@@ -200,7 +208,7 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 									<Input
 										placeholder="Ex: Aplicativo de Gerenciamento Financeiro"
 										{...field}
-										disabled={isPending} // Não mais depende de isLoadingClients aqui
+										disabled={isFormPending}
 										aria-label="Nome do projeto"
 									/>
 								</FormControl>
@@ -209,9 +217,8 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 						)}
 					/>
 
-					{/* Campos: Tipo de Projeto e Data de Prazo e preço */}
+					{/* Campos: Tipo de Projeto, Data de Prazo e Preço */}
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-						{/* Campo: Tipo de Projeto */}
 						<FormField
 							name="type"
 							control={form.control}
@@ -221,7 +228,7 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 									<Select
 										onValueChange={field.onChange}
 										defaultValue={field.value}
-										disabled={isPending}
+										disabled={isFormPending}
 									>
 										<FormControl>
 											<SelectTrigger
@@ -244,7 +251,6 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 							)}
 						/>
 
-						{/* Campo: Data de Prazo */}
 						<FormField
 							name="deadlineDate"
 							control={form.control}
@@ -261,7 +267,7 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 														!field.value && "text-muted-foreground",
 														"focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
 													)}
-													disabled={isPending}
+													disabled={isFormPending}
 													aria-label={
 														field.value
 															? `Data de prazo: ${format(field.value, "PPP", { locale: ptBR })}`
@@ -292,7 +298,6 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 							)}
 						/>
 
-						{/* Campo: Preço do projeto */}
 						<FormField
 							name="price"
 							control={form.control}
@@ -316,7 +321,7 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 												field.onChange(numValue === undefined ? 0 : numValue);
 											}}
 											placeholder="Ex: R$ 1.250,00"
-											disabled={isPending}
+											disabled={isFormPending}
 											aria-label="Preço do projeto"
 										/>
 									</FormControl>
@@ -331,7 +336,6 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 						name="clientId"
 						control={form.control}
 						render={({ field }) => {
-							// Aqui clients é garantido como Client[] devido aos checks acima
 							const selectedClient = clients?.find((c) => c.id === field.value);
 							return (
 								<FormItem className="flex flex-col">
@@ -348,7 +352,7 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 														!field.value && "text-muted-foreground",
 														"focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
 													)}
-													disabled={isPending}
+													disabled={isFormPending}
 													aria-label={
 														selectedClient
 															? `Cliente selecionado: ${selectedClient.name}`
@@ -420,7 +424,7 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 									<Textarea
 										placeholder="Descreva o objetivo, escopo e requisitos principais do projeto..."
 										{...field}
-										disabled={isPending}
+										disabled={isFormPending}
 										aria-label="Descrição do projeto"
 										rows={5}
 									/>
@@ -434,9 +438,11 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 					<Button
 						type="submit"
 						className="w-full md:w-auto"
-						disabled={isPending}
+						disabled={isFormPending}
 					>
-						{isPending ? "Criando Projeto..." : "Criar Projeto"}
+						{createProjectMutation.isPending
+							? "Criando Projeto..."
+							: "Criar Projeto"}
 					</Button>
 				</form>
 			</Form>
