@@ -76,7 +76,7 @@ export const useDeleteComment = () => {
 			// Se a Server Action retornar o ID do projeto, invalidamos a query correspondente.
 			const projectId = data.deletedComment?.projectId;
 			if (projectId) {
-				// ⭐️ Invalida a query de comentários do projeto específico para forçar o refetch.
+				// Invalida a query de comentários do projeto específico para forçar o refetch.
 				queryClient.invalidateQueries({
 					queryKey: ["project", projectId, "comments"],
 				});

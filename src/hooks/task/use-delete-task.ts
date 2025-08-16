@@ -1,5 +1,5 @@
 // src/hooks/task/use-delete-task.ts
-import { deleteTask } from "@/actions/task";
+import { deleteTaskAction } from "@/actions/task";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
@@ -31,7 +31,7 @@ interface DeleteTaskResult {
 const deleteTaskMutationFn = async (
 	taskId: string,
 ): Promise<DeleteTaskResult> => {
-	const result = await deleteTask(taskId);
+	const result = await deleteTaskAction(taskId);
 
 	if (!result.success) {
 		const error = new Error(result.message || "Erro ao deletar a tarefa.");

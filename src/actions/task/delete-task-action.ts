@@ -14,9 +14,8 @@ export interface DeleteTaskResult {
 	errors?: Record<string, string[]>;
 }
 
-export async function deleteTask(
+export async function deleteTaskAction(
 	taskId: string,
-	p0: { onSuccess: () => void },
 ): Promise<DeleteTaskResult> {
 	try {
 		const validation = deleteTaskSchema.safeParse(taskId);
@@ -24,13 +23,12 @@ export async function deleteTask(
 		if (!validation.success) {
 			console.error(
 				"Erro de validação ao deletar tarefa:",
-				validation.error.flatten().fieldErrors,
+				z.treeifyError(validation.error),
 			);
 			return {
 				success: false,
 				message:
 					"ID da tarefa inválido. Não foi possível prosseguir com a exclusão.",
-				// ⭐️ CORREÇÃO: O Zod's `fieldErrors` já retorna o tipo correto, então não há necessidade de ajustar aqui.
 				errors: { taskId: validation.error.flatten().formErrors },
 			};
 		}
@@ -66,7 +64,6 @@ export async function deleteTask(
 				success: false,
 				message:
 					"A tarefa especificada não foi encontrada. Pode já ter sido removida.",
-				// ⭐️ CORREÇÃO: Envolvemos a string de erro em um array para corresponder ao tipo `string[]`.
 				errors: { taskId: ["Tarefa não encontrada."] },
 			};
 		}
@@ -75,8 +72,7 @@ export async function deleteTask(
 			return {
 				success: false,
 				message: "Erro de validação dos dados fornecidos.",
-				// ⭐️ CORREÇÃO: O Zod's `fieldErrors` já retorna o tipo correto.
-				errors: error.flatten().fieldErrors,
+				errors: z.treeifyError(error),
 			};
 		}
 
@@ -84,7 +80,6 @@ export async function deleteTask(
 			success: false,
 			message:
 				"Ocorreu um erro interno do servidor ao deletar a tarefa. Por favor, tente novamente.",
-			// ⭐️ CORREÇÃO: Envolvemos a string de erro em um array para corresponder ao tipo `string[]`.
 			errors: { general: ["Erro inesperado do servidor."] },
 		};
 	}

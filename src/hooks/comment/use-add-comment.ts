@@ -49,7 +49,7 @@ export const useAddComment = () => {
 				theme: "dark",
 			});
 
-			// ⭐️ Acessamos o projectId do objeto `data` retornado pela mutação.
+			// Acessamos o projectId do objeto `data` retornado pela mutação.
 			const projectId = data.newComment?.projectId;
 			if (projectId) {
 				queryClient.invalidateQueries({

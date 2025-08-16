@@ -1,12 +1,14 @@
 "use client";
 
-import { deleteProject } from "@/actions/project";
+import { deleteProjectAction } from "@/actions/project";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 /**
- * Hook customizado para deletar um projeto.
- * Encapsula a lógica de mutação, invalidação de cache e feedback para o usuário.
+ * Hook personalizado para lidar com a mutação de exclusão de um projeto.
+ * Utiliza o `useMutation` do TanStack Query para gerenciar o estado da requisição.
+ *
+ * @returns {object} - Um objeto de mutação com métodos e estado para exclusão de projetos.
  */
 export const useDeleteProjectMutation = () => {
 	const queryClient = useQueryClient();
@@ -16,7 +18,7 @@ export const useDeleteProjectMutation = () => {
 			const formData = new FormData();
 			formData.append("projectId", projectId);
 
-			const result = await deleteProject(formData);
+			const result = await deleteProjectAction(formData);
 			if (!result.success) {
 				throw new Error(result.message || "Erro ao deletar projeto!");
 			}

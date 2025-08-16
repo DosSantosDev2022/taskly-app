@@ -3,9 +3,17 @@
 
 import type { ProjectDetails } from "@/@types/project-types";
 import { getProjectById } from "@/actions/project";
-import type { ProjectsApiResponse } from "@/hooks/project/use-get-project-query"; // Importe o tipo da sua resposta de API de lista
+import type { ProjectsApiResponse } from "@/hooks/project";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
+/**
+ * Hook personalizado para buscar detalhes de um único projeto pelo seu ID.
+ * Utiliza o `useQuery` do TanStack Query para gerenciar o estado e caching.
+ * O hook tenta primeiro encontrar o projeto no cache de "projects" antes de fazer uma nova requisição.
+ *
+ * @param {string} projectId - O ID do projeto a ser buscado.
+ * @returns {object} - O objeto de resultado da query, contendo os dados do projeto, estado de carregamento, erros, etc.
+ */
 export const useProjectByIdQuery = (projectId: string) => {
 	const queryClient = useQueryClient();
 
@@ -37,10 +45,6 @@ export const useProjectByIdQuery = (projectId: string) => {
 			// 4. Se não encontrar, retorna `undefined` para que o React Query busque os dados pela rede.
 			return undefined;
 		},
-
-		// Configura o staleTime para que os dados do cache sejam considerados 'frescos'
-		// Isso evita que a busca de rede seja disparada imediatamente
-		// O valor 1000 * 60 (1 minuto) é um bom padrão
-		staleTime: 1000 * 60,
+		staleTime: 1000 * 60 * 60,
 	});
 };

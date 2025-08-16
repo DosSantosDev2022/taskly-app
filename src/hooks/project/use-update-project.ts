@@ -8,8 +8,10 @@ import { toast } from "react-toastify";
 import { updateProjectAction } from "@/actions/project";
 
 /**
- * Hook customizado para gerenciar a mutação de atualização de um projeto.
- * Usa o useMutation do React Query.
+ * Hook personalizado para lidar com a mutação de atualização de um projeto.
+ * Utiliza o `useMutation` do TanStack Query para gerenciar o estado da requisição de atualização.
+ *
+ * @returns {object} - Um objeto de mutação com métodos e estado para a atualização de projetos.
  */
 export const useUpdateProjectMutation = () => {
 	const queryClient = useQueryClient();

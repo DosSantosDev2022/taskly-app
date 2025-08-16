@@ -7,7 +7,27 @@ import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
 import { useDeleteTask } from "./use-delete-task";
 
-// Este hook encapsula toda a lógica de estado e os handlers de evento.
+/**
+ * Hook personalizado para gerenciar o estado e a lógica de um painel de detalhes de tarefa.
+ * Ele lida com as operações de atualização de status, exclusão e edição,
+ * incluindo a exibição de modais e diálogos de confirmação.
+ *
+ * @param {TaskDetail} task - O objeto de detalhes da tarefa selecionada.
+ * @returns {object} Um objeto contendo estados e funções de manipulação para o componente.
+ * @property {boolean} isUpdatingStatus - Indica se a transição de atualização de status está pendente.
+ * @property {boolean} showConfirmDialog - Controla a visibilidade do diálogo de confirmação de exclusão.
+ * @property {boolean} showEditModal - Controla a visibilidade do modal de edição.
+ * @property {boolean} isDeleting - Indica se a operação de exclusão está em andamento.
+ * @property {Function} handleStatusClick - Manipulador para alternar o status da tarefa.
+ * @property {Function} handleInitiateDelete - Inicia o processo de exclusão (mostra o diálogo).
+ * @property {Function} handleConfirmDelete - Confirma a exclusão e executa a mutação.
+ * @property {Function} handleCancelDelete - Cancela a exclusão (esconde o diálogo).
+ * @property {Function} handleOpenEditModal - Abre o modal de edição.
+ * @property {Function} handleCloseEditModal - Fecha o modal de edição.
+ * @property {Function} handleTaskEdited - Atualiza os detalhes da tarefa no estado global e fecha o modal.
+ * @property {Function} convertFriendlyStatusToPrisma - Helper para converter o status amigável para o formato do Prisma.
+ * @property {Function} clearSelection - Limpa a seleção da tarefa no estado global.
+ */
 export function useTaskDetailsPanel(task: TaskDetail) {
 	const [isUpdatingStatus, startStatusUpdateTransition] = useTransition();
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false);

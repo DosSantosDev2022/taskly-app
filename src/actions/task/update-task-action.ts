@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/prisma";
+import { Task } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z, ZodError } from "zod";
 
@@ -30,18 +31,45 @@ const updateTaskSchema = z.object({
  */
 type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 
+// --- Definição das interfaces de retorno da Server Action ---
+/**
+ * @interface UpdateTaskSuccess
+ * @description Interface para o retorno de sucesso da Server Action.
+ */
+interface UpdateTaskSuccess {
+	success: true;
+	message: string;
+	updatedTask: Task;
+}
+
+/**
+ * @interface UpdateTaskError
+ * @description Interface para o retorno de erro da Server Action.
+ */
+interface UpdateTaskError {
+	success: false;
+	message: string;
+	errors?: z.inferFlattenedErrors<typeof updateTaskSchema>["fieldErrors"];
+}
+
+/**
+ * @type UpdateTaskResult
+ * @description Tipo união para o retorno da Server Action.
+ */
+type UpdateTaskResult = UpdateTaskSuccess | UpdateTaskError;
+
 /**
  * @function updateTask
  * @description Server Action para atualizar uma tarefa existente no banco de dados.
- * Valida os dados de entrada, executa a atualização via Prisma e revalida o cache
- * da página do projeto associado à tarefa.
- *
  * @param {string} taskId - O ID único da tarefa a ser atualizada.
- * @param {UpdateTaskInput} data - Um objeto contendo os dados `title` e `description` da tarefa.
- * @returns {Promise<{ success: boolean; message?: string; errors?: Zod.inferFlattenedErrors<typeof updateTaskSchema>['fieldErrors'] }>}
- * Um objeto indicando o status da operação (sucesso/falha), uma mensagem e, em caso de falha, os erros de validação.
+ * @param {UpdateTaskInput} data - Objeto com os dados de `title` e `description`.
+ * @returns {Promise<UpdateTaskResult>} Um objeto indicando o status da operação.
  */
-export async function updateTask(taskId: string, data: UpdateTaskInput) {
+
+export async function updateTask(
+	taskId: string,
+	data: UpdateTaskInput,
+): Promise<UpdateTaskResult> {
 	try {
 		// 1. Validação dos dados de entrada
 		const validatedData = updateTaskSchema.safeParse(data);
@@ -77,10 +105,14 @@ export async function updateTask(taskId: string, data: UpdateTaskInput) {
 		// 3. Revalidação do cache
 		// Revalida a rota da página do projeto pai para garantir que a lista de tarefas
 		// ou os detalhes da tarefa na página do projeto mostrem os dados atualizados.
-		revalidatePath(`/projects/${updatedTask.projectId}`);
+		revalidatePath(`/projects`);
 		revalidatePath(`/projects/project/${updatedTask.projectId}`);
 		// 4. Retorna sucesso
-		return { success: true, message: "Tarefa atualizada com sucesso!" };
+		return {
+			success: true,
+			message: "Tarefa atualizada com sucesso!",
+			updatedTask: updatedTask as Task, // Garante a tipagem correta
+		};
 	} catch (error) {
 		// 5. Tratamento de erros
 		console.error("Falha ao atualizar tarefa:", error);
