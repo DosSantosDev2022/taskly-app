@@ -24,9 +24,7 @@ export const formSchema = z.object({
 	 * @description Campo opcional, com no máximo 5000 caracteres.
 	 * Permite string vazia.
 	 */
-	description: z
-		.string()
-		.max(5000, "A descrição não pode ter mais de 5000 caracteres."),
+	description: z.string().min(1, "Adicione uma descrição para seu projeto."),
 
 	/**
 	 * @property {("WEB" | "MOBILE" | "SISTEMA")} type - Tipo do projeto.

@@ -3,7 +3,7 @@
 
 import { ProjectDetails } from "@/@types/project-types";
 import { formSchema } from "@/@types/zod";
-import { LoadingOverlay } from "@/components/global";
+import { LoadingOverlay, TiptapEditor } from "@/components/global";
 import {
 	Button,
 	Calendar,
@@ -27,7 +27,6 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-	Textarea,
 } from "@/components/ui";
 import { useGetClients } from "@/hooks/clients";
 import { useUpdateProjectMutation } from "@/hooks/project";
@@ -410,12 +409,10 @@ export const EditProjectForm = ({
 							<FormItem>
 								<FormLabel>Descrição</FormLabel>
 								<FormControl>
-									<Textarea
-										placeholder="Descreva o objetivo, escopo e requisitos principais do projeto..."
-										{...field}
+									<TiptapEditor
+										value={field.value}
+										onChange={field.onChange}
 										disabled={isPending}
-										aria-label="Descrição do projeto"
-										rows={5}
 									/>
 								</FormControl>
 								<FormMessage />

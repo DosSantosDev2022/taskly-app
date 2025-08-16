@@ -7,7 +7,7 @@ export * from "./pagination";
 export * from "./user-avatar";
 
 export * from "./emails/verification-emails";
+export * from "./message-errors";
 export * from "./sideBar/app-sidebar";
 export * from "./sideBar/nav-links";
-
-export * from "./message-errors";
+export * from "./tipTap/tip-tap-editor";

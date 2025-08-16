@@ -1,4 +1,5 @@
 import { getProjectById } from "@/actions/project";
+import { TiptapContentRenderer } from "@/components/global/tipTap/tiptap-content-renderer";
 import {
 	DetailCard,
 	DetailsTasksAndComments,
@@ -53,7 +54,7 @@ export default async function ProjectDetailsPage({
 	return (
 		<div className="container mx-auto p-4  grid grid-cols-1 lg:grid-cols-12 gap-6">
 			{/* Coluna Principal (à esquerda em telas grandes): Detalhes e Listas */}
-			<div className="lg:col-span-7 space-y-4 self-start overflow-y-auto max-h-[calc(100vh-theme(spacing.16))] scrollbar-custom p-1 ">
+			<div className="lg:col-span-7 space-y-4 self-start overflow-y-auto max-h-[calc(100vh-theme(spacing.16))] scrollbar-custom  ">
 				{/* Card de Detalhes Básicos do Projeto */}
 				<Card className="rounded-lg shadow-sm">
 					<CardHeader className="">
@@ -163,9 +164,9 @@ export default async function ProjectDetailsPage({
 									Descrição do Projeto
 								</span>
 							</div>
-							<div className="prose dark:prose-invert max-w-none text-base leading-relaxed text-muted dark:text-muted-foreground">
+							<div className="max-w-none text-base leading-relaxed text-muted dark:text-muted-foreground max-h-96 overflow-auto scrollbar-custom">
 								{project.description ? (
-									<p>{project.description}</p>
+									<TiptapContentRenderer content={project.description} />
 								) : (
 									<p className="text-muted-foreground italic">
 										Nenhuma descrição fornecida para este projeto.

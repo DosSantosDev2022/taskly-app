@@ -35,6 +35,16 @@ const buttonVariants = cva(
 	},
 );
 
+/**
+ * @name ButtonProps
+ * @description Propriedades do componente Button.
+ */
+export interface ButtonProps
+	extends React.ComponentProps<"button">,
+		VariantProps<typeof buttonVariants> {
+	asChild?: boolean;
+}
+
 function Button({
 	className,
 	variant,

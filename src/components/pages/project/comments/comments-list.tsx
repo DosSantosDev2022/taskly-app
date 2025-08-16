@@ -18,7 +18,7 @@ const CommentsList = ({ projectId, comments }: ProjectCommentsListProps) => {
 	const selectComment = useProjectDetailsStore((state) => state.selectComment);
 
 	return (
-		<Card className="rounded-lg shadow-sm">
+		<Card className="rounded-lg shadow-sm mb-10">
 			<CardHeader>
 				<div className="flex flex-col sm:flex-row border border-border rounded-md items-center justify-between p-3 gap-2">
 					<CardTitle className="flex items-center gap-1 text-xl font-semibold mb-0 sm:mb-0">

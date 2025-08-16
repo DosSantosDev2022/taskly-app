@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -147,4 +148,66 @@
 .dark .scrollbar-custom::-webkit-scrollbar-thumb {
 	background-color: var(--color-secondary-foreground); /* Cor do polegar clara */
 	border-radius: 8px;
+}
+
+
+/*
+* Adiciona os estilos para as tags do Tiptap usando a classe `prose` e `@apply`.
+* Esta classe é aplicada ao `EditorContent` e irá estilizar todos os elementos internos.
+*/
+.prose {
+  /* Estilização para tags de parágrafo */
+  p {
+    @apply  first:mt-0 last:mb-0 text-base font-light leading-relaxed;
+  }
+  
+  /* Estilização para tags de títulos (H1, H2, H3, etc.) */
+  h1 {
+    @apply text-6xl font-bold mt-8 mb-4 first:mt-0 last:mb-0;
+  }
+  
+  h2 {
+    @apply text-5xl font-semibold mt-4 mb-3 first:mt-0 last:mb-0;
+  }
+
+  h3 {
+    @apply text-4xl font-semibold mt-4 mb-3 first:mt-0 last:mb-0;
+  }
+
+	h4 {
+    @apply text-3xl font-medium mt-4 mb-3 first:mt-0 last:mb-0;
+  }
+
+	h5 {
+    @apply text-2xl font-medium mt-4 mb-3 first:mt-0 last:mb-0;
+  }
+
+	h6 {
+			@apply text-xl font-medium mt-4 mb-3 first:mt-0 last:mb-0;
+		}
+  /* Estilização para listas não ordenadas (<ul>) */
+  ul {
+    @apply list-disc pl-5 my-4;
+  }
+  
+  /* Estilização para listas ordenadas (<ol>) */
+  ol {
+    @apply list-decimal pl-5 my-4;
+  }
+  
+  /* Estilização para itens de lista (<li>) */
+  li {
+    @apply my-1;
+  }
+
+  /* Estilização para negrito (<strong>) e itálico (<em>) */
+  strong {
+    @apply font-bold;
+  }
+  
+  em {
+    @apply italic;
+  }
+
+  /* Adicione outras tags HTML conforme a necessidade do seu editor */
 }

@@ -4,7 +4,7 @@
 import { formSchema } from "@/@types/zod";
 import { getClients } from "@/actions/client";
 import { createProjectAction } from "@/actions/project";
-import { LoadingOverlay } from "@/components/global";
+import { LoadingOverlay, TiptapEditor } from "@/components/global";
 import {
 	Button,
 	Calendar,
@@ -28,7 +28,6 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-	Textarea,
 } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -421,12 +420,10 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps): JSX.Element => {
 							<FormItem>
 								<FormLabel>Descrição</FormLabel>
 								<FormControl>
-									<Textarea
-										placeholder="Descreva o objetivo, escopo e requisitos principais do projeto..."
-										{...field}
+									<TiptapEditor
+										value={field.value}
+										onChange={field.onChange}
 										disabled={isFormPending}
-										aria-label="Descrição do projeto"
-										rows={5}
 									/>
 								</FormControl>
 								<FormMessage />

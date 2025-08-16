@@ -22,6 +22,7 @@ import {
 	formatDate,
 	getStatusLabelProject,
 } from "@/utils";
+import { stripHtmlTags } from "@/utils/html-parser";
 import type { ProjectStatus } from "@prisma/client";
 import { Eye, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -124,7 +125,9 @@ const ProjectTable = (): JSX.Element => {
 									<TableCell>{capitalizeFirstLetter(project.type)}</TableCell>
 									<TableCell>{project.client?.name}</TableCell>
 									<TableCell className="text-sm line-clamp-1 truncate max-w-[240px]">
-										{project.description || "N/A"}
+										{project.description
+											? stripHtmlTags(project.description)
+											: "N/A"}
 									</TableCell>
 									<TableCell className="text-center">
 										<Badge variant={getStatusVariant(project.status)}>
