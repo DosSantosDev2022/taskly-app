@@ -1,6 +1,7 @@
 "use client";
 
 import { ConfirmationDialog } from "@/components/global";
+import { TiptapContentRenderer } from "@/components/global/tipTap/tiptap-content-renderer";
 import { EditTaskModal } from "@/components/pages/project";
 import {
 	Button,
@@ -126,9 +127,7 @@ export function TaskDetailsPanel({ task }: TaskDetailsPanelProps) {
 				<div>
 					<h3 className="text-base font-bold text-foreground">Descrição:</h3>
 					<div className="bg-muted p-4 rounded-md mt-1">
-						<p className="text-sm text-foreground break-words whitespace-pre-wrap">
-							{task.description || "Nenhuma descrição."}
-						</p>
+						<TiptapContentRenderer content={task.description || ""} />
 					</div>
 				</div>
 			</CardContent>

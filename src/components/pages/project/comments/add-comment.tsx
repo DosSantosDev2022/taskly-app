@@ -1,5 +1,6 @@
 "use client";
 import { commentSchema, CreateCommentInput } from "@/@types/zod";
+import { TiptapEditor } from "@/components/global";
 import {
 	Button,
 	Dialog,
@@ -7,7 +8,12 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-	Textarea,
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
 } from "@/components/ui";
 import { useAddComment } from "@/hooks/comment";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -64,20 +70,32 @@ const AddComment = ({ projectId, onCommentAdded }: AddCommentProps) => {
 					<DialogTitle>Novo Comentário</DialogTitle>
 				</DialogHeader>
 				{/* Formulário para entrada do comentário */}
-				<form onSubmit={form.handleSubmit(onSubmit)}>
-					<div className="w-full space-y-3">
-						<Textarea
-							placeholder="Deixe seu comentário..."
-							{...form.register("content")}
-							disabled={isPending} // Desabilita o campo enquanto o envio está pendente
-							aria-label="Conteúdo do comentário" // Acessibilidade
-							rows={5} // Define um número de linhas padrão para o textarea
-						/>
-						<Button className="w-full" type="submit" disabled={isPending}>
-							{isPending ? "Adicionando..." : "Adicionar Comentário"}
-						</Button>
-					</div>
-				</form>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)}>
+						<div className="w-full space-y-3">
+							<FormField
+								name="content"
+								control={form.control}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Descrição</FormLabel>
+										<FormControl>
+											<TiptapEditor
+												value={field.value}
+												onChange={field.onChange}
+												disabled={isPending}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<Button className="w-full" type="submit" disabled={isPending}>
+								{isPending ? "Adicionando..." : "Adicionar Comentário"}
+							</Button>
+						</div>
+					</form>
+				</Form>
 			</DialogContent>
 		</Dialog>
 	);

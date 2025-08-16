@@ -3,7 +3,7 @@
 
 import { cn } from "@/lib/utils";
 import DOMPurify from "dompurify";
-import { JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 
 interface TiptapContentRendererProps {
 	/**
@@ -29,17 +29,24 @@ export const TiptapContentRenderer = ({
 	content,
 	className,
 }: TiptapContentRendererProps): JSX.Element => {
-	// 1. Crie uma instância do DOMPurify.
-	const purifiedContent = DOMPurify.sanitize(content, {
-		// Configurações opcionais para permitir classes CSS do Tailwind
-		ADD_ATTR: ["class"],
-	});
+	const [sanitizedHtml, setSanitizedHtml] = useState("");
+
+	useEffect(() => {
+		// This code will be executed only on the client side after the component is mounted
+		if (content.length === 0) return;
+
+		const domPurify = DOMPurify(window);
+		const cleanHtml = domPurify.sanitize(content); // You might want to pass your markdown-converted HTML here
+		setSanitizedHtml(cleanHtml);
+	}, [content]); // This effect will re-run if the 'text' prop changes
+
+	if (!sanitizedHtml) return <></>; // or some placeholder/loading indicator
 
 	return (
 		<div
 			className={cn("prose dark:prose-invert max-w-none", className)}
 			// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-			dangerouslySetInnerHTML={{ __html: purifiedContent }}
+			dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
 		/>
 	);
 };

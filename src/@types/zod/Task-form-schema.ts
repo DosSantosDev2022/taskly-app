@@ -27,11 +27,7 @@ export const TaskSchema = z.object({
 	 * @property {string} description - Descrição da tarefa.
 	 * @description Obrigatória, com mínimo de 1 e máximo de 1000 caracteres.
 	 */
-	description: z
-		.string()
-		.min(1, "A descrição da tarefa é obrigatória.")
-		.max(1000, "A descrição é muito longa (máximo 1000 caracteres).")
-		.trim(),
+	description: z.string().min(1, "A descrição da tarefa é obrigatória.").trim(),
 	/**
 	 * @property {("PENDING" | "IN_PROGRESS" | "COMPLETED")} status - Status da tarefa.
 	 * @description Obrigatório, deve ser um dos valores pré-definidos para o status.

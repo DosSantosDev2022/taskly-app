@@ -1,6 +1,7 @@
 "use client";
 
 import { ConfirmationDialog } from "@/components/global";
+import { TiptapContentRenderer } from "@/components/global/tipTap/tiptap-content-renderer";
 import { EditCommentForm } from "@/components/pages/project";
 import {
 	Button,
@@ -98,9 +99,7 @@ export function CommentDetailsPanel({ comment }: CommentDetailsPanelProps) {
 
 			<CardContent className="p-4">
 				<div className="bg-muted p-4 rounded-md overflow-y-auto max-h-96 scrollbar-custom">
-					<p className="text-sm text-foreground break-words whitespace-pre-wrap">
-						{comment.content}
-					</p>
+					<TiptapContentRenderer content={comment.content} />
 				</div>
 			</CardContent>
 

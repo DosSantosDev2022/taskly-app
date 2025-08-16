@@ -2,16 +2,20 @@
 
 import { editCommentSchema } from "@/@types/zod";
 import { editCommentAction } from "@/actions/comment";
+import { TiptapEditor } from "@/components/global";
 import {
 	Button,
 	Dialog,
 	DialogContent,
 	DialogDescription,
-	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	Label,
-	Textarea,
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
 } from "@/components/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Comment } from "@prisma/client";
@@ -39,17 +43,14 @@ export function EditCommentForm({
 	const [isPending, startTransition] = useTransition(); // Gerencia o estado de "pending" da Server Action
 
 	// --- Configuração do React Hook Form ---
-	const {
-		register, // Função para registrar inputs do formulário
-		handleSubmit, // Função para lidar com a submissão do formulário
-		formState: { errors }, // Objeto que contém os erros de validação
-		reset, // Função para resetar os valores do formulário
-	} = useForm<EditCommentFormValues>({
+
+	const form = useForm<EditCommentFormValues>({
 		resolver: zodResolver(editCommentSchema), // Integração com Zod para validação
 		defaultValues: {
-			content: comment.content, // Define o conteúdo atual do comentário como valor padrão
+			content: "", // Valor inicial do conteúdo do comentário
 		},
-		mode: "onBlur", // Valida os campos ao perderem o foco
+		// Modo de validação para otimizar a performance (ex: 'onBlur', 'onChange', 'onSubmit')
+		mode: "onBlur", // Validações ao sair do campo
 	});
 
 	// --- Handlers de Eventos ---
@@ -78,14 +79,14 @@ export function EditCommentForm({
 
 	useEffect(() => {
 		if (isOpen) {
-			reset({ content: comment.content });
+			form.reset({ content: comment.content });
 		}
-	}, [isOpen, comment.content, reset]);
+	}, [isOpen, comment.content, form.reset]);
 
 	// --- Renderização do Componente ---
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="sm:max-w-3xl h-full max-h-[90vh]  grid grid-rows-[auto,1fr,auto]">
+			<DialogContent className="sm:max-w-[650px]">
 				<DialogHeader>
 					<DialogTitle>Editar Comentário</DialogTitle>
 					<DialogDescription>
@@ -93,52 +94,35 @@ export function EditCommentForm({
 						terminar.
 					</DialogDescription>
 				</DialogHeader>
-				<form
-					onSubmit={handleSubmit(onSubmit)}
-					className="flex flex-col gap-4 overflow-y-auto scrollbar-custom pr-2"
-				>
-					<div className="grid gap-2">
-						<Label htmlFor="content">Conteúdo</Label>
-						<Textarea
-							id="content"
-							{...register("content")} // Registra o textarea no React Hook Form
-							className="resize-y min-h-[250px]" // Permite redimensionamento vertical, mínimo de 100px
-							disabled={isPending} // Desabilita o campo enquanto o envio está pendente
-							aria-invalid={errors.content ? "true" : "false"} // Acessibilidade: indica se há erro
-							aria-describedby="content-error"
-							rows={5} // Define um número de linhas padrão
-						/>
-						{errors.content && (
-							<p
-								id="content-error"
-								role="alert"
-								className="text-destructive text-sm"
-							>
-								{errors.content.message}
-							</p>
-						)}
-					</div>
-					<DialogFooter>
-						{/* Botão Cancelar */}
-						<Button
-							type="button"
-							variant="outline"
-							onClick={onClose} // Usa o callback onClose para fechar o diálogo
-							disabled={isPending} // Desabilita enquanto a requisição está pendente
-							aria-label="Cancelar edição"
-						>
-							Cancelar
-						</Button>
-						{/* Botão Salvar */}
-						<Button
-							type="submit"
-							disabled={isPending}
-							aria-label="Salvar alterações no comentário"
-						>
-							{isPending ? "Salvando..." : "Salvar alterações"}
-						</Button>
-					</DialogFooter>
-				</form>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)}>
+						<div className="w-full space-y-3 ">
+							<div className=" max-h-96 overflow-auto scrollbar-custom">
+								<FormField
+									name="content"
+									control={form.control}
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Descrição</FormLabel>
+											<FormControl>
+												<TiptapEditor
+													value={field.value}
+													onChange={field.onChange}
+													disabled={isPending}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
+
+							<Button className="w-full" type="submit" disabled={isPending}>
+								{isPending ? "Adicionando..." : "Adicionar Comentário"}
+							</Button>
+						</div>
+					</form>
+				</Form>
 			</DialogContent>
 		</Dialog>
 	);

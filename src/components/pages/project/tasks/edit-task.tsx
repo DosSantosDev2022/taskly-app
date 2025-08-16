@@ -1,6 +1,7 @@
 "use client";
 
 import { TaskSchema } from "@/@types/zod";
+import { TiptapEditor } from "@/components/global";
 import {
 	Button,
 	Dialog,
@@ -16,7 +17,6 @@ import {
 	FormLabel,
 	FormMessage,
 	Input,
-	Textarea,
 } from "@/components/ui";
 import { useUpdateTask } from "@/hooks/task/use-update-task";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -84,7 +84,7 @@ export function EditTaskModal({ isOpen, onClose, task }: EditTaskModalProps) {
 	// --- Renderização do Componente ---
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-[650px]">
 				<DialogHeader>
 					<DialogTitle>Editar Tarefa</DialogTitle>
 					<DialogDescription>
@@ -133,17 +133,10 @@ export function EditTaskModal({ isOpen, onClose, task }: EditTaskModalProps) {
 								<FormItem>
 									<FormLabel>Descrição</FormLabel>
 									<FormControl>
-										<Textarea
-											placeholder="Descrição da tarefa (opcional)"
-											className="resize-y" // Permite redimensionamento vertical
-											{...field}
-											value={field.value || ""} // Garante que o Textarea trate null como string vazia
+										<TiptapEditor
+											value={field.value}
+											onChange={field.onChange}
 											disabled={isPending}
-											aria-invalid={
-												form.formState.errors.description ? "true" : "false"
-											}
-											aria-describedby="description-error"
-											rows={5} // Define um número de linhas padrão
 										/>
 									</FormControl>
 									{form.formState.errors.description && (

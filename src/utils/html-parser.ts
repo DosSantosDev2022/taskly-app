@@ -1,14 +1,14 @@
-// src/utils/html-parser.ts
-
 /**
  * @name stripHtmlTags
- * @description Remove todas as tags HTML de uma string.
- * @param {string} htmlString A string HTML para ser limpa.
- * @returns {string} A string com as tags HTML removidas.
+ * @description Remove todas as tags HTML de uma string de HTML, deixando apenas o texto puro.
+ * @param {string} htmlString - A string de HTML a ser processada.
+ * @returns {string} A string de texto sem as tags HTML.
  */
 export const stripHtmlTags = (htmlString: string): string => {
-	// Cria um novo elemento div para parsear o HTML
-	const doc = new DOMParser().parseFromString(htmlString, "text/html");
-	// Retorna o texto do corpo, que contém apenas o conteúdo textual
-	return doc.body.textContent || "";
+	if (typeof window === "undefined" || !htmlString) {
+		return ""; // Retorna string vazia no servidor para evitar hidratação inconsistente
+	}
+	const div = document.createElement("div");
+	div.innerHTML = htmlString;
+	return div.textContent || div.innerText || "";
 };

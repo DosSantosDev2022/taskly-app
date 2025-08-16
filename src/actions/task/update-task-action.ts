@@ -20,7 +20,6 @@ const updateTaskSchema = z.object({
 		.max(100, "O título não pode ter mais de 100 caracteres."),
 	description: z
 		.string()
-		.max(500, "A descrição não pode ter mais de 500 caracteres.")
 		.nullable() // Permite que a descrição seja nula
 		.transform((val) => (val === "" ? null : val)), // Converte string vazia para null
 });

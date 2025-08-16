@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useProjectDetailsStore } from "@/store";
 import { formatDate } from "@/utils";
+import { stripHtmlTags } from "@/utils/html-parser";
 import type { Comment as PrismaComment } from "@prisma/client";
 import { MessageCircleMore } from "lucide-react";
 
@@ -46,7 +47,7 @@ const CommentsList = ({ projectId, comments }: ProjectCommentsListProps) => {
 									{formatDate(comment.createdAt)}
 								</span>
 								<p className="text-sm text-muted-foreground truncate line-clamp-2">
-									{comment.content}
+									{stripHtmlTags(comment.content)}
 								</p>
 							</Button>
 						))

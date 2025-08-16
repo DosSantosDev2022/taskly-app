@@ -1,6 +1,7 @@
 "use client";
 
 import { type CreateTaskInput, TaskSchema } from "@/@types/zod";
+import { TiptapEditor } from "@/components/global";
 import {
 	Button,
 	Dialog,
@@ -9,25 +10,36 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
 	Input,
-	Label,
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-	Textarea,
 } from "@/components/ui";
 import { useAddTask } from "@/hooks/task/use-add-task";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { JSX, useState } from "react"; // Adicionando JSX para tipagem
 import { useForm } from "react-hook-form";
 
 interface AddTaskProps {
 	projectId: string; // ID do projeto ao qual a tarefa será adicionada
 }
 
-const AddTask = ({ projectId }: AddTaskProps) => {
+/**
+ * @name AddTask
+ * @description Componente para adicionar uma nova tarefa a um projeto.
+ * @param {object} props - As props do componente.
+ * @param {string} props.projectId - O ID do projeto.
+ * @returns {JSX.Element} Um componente de modal para adicionar tarefa.
+ */
+const AddTask = ({ projectId }: AddTaskProps): JSX.Element => {
 	// --- Estados Locais e Transições ---
 	const [open, setOpen] = useState(false); // Controla a visibilidade do Dialog/Modal
 	// --- Hook de Mutação para Adicionar Tarefa ---
@@ -41,7 +53,7 @@ const AddTask = ({ projectId }: AddTaskProps) => {
 			projectId: projectId, // Define o ID do projeto como valor padrão
 			status: "PENDING", // Define o status inicial padrão para "Pendente"
 		},
-		// Modo de validação para otimizar a performance (ex: 'onBlur', 'onChange', 'onSubmit')
+		// Modo de validação para otimizar a performance
 		mode: "onBlur", // Validações ao sair do campo
 	});
 
@@ -64,7 +76,6 @@ const AddTask = ({ projectId }: AddTaskProps) => {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				{/* Botão que abre o modal de adicionar tarefa */}
 				<Button
 					variant="outline"
 					aria-label="Abrir formulário para adicionar nova tarefa"
@@ -72,7 +83,9 @@ const AddTask = ({ projectId }: AddTaskProps) => {
 					Adicionar
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-[650px]">
+				{" "}
+				{/* Aumentando a largura do modal para o editor */}
 				<DialogHeader>
 					<DialogTitle>Nova tarefa</DialogTitle>
 					<DialogDescription>
@@ -80,102 +93,83 @@ const AddTask = ({ projectId }: AddTaskProps) => {
 					</DialogDescription>
 				</DialogHeader>
 				{/* Formulário de adição de tarefa */}
-				<form
-					onSubmit={form.handleSubmit(onSubmit)}
-					className="grid gap-4 py-4"
-				>
-					{/* Campo: Título da Tarefa */}
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="title" className="text-right">
-							Título
-						</Label>
-						<Input
-							id="title"
-							{...form.register("title")} // Registra o input no React Hook Form
-							className="col-span-3"
-							disabled={isPending} // Desabilita enquanto a requisição está pendente
-							aria-invalid={form.formState.errors.title ? "true" : "false"} // Acessibilidade: indica erro
-							aria-describedby="title-error" // Acessibilidade: associa ao parágrafo de erro
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className="grid gap-4 py-4"
+					>
+						{/* Campo: Título da Tarefa */}
+						<FormField
+							name="title"
+							control={form.control}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Título</FormLabel>
+									<FormControl>
+										<Input
+											placeholder="Ex: Criar tela de login"
+											{...field}
+											disabled={isPending}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						{form.formState.errors.title && (
-							<p
-								id="title-error"
-								role="alert"
-								className="col-span-4 text-destructive text-sm"
-							>
-								{form.formState.errors.title.message}
-							</p>
-						)}
-					</div>
 
-					{/* Campo: Descrição da Tarefa */}
-					<div className="grid grid-cols-4 items-start gap-4">
-						<Label htmlFor="description" className="text-right pt-2">
-							Descrição
-						</Label>
-						<Textarea
-							id="description"
-							{...form.register("description")} // Registra o textarea no React Hook Form
-							className="col-span-3"
-							disabled={isPending} // Desabilita enquanto a requisição está pendente
-							aria-invalid={
-								form.formState.errors.description ? "true" : "false"
-							}
-							aria-describedby="description-error"
-							rows={4} // Define um número de linhas padrão para o textarea
+						{/* Campo: Descrição da Tarefa com TiptapEditor */}
+						<FormField
+							name="description"
+							control={form.control}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Descrição</FormLabel>
+									<FormControl>
+										<TiptapEditor
+											value={field.value}
+											onChange={field.onChange}
+											disabled={isPending}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						{form.formState.errors.description && (
-							<p
-								id="description-error"
-								role="alert"
-								className="col-span-4 text-destructive text-sm"
-							>
-								{form.formState.errors.description.message}
-							</p>
-						)}
-					</div>
 
-					{/* Campo: Status da Tarefa (Select) */}
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="status" className="text-right">
-							Status
-						</Label>
-						<Select
-							onValueChange={(value) =>
-								form.setValue(
-									"status",
-									value as "PENDING" | "IN_PROGRESS" | "COMPLETED",
-									{ shouldValidate: true, shouldDirty: true }, // Valida e marca como "dirty" na mudança
-								)
-							}
-							value={form.watch("status")} // Controla o valor do Select com React Hook Form
-							disabled={isPending} // Desabilita enquanto a requisição está pendente
-						>
-							<SelectTrigger
-								className="col-span-3"
-								id="status"
-								aria-label="Status da Tarefa"
-							>
-								<SelectValue placeholder="Selecione um status" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="PENDING">Pendente</SelectItem>
-								<SelectItem value="IN_PROGRESS">Em Andamento</SelectItem>
-								<SelectItem value="COMPLETED">Concluída</SelectItem>
-							</SelectContent>
-						</Select>
-						{form.formState.errors.status && (
-							<p role="alert" className="col-span-4 text-destructive text-sm">
-								{form.formState.errors.status.message}
-							</p>
-						)}
-					</div>
+						{/* Campo: Status da Tarefa (Select) */}
+						<FormField
+							name="status"
+							control={form.control}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Status</FormLabel>
+									<Select
+										onValueChange={field.onChange}
+										defaultValue={field.value}
+										disabled={isPending}
+									>
+										<FormControl>
+											<SelectTrigger>
+												<SelectValue placeholder="Selecione um status" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											<SelectItem value="PENDING">Pendente</SelectItem>
+											<SelectItem value="IN_PROGRESS">Em Andamento</SelectItem>
+											<SelectItem value="COMPLETED">Concluída</SelectItem>
+										</SelectContent>
+									</Select>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
-					{/* Botão de Submissão */}
-					<Button type="submit" disabled={isPending} className="w-full mt-4">
-						{isPending ? "Adicionando..." : "Adicionar Tarefa"}
-					</Button>
-				</form>
+						{/* Botão de Submissão */}
+						<Button type="submit" disabled={isPending} className="w-full mt-4">
+							{isPending ? "Adicionando..." : "Adicionar Tarefa"}
+						</Button>
+					</form>
+				</Form>
 			</DialogContent>
 		</Dialog>
 	);
