@@ -8,6 +8,14 @@ import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import z from "zod";
 
+/**
+ * Resultado da ação de adicionar um comentário.
+ * @interface AddCommentResult
+ * @property {CreateCommentInput} [newComment] - O novo comentário criado, se a ação for bem-sucedida.
+ * @property {boolean} [success] - Indica se a ação foi bem-sucedida.
+ * @property {Record<string, string[]>} [errors] - Um objeto contendo erros de validação, mapeando campos para arrays de mensagens de erro.
+ * @property {string} [message] - Uma mensagem descritiva sobre o resultado da ação.
+ */
 export interface AddCommentResult {
 	newComment?: CreateCommentInput;
 	success?: boolean;
@@ -15,6 +23,13 @@ export interface AddCommentResult {
 	message?: string;
 }
 
+/**
+ * Adiciona um novo comentário a um projeto.
+ * Esta é uma Server Action que valida os dados do comentário, verifica a autenticação do usuário
+ * e cria o comentário no banco de dados.
+ * @param {CreateCommentInput} newComment - Os dados do novo comentário a ser criado, incluindo o conteúdo e o ID do projeto.
+ * @returns {Promise<AddCommentResult>} - O resultado da operação, incluindo o status de sucesso, mensagens e erros de validação.
+ */
 export async function addCommentAction(
 	newComment: CreateCommentInput,
 ): Promise<AddCommentResult> {
