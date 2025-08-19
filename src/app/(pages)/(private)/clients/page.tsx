@@ -6,22 +6,35 @@ import {
 	ClientTable,
 } from "@/components/pages/clients";
 import { Separator } from "@/components/ui/separator";
-import type { JSX } from "react";
 
-interface ClientPageParams {
-	searchParams: {
-		page?: string;
-		pageSize: string;
-		query?: string;
-	};
+/**
+ * @description Interface para tipar os search parameters da página de clientes.
+ */
+interface ClientPageSearchParams {
+	page?: string;
+	pageSize?: string;
+	query?: string;
 }
 
-export default async function ClientPage({
-	searchParams,
-}: ClientPageParams): Promise<JSX.Element> {
-	const currentPage = Number(searchParams?.page) || 1;
-	const pageSize = Number(searchParams?.pageSize) || 10;
-	const searchQuery = searchParams?.query || "";
+/**
+ * @description Interface para tipar as props da página de clientes.
+ */
+interface ClientPageProps {
+	searchParams: Promise<ClientPageSearchParams>;
+}
+
+/**
+ * @description Componente da página de clientes, responsável por exibir a lista de clientes.
+ * @param {ClientPageProps} props - As propriedades da página, incluindo os search parameters.
+ * @returns {JSX.Element} O componente de página.
+ */
+
+export default async function ClientPage({ searchParams }: ClientPageProps) {
+	const resolvedSearchParams = await searchParams;
+
+	const currentPage = Number(resolvedSearchParams?.page) || 1;
+	const pageSize = Number(resolvedSearchParams?.pageSize) || 10;
+	const searchQuery = resolvedSearchParams?.query || "";
 
 	const result = await getClients(currentPage, pageSize, searchQuery);
 

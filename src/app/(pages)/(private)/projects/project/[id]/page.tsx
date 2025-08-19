@@ -34,17 +34,21 @@ import {
 } from "lucide-react";
 import { notFound } from "next/navigation";
 
+/**
+ * @description Interface para tipar os parâmetros da página, envoltos em uma Promise.
+ */
 interface ProjectDetailsPageProps {
-	params: {
+	params: Promise<{
 		id: string; // O ID do projeto a ser exibido, extraído da URL
-	};
+	}>;
 }
 
 export default async function ProjectDetailsPage({
 	params,
 }: ProjectDetailsPageProps) {
+	const resolvedParams = await params;
 	// Busca dos Dados do Projeto (Server Side)
-	const project = await getProjectById(params.id);
+	const project = await getProjectById(resolvedParams.id);
 	// Verificação de Existência do Projeto
 	if (!project) {
 		notFound();

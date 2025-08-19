@@ -10,6 +10,8 @@ import {
 	dehydrate,
 } from "@tanstack/react-query";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProjectsPage() {
 	// Cria uma instância do QueryClient
 	const queryClient = new QueryClient();

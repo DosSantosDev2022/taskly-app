@@ -1,25 +1,25 @@
 "use client";
 
+import { deleteClient } from "@/actions/client";
+import { ConfirmationDialog } from "@/components/global";
+import { EditClientForm } from "@/components/pages/clients";
+import { StatusButtonClient } from "@/components/pages/clients/status-button-client";
 import {
+	Button,
 	Table,
 	TableBody,
 	TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table";
-import { useState, useTransition, type JSX } from "react";
-
-// Assumindo que você terá um tipo Client do Prisma
-import { deleteClient } from "@/actions/client";
-import { ConfirmationDialog } from "@/components/global";
-import { EditClientForm } from "@/components/pages/clients";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui";
-import { Button } from "@/components/ui/button";
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui";
 import type { Client } from "@prisma/client";
 import { Edit, Trash2 } from "lucide-react";
+import { useState, useTransition, type JSX } from "react";
 import { toast } from "react-toastify";
-import { StatusButtonClient } from "./status-button-client";
 
 interface ClientTableProps {
 	clients: Client[];

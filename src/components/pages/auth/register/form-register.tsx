@@ -1,6 +1,6 @@
 "use client";
 import { RegisterFormInputs, registerSchema } from "@/@types/zod";
-import { registerUser } from "@/actions/auth/register";
+import { registerUserAction } from "@/actions/auth/register";
 import {
 	Button,
 	Card,
@@ -52,7 +52,7 @@ const FormRegister = () => {
 		clearErrors();
 		try {
 			// 2. Chamada ao Server Action
-			const result = await registerUser(data);
+			const result = await registerUserAction(data);
 
 			if (!result.success) {
 				// Se houver erros específicos de campo do servidor
