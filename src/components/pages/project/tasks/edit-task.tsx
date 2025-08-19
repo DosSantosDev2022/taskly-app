@@ -37,7 +37,7 @@ interface EditTaskModalProps {
 		description: string | null;
 		status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
 	};
-	onTaskUpdated: (updatedTaskDetails: {
+	onTaskUpdated?: (updatedTaskDetails: {
 		title: string;
 		description: string | null;
 	}) => void; // Callback acionado após a atualização bem-sucedida da tarefa
