@@ -21,6 +21,7 @@ import {
 	capitalizeFirstLetter,
 	formatDate,
 	getStatusLabelProject,
+	getStatusVariant,
 } from "@/utils";
 import { stripHtmlTags } from "@/utils/html-parser";
 import type { ProjectStatus } from "@prisma/client";
@@ -67,20 +68,6 @@ const ProjectTable = (): JSX.Element => {
 	const handleCancelDelete = () => {
 		setShowConfirmDialog(false);
 		setSelectedProject(null);
-	};
-
-	// Função para obter o rótulo do status do projeto
-	const getStatusVariant = (status: ProjectStatus) => {
-		switch (status) {
-			case "COMPLETED":
-				return "default";
-			case "IN_PROGRESS":
-				return "secondary";
-			case "PENDING":
-				return "destructive";
-			default:
-				return "secondary";
-		}
 	};
 
 	if (isError) {

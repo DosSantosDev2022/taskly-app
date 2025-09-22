@@ -23,7 +23,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body
-				className={`${poppins.className} bg-background overflow-y-hidden text-foreground dark scrollbar-custom antialiased`}
+				className={`${poppins.className} bg-background text-foreground dark scrollbar-custom antialiased`}
 			>
 				<QueryProvider>
 					<AuthProvider>
