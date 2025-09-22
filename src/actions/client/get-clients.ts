@@ -59,24 +59,23 @@ export async function getClients(
 	// Calcula o número de registros a pular com base na página e no tamanho da página
 	const skip = (validatedPage - 1) * validatedPageSize;
 	// Inicializa as condições de busca
-	let searchConditions: Prisma.ClientWhereInput = {};
 
 	// Condições de busca para o Prisma
+	let searchConditions = {};
+
 	if (query) {
 		searchConditions = {
 			OR: [
 				{
 					name: {
 						contains: query,
-						// Ignora maiúsculas e minúsculas na busca
-						mode: "insensitive" as Prisma.QueryMode,
+						mode: "insensitive",
 					},
 				},
 				{
 					email: {
 						contains: query,
-						// Ignora maiúsculas e minúsculas na busca
-						mode: "insensitive" as Prisma.QueryMode,
+						mode: "insensitive",
 					},
 				},
 			],

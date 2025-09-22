@@ -80,7 +80,7 @@ export async function getProjects(filters?: GetProjectsFilters): Promise<{
 		const projectsForClient: ProjectDetails[] = projectsRaw.map((project) => ({
 			...project,
 			// Converte Prisma.Decimal para number usando .toNumber()
-			price: project.price.toNumber(),
+			price: project.price,
 		}));
 
 		return {
@@ -134,7 +134,7 @@ export async function getProjectById(
 
 		const projectForClient: ProjectDetails = {
 			...projectRaw,
-			price: projectRaw.price.toNumber(),
+			price: projectRaw.price,
 		};
 
 		return projectForClient;
