@@ -94,7 +94,7 @@
 	--muted-foreground: oklch(0.705 0.015 286.067);
 	--accent: oklch(0.274 0.006 286.033);
 	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
+	--destructive: oklch(0.646 0.222 41.116);
 	--border: oklch(1 0 0 / 10%);
 	--input: oklch(1 0 0 / 15%);
 	--ring: oklch(0.552 0.016 285.938);
@@ -111,6 +111,12 @@
 	--sidebar-accent-foreground: oklch(0.985 0 0);
 	--sidebar-border: oklch(1 0 0 / 10%);
 	--sidebar-ring: oklch(0.552 0.016 285.938);
+}
+
+.dark {
+  --success: oklch(52.7% 0.154 150.069); /* Cor correspondente a 'bg-green-900' */
+  --error: oklch(50.5% 0.213 27.518);   /* Cor correspondente a 'bg-red-900' */
+  --warning: oklch(85.2% 0.199 91.936); /* Cor correspondente a 'bg-yellow-500' */
 }
 
 @layer base {
@@ -210,4 +216,71 @@
   }
 
   /* Adicione outras tags HTML conforme a necessidade do seu editor */
+}
+
+/*
+  Este container nos ajuda a aplicar as variáveis, garantindo que
+  o estilo não vaze para outros lugares.
+*/
+.full-calendar-container {
+  /* Variáveis de Cor do FullCalendar mapeadas para o seu tema escuro */
+
+  /* Cor de fundo principal do calendário, alinhada com seus cards */
+  --fc-page-bg-color: var(--card);
+  --fc-neutral-bg-color: var(--card);
+
+  /* Cor das bordas das células do calendário */
+  --fc-border-color: var(--border);
+  
+  /* Cor de fundo para o dia de "hoje" */
+  --fc-day-today-bg-color: var(--accent);
+  
+  /* Cores dos botões de navegação (prev, next, today) */
+  --fc-button-text-color: var(--foreground);
+  --fc-button-bg-color: var(--secondary);
+  --fc-button-border-color: var(--border);
+  --fc-button-hover-bg-color: var(--muted);
+  --fc-button-hover-border-color: var(--border);
+  --fc-button-active-bg-color: var(--accent);
+  --fc-button-active-border-color: var(--border);
+
+  /* Cor do texto dos eventos */
+  --fc-event-text-color: var(--primary-foreground);
+  
+  /* Estilos para o link de "+X mais eventos" */
+  --fc-more-link-text-color: var(--muted-foreground);
+  --fc-more-link-bg-color: transparent;
+
+  /* Tamanho do ponto em outras visualizações (ex: lista) */
+  --fc-daygrid-event-dot-width: 8px;
+  --fc-list-event-dot-width: 10px;
+}
+
+/* Ajustes finos adicionais para textos */
+
+/* Cor do texto para os dias da semana (Dom, Seg, Ter...) e números dos dias */
+.full-calendar-container .fc-col-header-cell-cushion,
+.full-calendar-container .fc-daygrid-day-number {
+  color: var(--muted-foreground);
+  text-decoration: none; /* Remove sublinhado se houver */
+}
+
+.full-calendar-container .fc-daygrid-day {
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out; /* Adiciona uma transição suave */
+}
+
+/* Estilização base para os eventos (as "barras" das tarefas) */
+.full-calendar-container .fc-event {
+  border-radius: var(--radius-sm); /* Usa o raio de borda do seu tema */
+  padding: 2px 6px;
+  font-size: 0.8rem; /* 12.8px */
+  font-weight: 500;
+  border-width: 1px;
+  border-color: transparent; /* A cor será definida pela variável de cor do evento */
+}
+
+/* Garante que o título do calendário use a cor principal de texto */
+.full-calendar-container .fc-toolbar-title {
+    color: var(--foreground);
 }

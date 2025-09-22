@@ -69,13 +69,11 @@ export async function getClients(
 				{
 					name: {
 						contains: query,
-						mode: "insensitive",
 					},
 				},
 				{
 					email: {
 						contains: query,
-						mode: "insensitive",
 					},
 				},
 			],

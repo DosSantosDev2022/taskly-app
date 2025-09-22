@@ -94,6 +94,7 @@ async function main() {
 							description: faker.lorem.paragraph(2),
 							status: faker.helpers.arrayElement(taskStatuses),
 							userId: mainUser.id,
+							dueDate: faker.date.future({ years: 1 }),
 						})),
 					},
 				},
