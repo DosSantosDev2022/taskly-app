@@ -20,6 +20,7 @@ import {
 } from "@/components/ui";
 import { useUpdateTask } from "@/hooks/task/use-update-task";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { TaskStatus } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -35,7 +36,7 @@ interface EditTaskModalProps {
 		id: string;
 		title: string;
 		description: string | null;
-		status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
+		status: TaskStatus;
 	};
 	onTaskUpdated?: (updatedTaskDetails: {
 		title: string;

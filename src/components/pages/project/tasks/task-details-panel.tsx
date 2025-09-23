@@ -4,6 +4,7 @@ import { ConfirmationDialog } from "@/components/global";
 import { TiptapContentRenderer } from "@/components/global/tipTap/tiptap-content-renderer";
 import { EditTaskModal } from "@/components/pages/project";
 import {
+	Badge,
 	Button,
 	Card,
 	CardContent,
@@ -15,8 +16,7 @@ import {
 } from "@/components/ui";
 import { useTaskDetailsPanel } from "@/hooks/task";
 import { TaskDetail } from "@/store";
-import { getStatusLabel, getStatusStyles } from "@/utils";
-import type { ProjectStatus as PrismaProjectStatus } from "@prisma/client";
+import { getTaskStatusLabel, getTaskStatusVariant } from "@/utils";
 import { ClipboardList, Edit, Trash, X } from "lucide-react";
 
 interface TaskDetailsPanelProps {
@@ -36,7 +36,6 @@ export function TaskDetailsPanel({ task }: TaskDetailsPanelProps) {
 		handleOpenEditModal,
 		handleCloseEditModal,
 		handleTaskEdited,
-		convertFriendlyStatusToPrisma,
 		clearSelection,
 	} = useTaskDetailsPanel(task); // Chama o hook customizado
 
@@ -53,18 +52,17 @@ export function TaskDetailsPanel({ task }: TaskDetailsPanelProps) {
 					<div className="flex items-center mt-2">
 						<span className="font-bold text-sm mr-2">Status:</span>
 						{task.status && (
-							<span
+							<Badge
+								variant={getTaskStatusVariant(task.status)}
 								className={`
-                  inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer transition-colors duration-200 ease-in-out
-                  ${getStatusStyles(task.status)}
                   ${isUpdatingStatus ? "opacity-50 pointer-events-none" : ""}
                 `}
 								onClick={handleStatusClick}
 							>
 								{isUpdatingStatus
 									? "Atualizando..."
-									: getStatusLabel(task.status)}
-							</span>
+									: getTaskStatusLabel(task.status)}
+							</Badge>
 						)}
 					</div>
 				</div>
@@ -148,9 +146,7 @@ export function TaskDetailsPanel({ task }: TaskDetailsPanelProps) {
 					onClose={handleCloseEditModal}
 					task={{
 						...task,
-						status: convertFriendlyStatusToPrisma(
-							task.status,
-						) as PrismaProjectStatus,
+						status: task.status,
 					}}
 					onTaskUpdated={handleTaskEdited}
 				/>

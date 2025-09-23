@@ -1,66 +1,50 @@
-import { ProjectStatus, type Task } from "@prisma/client";
+// src/utils/status-utils.ts (ou outro arquivo de utilitários)
 
-function normalizeStatusString(statusString: string): string {
-	// Converte para maiúsculas e substitui espaços por underscores
-	return statusString.toUpperCase().replace(/\s/g, "_");
-}
+import { ProjectStatus, TaskStatus } from "@prisma/client";
 
-/**
- * @param status O status da tarefa (ex: "Pendente", "Em Andamento", "Concluída").
- * @returns Uma string contendo classes Tailwind CSS para cor de fundo e texto.
- */
-
-export function getStatusStyles(status: string): string {
-	const normalizedStatus = normalizeStatusString(status); // Normaliza o status
-
-	switch (normalizedStatus) {
-		case "PENDENTE":
-			return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-		case "EM_ANDAMENTO":
-			return "bg-yellow-100 text-yellow-800 dark:bg-yellow-500 dark:text-yellow-200";
-		case "CONCLUÍDA":
-			return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-		default:
-			return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
-	}
-}
+// Funções para STATUS DE TAREFAS
+//---------------------------------------------------------
 
 /**
- * @param status O status da tarefa (ex: "Pendente", "Em Andamento", "Concluída").
- * @returns Uma string com o texto amigável do status.
+ * Retorna o rótulo amigável para um status de tarefa.
  */
-export function getStatusLabel(status: string): string {
-	const normalizedStatus = normalizeStatusString(status); // Normaliza o status
-
-	switch (normalizedStatus) {
-		case "PENDENTE":
+export function getTaskStatusLabel(status: TaskStatus): string {
+	switch (status) {
+		case "PENDING":
 			return "Pendente";
-		case "EM_ANDAMENTO":
+		case "IN_PROGRESS":
 			return "Em Andamento";
-		case "CONCLUÍDA":
+		case "COMPLETED":
 			return "Concluída";
 		default:
 			return "Desconhecido";
 	}
 }
 
-export const formatStatus = (status: Task["status"]) => {
+/**
+ * Retorna a variante de estilo para um status de tarefa.
+ */
+export function getTaskStatusVariant(status: TaskStatus) {
 	switch (status) {
-		case "PENDING":
-			return "PENDENTE";
-		case "IN_PROGRESS":
-			return "EM_ANDAMENTO";
 		case "COMPLETED":
-			return "CONCLUÍDA";
+			return "success";
+		case "IN_PROGRESS":
+			return "warning";
+		case "PENDING":
+			return "danger";
 		default:
-			return status;
+			return "secondary";
 	}
-};
+}
 
-export function getStatusLabelProject(status: ProjectStatus): string {
-	switch (
-		status // Já recebendo ProjectStatus, então não precisa normalizar novamente
-	) {
+// Funções para STATUS DE PROJETOS
+//---------------------------------------------------------
+
+/**
+ * Retorna o rótulo amigável para um status de projeto.
+ */
+export function getProjectStatusLabel(status: ProjectStatus): string {
+	switch (status) {
 		case "PENDING":
 			return "Pendente";
 		case "IN_PROGRESS":
@@ -68,40 +52,22 @@ export function getStatusLabelProject(status: ProjectStatus): string {
 		case "COMPLETED":
 			return "Concluído";
 		default:
-			return "Desconhecido"; // Caso algum status novo seja adicionado no futuro e não mapeado
+			return "Desconhecido";
 	}
 }
 
-export function getStatusProjectStyles(status: ProjectStatus): string {
-	switch (
-		status // Já recebendo ProjectStatus, então não precisa normalizar novamente
-	) {
-		case "PENDING":
-			return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-		case "IN_PROGRESS":
-			return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
-		case "COMPLETED":
-			return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-		default:
-			return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
-	}
-}
-
-export const getStatusVariant = (status: ProjectStatus) => {
+/**
+ * Retorna a variante de estilo para um status de projeto.
+ */
+export function getProjectStatusVariant(status: ProjectStatus) {
 	switch (status) {
 		case "COMPLETED":
 			return "success";
 		case "IN_PROGRESS":
-			return "secondary";
+			return "warning";
 		case "PENDING":
-			return "destructive";
+			return "danger";
 		default:
 			return "secondary";
 	}
-};
-
-export type ProjectStatusType =
-	(typeof ProjectStatus)[keyof typeof ProjectStatus];
-
-export const projectStatusArray: ProjectStatusType[] =
-	Object.values(ProjectStatus);
+}

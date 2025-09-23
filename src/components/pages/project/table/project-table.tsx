@@ -20,11 +20,10 @@ import { useProjectStore } from "@/store/use-project-store";
 import {
 	capitalizeFirstLetter,
 	formatDate,
-	getStatusLabelProject,
-	getStatusVariant,
+	getProjectStatusLabel,
+	getProjectStatusVariant,
 } from "@/utils";
 import { stripHtmlTags } from "@/utils/html-parser";
-import type { ProjectStatus } from "@prisma/client";
 import { Eye, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState, type JSX } from "react";
@@ -117,8 +116,8 @@ const ProjectTable = (): JSX.Element => {
 											: "N/A"}
 									</TableCell>
 									<TableCell className="text-center">
-										<Badge variant={getStatusVariant(project.status)}>
-											{getStatusLabelProject(project.status)}
+										<Badge variant={getProjectStatusVariant(project.status)}>
+											{getProjectStatusLabel(project.status)}
 										</Badge>
 									</TableCell>
 									<TableCell>{project.tasks?.length}</TableCell>

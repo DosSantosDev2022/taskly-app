@@ -2,10 +2,11 @@
 "use client";
 
 import { AddTask } from "@/components/pages/project";
+import { Badge } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useProjectDetailsStore } from "@/store";
-import { formatStatus, getStatusLabel, getStatusStyles } from "@/utils";
+import { getTaskStatusLabel, getTaskStatusVariant } from "@/utils";
 import type { Task as PrismaTask } from "@prisma/client";
 import { ClipboardList } from "lucide-react";
 
@@ -42,14 +43,9 @@ const TasksList = ({ projectId, tasks }: ProjectTasksListProps) => {
 								<span className="font-light text-sm truncate pr-2 text-muted-foreground">
 									{task.title}
 								</span>
-								<span
-									className={`
-                    inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                    ${getStatusStyles(formatStatus(task.status))}
-                  `}
-								>
-									{getStatusLabel(formatStatus(task.status))}
-								</span>
+								<Badge variant={getTaskStatusVariant(task.status)}>
+									{getTaskStatusLabel(task.status)}
+								</Badge>
 							</Button>
 						))
 					) : (

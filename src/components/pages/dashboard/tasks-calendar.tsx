@@ -1,70 +1,38 @@
-// src/components/dashboard/MonthViewCalendar.tsx
-
 "use client";
 
-import { useMemo, useState } from "react";
-import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import FullCalendar from "@fullcalendar/react";
+import timeGridPlugin from "@fullcalendar/timegrid";
 import type { Task } from "@prisma/client";
-import { format, isSameDay } from "date-fns";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-// 1. Importe os componentes do Dialog e o useState
+import { Badge } from "@/components/ui/badge";
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { getStatusVariant, getStatusLabelProject } from "@/utils";
+import { useTasksCalendarController } from "@/hooks/dashboard";
+import { getProjectStatusVariant, getTaskStatusLabel } from "@/utils";
+import { twMerge } from "tailwind-merge";
 
 interface MonthViewCalendarProps {
 	tasks: Task[];
 }
 
-const statusColors = {
-	PENDING: "var(--error)",
-	IN_PROGRESS: "var(--warning)",
-	COMPLETED: "var(--success)",
-};
-
 export function TasksCalendar({ tasks }: MonthViewCalendarProps) {
-	// 2. Estados para controlar o modal
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-	const [tasksForSelectedDay, setTasksForSelectedDay] = useState<Task[]>([]);
-
-	const events = useMemo(() => {
-		return tasks
-			.filter((task) => task.dueDate !== null)
-			.map((task) => ({
-				id: task.id,
-				title: task.title,
-				start: task.dueDate!,
-				allDay: true,
-				color: statusColors[task.status],
-				borderColor: statusColors[task.status],
-				textColor: "var(--primary)",
-			}));
-	}, [tasks]);
-
-	// 3. Função para lidar com o clique em um dia do calendário
-	const handleDateClick = (arg: { date: Date }) => {
-		const clickedDate = arg.date;
-
-		// Filtra as tarefas para encontrar as que correspondem ao dia clicado
-		const dayTasks = tasks.filter(
-			(task) => task.dueDate && isSameDay(task.dueDate, clickedDate),
-		);
-
-		// Atualiza os estados
-		setSelectedDate(clickedDate);
-		setTasksForSelectedDay(dayTasks);
-		setIsModalOpen(true); // Abre o modal
-	};
+	const {
+		isModalOpen,
+		setIsModalOpen,
+		selectedDate,
+		tasksForSelectedDay,
+		events,
+		handleDateClick,
+		renderEventContent,
+	} = useTasksCalendarController({ tasks });
 
 	return (
 		<div className="full-calendar-container">
@@ -77,6 +45,7 @@ export function TasksCalendar({ tasks }: MonthViewCalendarProps) {
 					right: "dayGridMonth,timeGridWeek,timeGridDay",
 				}}
 				events={events}
+				eventContent={renderEventContent}
 				height="auto"
 				locale="pt-br"
 				buttonText={{
@@ -86,11 +55,8 @@ export function TasksCalendar({ tasks }: MonthViewCalendarProps) {
 					day: "Dia",
 				}}
 				dayMaxEvents={true}
-				// 4. Conecte a função de clique ao evento do FullCalendar
 				dateClick={handleDateClick}
 			/>
-
-			{/* 5. O Modal (Dialog) para exibir as tarefas */}
 			<Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
 				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
@@ -110,11 +76,15 @@ export function TasksCalendar({ tasks }: MonthViewCalendarProps) {
 									key={task.id}
 									className="p-3 border rounded-lg bg-muted/50"
 								>
-									<p className="font-medium text-sm leading-tight mb-1 text-foreground">
+									<p
+										className={twMerge(
+											`font-medium text-sm leading-tight mb-1 text-foreground`,
+										)}
+									>
 										{task.title}
 									</p>
-									<Badge variant={getStatusVariant(task.status)}>
-										{getStatusLabelProject(task.status)}
+									<Badge variant={getProjectStatusVariant(task.status)}>
+										{getTaskStatusLabel(task.status)}
 									</Badge>
 								</div>
 							))

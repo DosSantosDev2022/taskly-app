@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/lib/auth";
 import db from "@/lib/prisma";
-import { ProjectStatus } from "@prisma/client";
+import { ProjectStatus, TaskStatus } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
 export async function getDashboardData() {
@@ -13,8 +13,8 @@ export async function getDashboardData() {
 		throw new Error("Usuário não autenticado.");
 	}
 
-	// Busca os projetos e clientes em paralelo para mais performance
-	const [projects, clientCount, upcomingTasks] = await Promise.all([
+	// Busca os projetos, clientes e tarefas em paralelo para mais performance
+	const [projects, clientCount, upcomingTasks, tasks] = await Promise.all([
 		db.project.findMany({
 			where: { userId },
 			include: {
@@ -39,25 +39,87 @@ export async function getDashboardData() {
 				dueDate: "asc",
 			},
 		}),
+		db.task.findMany({
+			where: { userId },
+		}),
 	]);
 
 	// --- Processamento dos Dados ---
 
 	// 1. Cálculos dos KPIs
-	const totalRevenue = projects
-		.filter((p) => p.status === ProjectStatus.COMPLETED)
-		.reduce((sum, p) => sum + p.price, 0);
+	const completedProjects = projects.filter(
+		(p) => p.status === ProjectStatus.COMPLETED,
+	);
+	const totalRevenue = completedProjects.reduce((sum, p) => sum + p.price, 0);
 
-	const pendingRevenue = projects
-		.filter((p) => p.status === ProjectStatus.IN_PROGRESS)
-		.reduce((sum, p) => sum + p.price, 0);
-
-	const activeProjectsCount = projects.filter(
+	const pendingProjects = projects.filter(
 		(p) => p.status === ProjectStatus.IN_PROGRESS,
+	);
+	const pendingRevenue = pendingProjects.reduce((sum, p) => sum + p.price, 0);
+
+	const activeProjectsCount = pendingProjects.length;
+
+	const averageProjectRevenue =
+		completedProjects.length > 0 ? totalRevenue / completedProjects.length : 0;
+
+	const completedTasksCount = tasks.filter(
+		(t) => t.status === TaskStatus.COMPLETED,
+	).length;
+	const pendingTasksCount = tasks.filter(
+		(t) => t.status !== TaskStatus.COMPLETED,
 	).length;
 
 	// 2. Projetos Recentes (vamos pegar os 5 mais recentes)
 	const recentProjects = projects.slice(0, 5);
+
+	const completedProjectsWithCompletionDate = projects.filter(
+		(p) => p.status === ProjectStatus.COMPLETED && p.completionDate,
+	);
+
+	// 1 Faturamento por mês (últimos 6 meses)
+
+	const monthlyRevenue = Array(6)
+		.fill(0)
+		.map((_, i) => {
+			const date = new Date();
+			date.setMonth(date.getMonth() - i);
+			const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+			const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+			const revenue = completedProjectsWithCompletionDate
+				.filter(
+					(p) =>
+						p.completionDate &&
+						p.completionDate >= startOfMonth &&
+						p.completionDate <= endOfMonth,
+				)
+				.reduce((sum, p) => sum + p.price, 0);
+
+			const monthName = startOfMonth.toLocaleString("pt-BR", {
+				month: "short",
+			});
+
+			return {
+				name: monthName,
+				total: revenue,
+			};
+		})
+		.reverse();
+
+	// 3. Progresso dos projetos em andamento
+	const projectsWithProgress = pendingProjects.map((project) => {
+		const totalTasks = project.tasks.length;
+		const completedTasks = project.tasks.filter(
+			(task) => task.status === TaskStatus.COMPLETED,
+		).length;
+		const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+		return {
+			id: project.id,
+			name: project.name,
+			progress: Math.round(progress), // Arredondamos para um número inteiro
+		};
+	});
 
 	return {
 		stats: {
@@ -65,8 +127,13 @@ export async function getDashboardData() {
 			pendingRevenue,
 			activeProjectsCount,
 			clientCount,
+			averageProjectRevenue,
+			completedTasksCount,
+			pendingTasksCount,
 		},
 		recentProjects,
 		upcomingTasks,
+		monthlyRevenue,
+		projectsWithProgress,
 	};
 }

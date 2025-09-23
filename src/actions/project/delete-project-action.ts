@@ -56,7 +56,7 @@ export async function deleteProjectAction(formData: FormData) {
 		// Converte o campo 'price' para number ANTES de retornar
 		const serializedDeletedProject = {
 			...deletedProject,
-			price: deletedProject.price.toNumber(), // Ou .toString() se preferir string
+			price: deletedProject.price, // Ou .toString() se preferir string
 			// Garanta que outros campos como Date também sejam serializáveis se houver necessidade
 			createdAt: deletedProject.createdAt.toISOString(),
 			updatedAt: deletedProject.updatedAt.toISOString(),

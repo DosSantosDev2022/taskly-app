@@ -1,8 +1,8 @@
-import { ProjectStatus } from "@prisma/client";
 // --- Hook Customizado para a Lógica da Tarefa ---
 
 import { toggleTaskStatus } from "@/actions/task";
 import { TaskDetail, useProjectDetailsStore } from "@/store";
+import { getTaskStatusLabel } from "@/utils";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
 import { useDeleteTask } from "./use-delete-task";
@@ -44,22 +44,6 @@ export function useTaskDetailsPanel(task: TaskDetail) {
 	);
 	const { mutate: deleteTaskMutation, isPending: isDeleting } = useDeleteTask();
 
-	// Helper para converter o status.
-	const convertFriendlyStatusToPrisma = (
-		friendlyStatus: "Pendente" | "Em Andamento" | "Concluída",
-	): ProjectStatus | null => {
-		switch (friendlyStatus) {
-			case "Pendente":
-				return "PENDING";
-			case "Em Andamento":
-				return "IN_PROGRESS";
-			case "Concluída":
-				return "COMPLETED";
-			default:
-				return null;
-		}
-	};
-
 	// Handler para a mudança de status.
 	const handleStatusClick = () => {
 		if (!task.id || !task.projectId) {
@@ -69,7 +53,7 @@ export function useTaskDetailsPanel(task: TaskDetail) {
 			});
 			return;
 		}
-		const currentPrismaStatus = convertFriendlyStatusToPrisma(task.status);
+		const currentPrismaStatus = getTaskStatusLabel(task.status);
 		if (!currentPrismaStatus) {
 			toast.error("Status da tarefa não reconhecido para atualização.", {
 				autoClose: 3000,
@@ -132,7 +116,6 @@ export function useTaskDetailsPanel(task: TaskDetail) {
 		handleOpenEditModal,
 		handleCloseEditModal,
 		handleTaskEdited,
-		convertFriendlyStatusToPrisma,
 		clearSelection,
 	};
 }

@@ -1,14 +1,14 @@
 // prisma/seed.ts
 
 // 1. Importe o bcrypt
-import * as bcrypt from "bcrypt";
+import { faker } from "@faker-js/faker/locale/pt_BR";
 import {
 	PrismaClient,
 	ProjectStatus,
 	ProjectType,
 	TaskStatus,
 } from "@prisma/client";
-import { faker } from "@faker-js/faker/locale/pt_BR";
+import * as bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -77,6 +77,18 @@ async function main() {
 	const taskStatuses = Object.values(TaskStatus);
 
 	for (let i = 0; i < 20; i++) {
+		// 4a. Gere um status aleatório
+		const status = faker.helpers.arrayElement(projectStatuses);
+
+		// 4b. Defina a completionDate com base no status
+		// Se o status for COMPLETED, defina a data de conclusão como uma data aleatória no passado
+		// Caso contrário, será 'undefined' e não será incluída no objeto.
+
+		const completionDate =
+			status === ProjectStatus.COMPLETED
+				? faker.date.recent({ days: 180 })
+				: undefined;
+
 		const project = await prisma.project.create({
 			data: {
 				name: faker.commerce.productName() + " Project",
@@ -85,6 +97,7 @@ async function main() {
 				deadlineDate: faker.date.future(),
 				type: faker.helpers.arrayElement(projectTypes),
 				status: faker.helpers.arrayElement(projectStatuses),
+				completionDate: completionDate,
 				userId: mainUser.id,
 				clientId: createdClients[i].id,
 				tasks: {

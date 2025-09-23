@@ -1,28 +1,5 @@
+import type { Comment, Task, TaskStatus } from "@prisma/client";
 import { create } from "zustand";
-import type { Task, Comment } from "@prisma/client";
-
-// --- Helpers ---
-/**
- * @function formatStatus
- * @description Converte o status da tarefa do formato Prisma ENUM para um formato amigável para exibição na UI.
- * @param {Task["status"]} status - O status da tarefa vindo do Prisma.
- * @returns {string} O status formatado (e.g., "Pendente", "Em Andamento").
- */
-const formatStatus = (
-	status: Task["status"],
-): "Pendente" | "Em Andamento" | "Concluída" => {
-	switch (status) {
-		case "PENDING":
-			return "Pendente";
-		case "IN_PROGRESS":
-			return "Em Andamento";
-		case "COMPLETED":
-			return "Concluída";
-		default:
-			// Fallback para status inesperados, mantendo a consistência do tipo.
-			return status as "Pendente" | "Em Andamento" | "Concluída";
-	}
-};
 
 // --- Tipagens do Estado ---
 /**
@@ -33,7 +10,7 @@ export interface TaskDetail {
 	type: "task";
 	id: string;
 	title: string;
-	status: "Pendente" | "Em Andamento" | "Concluída"; // Status já formatado
+	status: TaskStatus; // Status já formatado
 	description: string | null;
 	projectId: string;
 }
@@ -137,7 +114,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
 				type: "task",
 				id: task.id,
 				title: task.title,
-				status: formatStatus(task.status), // Formata o status para a UI
+				status: task.status, // Formata o status para a UI
 				description: task.description,
 				projectId: task.projectId,
 			},
@@ -163,7 +140,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
 		set((state) => {
 			// Verifica se o item selecionado é uma tarefa antes de atualizar
 			if (state.selectedItem?.type === "task") {
-				const newFormattedStatus = formatStatus(newPrismaStatus); // Formata o novo status
+				const newFormattedStatus = newPrismaStatus; // Formata o novo status
 
 				return {
 					selectedItem: {

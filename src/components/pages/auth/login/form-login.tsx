@@ -47,14 +47,14 @@ const FormLogin = () => {
 			});
 
 			if (result?.error) {
-				setError(result.error); // Mostra o erro do Next-Auth (e.g., "Credenciais inválidas")
+				setError(result.error);
 				console.error("Erro de login:", result.error);
 			} else if (result?.ok) {
 				toast("Login efetuado com sucesso!", {
 					autoClose: 3000,
 					theme: "dark",
 				});
-				router.push("/projects"); // Ou router.refresh() para recarregar a sessão
+				router.push("/dashboard");
 				reset();
 			}
 		} catch (err) {

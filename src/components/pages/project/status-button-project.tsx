@@ -1,7 +1,7 @@
 "use client";
 
 import { toggleProjectStatusAction } from "@/actions/project";
-import { getStatusLabelProject, getStatusProjectStyles } from "@/utils";
+import { getProjectStatusLabel, getProjectStatusVariant } from "@/utils";
 import type { ProjectStatus } from "@prisma/client";
 import { useTransition } from "react";
 import { toast } from "react-toastify";
@@ -40,11 +40,11 @@ const StatusButtonProject = ({
 			onClick={handleClick}
 			className={`
         items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer
-        ${getStatusProjectStyles(currentStatus)}
+        ${getProjectStatusVariant(currentStatus)}
         ${isPending ? "opacity-70 cursor-not-allowed" : "hover:opacity-80"}
       `}
 		>
-			{isPending ? "Atualizando..." : getStatusLabelProject(currentStatus)}
+			{isPending ? "Atualizando..." : getProjectStatusLabel(currentStatus)}
 		</span>
 	);
 };

@@ -1,6 +1,9 @@
 // src/app/dashboard/page.tsx
 
-import { getDashboardData } from "@/lib/dashboard-data";
+import { RevenueChart } from "@/components/pages/dashboard/revenue-chart";
+import { TasksCalendar } from "@/components/pages/dashboard/tasks-calendar";
+import { Progress } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Table,
@@ -10,33 +13,33 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { DollarSign, Package, Users, BarChart, PlusCircle } from "lucide-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { formatPrice, getStatusLabelProject, getStatusVariant } from "@/utils";
-import { TasksCalendar } from "@/components/pages/dashboard/tasks-calendar";
-import { Button } from "@/components/ui";
+import { getDashboardData } from "@/lib/dashboard-data";
+import {
+	formatPrice,
+	getProjectStatusLabel,
+	getProjectStatusVariant,
+} from "@/utils";
+import { ClipboardCheck, DollarSign, Package, TrendingUp } from "lucide-react";
 
 export default async function DashboardPage() {
-	const { stats, recentProjects, upcomingTasks } = await getDashboardData();
+	const {
+		stats,
+		recentProjects,
+		upcomingTasks,
+		monthlyRevenue,
+		projectsWithProgress,
+	} = await getDashboardData();
 
 	return (
-		// Container principal com mais preenchimento (padding)
 		<div className="flex-1 space-y-8 p-8 pt-6">
 			{/* 1. Header da Página */}
 			<div className="flex items-center justify-between space-y-2">
 				<h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-				<div className="flex items-center space-x-2">
-					<Button>
-						<PlusCircle className="mr-2 h-4 w-4" /> Criar Novo Projeto
-					</Button>
-				</div>
 			</div>
 
 			{/* 2. KPIs em um Grid próprio */}
-			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+				{/* Card de Faturamento Total */}
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 						<CardTitle className="text-sm font-medium">
@@ -49,14 +52,34 @@ export default async function DashboardPage() {
 							{formatPrice(stats.totalRevenue)}
 						</div>
 						<p className="text-xs text-muted-foreground">
-							Total de projetos concluídos
+							De {stats.activeProjectsCount} projetos concluídos
 						</p>
 					</CardContent>
 				</Card>
+
+				{/* Card de Faturamento Médio por Projeto */}
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 						<CardTitle className="text-sm font-medium">
-							Projetos em Andamento
+							Valor Médio do Projeto
+						</CardTitle>
+						<TrendingUp className="h-4 w-4 text-muted-foreground" />
+					</CardHeader>
+					<CardContent>
+						<div className="text-2xl font-bold">
+							{formatPrice(stats.averageProjectRevenue)}
+						</div>
+						<p className="text-xs text-muted-foreground">
+							Média de todos os projetos concluídos
+						</p>
+					</CardContent>
+				</Card>
+
+				{/* Card de Projetos em Andamento */}
+				<Card>
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+						<CardTitle className="text-sm font-medium">
+							Projetos Ativos
 						</CardTitle>
 						<Package className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
@@ -69,18 +92,48 @@ export default async function DashboardPage() {
 						</p>
 					</CardContent>
 				</Card>
+
+				{/* Card de Tarefas */}
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 						<CardTitle className="text-sm font-medium">
-							Total de Clientes
+							Total de Tarefas
 						</CardTitle>
-						<Users className="h-4 w-4 text-muted-foreground" />
+						<ClipboardCheck className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">+{stats.clientCount}</div>
+						<div className="text-2xl font-bold">
+							{stats.completedTasksCount} /{" "}
+							{stats.completedTasksCount + stats.pendingTasksCount}
+						</div>
 						<p className="text-xs text-muted-foreground">
-							Clientes ativos na plataforma
+							Tarefas concluídas / Total
 						</p>
+					</CardContent>
+				</Card>
+			</div>
+
+			<div className="lg:col-span-1 flex flex-col gap-8">
+				{/* Card de Faturamento Mensal (para um gráfico de barras) */}
+				<RevenueChart data={monthlyRevenue} />
+
+				{/* Card de Progresso dos Projetos */}
+				<Card className="bg-card/20">
+					<CardHeader>
+						<CardTitle>Progresso dos Projetos</CardTitle>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						{projectsWithProgress.map((project) => (
+							<div key={project.id} className="space-y-2">
+								<div className="flex items-center justify-between">
+									<span className="font-medium text-sm">{project.name}</span>
+									<span className="text-sm text-muted-foreground">
+										{project.progress}%
+									</span>
+								</div>
+								<Progress value={project.progress} className="h-2" />
+							</div>
+						))}
 					</CardContent>
 				</Card>
 			</div>
@@ -103,7 +156,7 @@ export default async function DashboardPage() {
 								<TableHeader>
 									<TableRow>
 										<TableHead>Projeto</TableHead>
-										<TableHead>Status</TableHead>
+										<TableHead className="text-right">Status</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -115,9 +168,11 @@ export default async function DashboardPage() {
 													{project.client?.name}
 												</div>
 											</TableCell>
-											<TableCell>
-												<Badge variant={getStatusVariant(project.status)}>
-													{getStatusLabelProject(project.status)}
+											<TableCell className="text-right">
+												<Badge
+													variant={getProjectStatusVariant(project.status)}
+												>
+													{getProjectStatusLabel(project.status)}
 												</Badge>
 											</TableCell>
 										</TableRow>
