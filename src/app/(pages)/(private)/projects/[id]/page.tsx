@@ -1,4 +1,4 @@
-import { getProjectById } from "@/actions/project";
+import { ProjectDetails } from "@/@types/project-types";
 import { TiptapContentRenderer } from "@/components/global/tipTap/tiptap-content-renderer";
 import {
 	DetailCard,
@@ -32,23 +32,66 @@ import {
 	Text,
 	User,
 } from "lucide-react";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 /**
- * @description Interface para tipar os parâmetros da página, envoltos em uma Promise.
+ * @description Interface para tipar os parâmetros da página.
  */
 interface ProjectDetailsPageProps {
-	params: Promise<{
-		id: string; // O ID do projeto a ser exibido, extraído da URL
-	}>;
+	params: {
+		id: string;
+	};
 }
 
 export default async function ProjectDetailsPage({
 	params,
 }: ProjectDetailsPageProps) {
-	const resolvedParams = await params;
-	// Busca dos Dados do Projeto (Server Side)
-	const project = await getProjectById(resolvedParams.id);
+	const cookieHeader = (await headers()).get("cookie") || "";
+	const requestHeaders = { Cookie: cookieHeader };
+
+	// Função para buscar dados da nova API
+	const fetchProjectById = async (
+		id: string,
+	): Promise<ProjectDetails | null> => {
+		try {
+			// Use uma URL padrão para o ambiente de desenvolvimento
+			const baseUrl =
+				process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+			const url = new URL(`${baseUrl}/api/projects/${id}`);
+
+			const response = await fetch(url.toString(), {
+				headers: requestHeaders,
+				next: { tags: [`projects/${id}`] },
+			});
+
+			// Se a resposta for 404, significa que o projeto não foi encontrado.
+			// Retornamos null para que o notFound() seja chamado.
+			if (response.status === 404) {
+				return null;
+			}
+
+			// Se a resposta não for ok (mas não é 404), lança um erro.
+			if (!response.ok) {
+				console.error(
+					"Erro na resposta da API:",
+					response.status,
+					response.statusText,
+				);
+				throw new Error("Erro ao buscar o projeto.");
+			}
+
+			// Se tudo estiver ok, retorna o JSON
+			return response.json();
+		} catch (error) {
+			console.error(`Erro ao fazer a requisição para o projeto ${id}:`, error);
+			throw new Error("Não foi possível carregar os detalhes do projeto.");
+		}
+	};
+
+	// Busca dos Dados do Projeto
+	const project = await fetchProjectById((await params).id);
+
 	// Verificação de Existência do Projeto
 	if (!project) {
 		notFound();

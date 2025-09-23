@@ -1,30 +1,13 @@
-import { getProjects } from "@/actions/project";
+// Remova todas as importações e lógicas do React Query aqui
 import {
 	AddProjectModal,
 	ProjectFilters,
 	ProjectTable,
 } from "@/components/pages/project";
-import {
-	HydrationBoundary,
-	QueryClient,
-	dehydrate,
-} from "@tanstack/react-query";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProjectsPage() {
-	// Cria uma instância do QueryClient
-	const queryClient = new QueryClient();
-	// Pré-busca os projetos do usuário
-	await queryClient.prefetchQuery({
-		queryKey: ["projects", { page: 1, pageSize: 10 }],
-		queryFn: () => getProjects({}),
-		staleTime: 1000 * 60 * 30, // 30 minutos
-	});
-
-	// Desidrata o cache para ser passado para o cliente
-	const dehydratedState = dehydrate(queryClient);
-
+export default function ProjectsPage() {
 	return (
 		<div
 			className="flex flex-col p-8 min-h-[calc(100vh-theme(spacing.16))]"
@@ -49,11 +32,7 @@ export default async function ProjectsPage() {
 							</div>
 						</div>
 						<div className="grid grid-cols-1 gap-6">
-							{/* Envolve o componente ProjectTable com HydrationBoundary */}
-							{/* Isso garante que o estado desidratado seja usado corretamente */}
-							<HydrationBoundary state={dehydratedState}>
-								<ProjectTable />
-							</HydrationBoundary>
+							<ProjectTable />
 						</div>
 					</section>
 				</div>

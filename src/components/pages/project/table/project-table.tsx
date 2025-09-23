@@ -134,7 +134,7 @@ const ProjectTable = (): JSX.Element => {
 											<TooltipTrigger asChild>
 												<Button variant="ghost" size="icon" asChild>
 													<Link
-														href={`/projects/project/${project.id}`}
+														href={`/projects/${project.id}`}
 														aria-label={`Ver detalhes de ${project.name}`}
 													>
 														<Eye className="h-4 w-4" />
